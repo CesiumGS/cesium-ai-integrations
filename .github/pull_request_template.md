@@ -1,7 +1,7 @@
 <!--
 Thanks for the Pull Request!
 
-Please review [Contribution Guide](https://github.com/CesiumGS/cesium/blob/main/CONTRIBUTING.md) before opening your first Pull Request.
+Please review [Contribution Guide](https://github.com/CesiumGS/cesium-ai-integrations/blob/main/CONTRIBUTING.md) before opening your first Pull Request.
 
 -->
 
