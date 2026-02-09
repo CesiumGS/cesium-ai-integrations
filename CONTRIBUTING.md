@@ -15,7 +15,12 @@ Everyone is welcome to contribute to Cesium! In addition to writing code, we app
 
 ### Contributor License Agreement (CLA)
 
-Before we can review a pull request in our open source repos, we require a signed Contributor License Agreement. You can find the forms in the [CLAs folder](./CLAs).
+Before we can review a pull request, we require a signed Contributor License Agreement. There is a CLA for:
+
+- [individuals](https://docs.google.com/forms/d/e/1FAIpQLScU-yvQdcdjCFHkNXwdNeEXx5Qhu45QXuWX_uF5qiLGFSEwlA/viewform) and
+- [corporations](https://docs.google.com/forms/d/e/1FAIpQLSeYEaWlBl1tQEiegfHMuqnH9VxyfgXGyIw13C2sN7Fj3J3GVA/viewform).
+
+This only needs to be completed once, and enables contributions to all of the projects under the [CesiumGS](https://github.com/CesiumGS) organization, including cesium-ai-integrations. The CLA ensures you retain copyright to your contributions, and provides us the right to use, modify, and redistribute your contributions using the [Apache 2.0 License](LICENSE.md).
 
 ### Code of Conduct
 
