@@ -19,6 +19,7 @@
     "camera",
     "3d"
   ],
+  "license": "Apache-2.0",
   "exports": {
     ".": "./build/index.js",
     "./tools/camera-tools": "./build/tools/camera-tools.js"

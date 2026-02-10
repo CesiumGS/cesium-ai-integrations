@@ -17,6 +17,7 @@
     "clean": "rimraf build",
     "dev": "tsc --watch"
   },
+  "license": "Apache-2.0",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.26.0",
     "cors": "^2.8.6",
