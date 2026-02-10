@@ -4,7 +4,7 @@
 
 ---
 
-Cesium AI Integrations is a collection of reference integrations, experiments, and patterns that connect the Cesium ecosystem with AI systems such as LLMs, retrieval pipelines, and agent workflows. The goal is to help teams build geospatially aware applications that can reason about 3D data and geospatial context.
+Cesium AI Integrations is a collection of reference integrations, experiments, and patterns that connect the Cesium ecosystem with AI systems such as LLMs, retrieval pipelines, and agent workflows. The goal is to help developers build geospatially aware applications that can reason about 3D data and geospatial context.
 
 Built on open standards, these integrations are designed to be modular, composable, and easy to adapt for real-world products.
 
