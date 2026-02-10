@@ -2,6 +2,9 @@
 
 This directory contains Model Context Protocol servers and applications that integrate with Cesium's 3D geospatial platform.
 
+## 📦 Available MCP Servers
+
+- **[cesium-context7](servers/cesium-context7/)** - Real-time access to Cesium documentation and code examples. Includes agent skills for VS Code and Claude Code.
 
 ## 🚀 Getting Started
 
