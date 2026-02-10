@@ -1,0 +1,16 @@
+{
+  "name": "@cesium-mcp/poc",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PoC apps for Cesium MCP servers containing shared core, web app, and electron app",
+  "scripts": {
+    "build": "pnpm --filter @cesium-mcp/client-core build && pnpm --filter @cesium-mcp/web-app build",
+    "build:core": "pnpm --filter @cesium-mcp/client-core build",
+    "build:web": "pnpm --filter @cesium-mcp/web-app build",
+    "start:web": "pnpm --filter @cesium-mcp/web-app serve",
+    "clean": "pnpm -r run clean"
+  },
+  "keywords": ["cesium", "mcp", "3d", "geospatial"],
+  "author": "",
+  "license": "MIT"
+}

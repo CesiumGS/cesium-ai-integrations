@@ -1,0 +1,34 @@
+{
+  "name": "@cesium-mcp/shared",
+  "version": "1.0.0",
+  "description": "Shared utilities for Cesium MCP servers",
+  "type": "module",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "exports": {
+    ".": "./build/index.js",
+    "./sse-server": "./build/sse-server.js",
+    "./websocket-server": "./build/websocket-server.js",
+    "./communication-server": "./build/communication-server.js",
+    "./locations": "./build/locations.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf build",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.2.2",
+    "@types/ws": "^8.18.1",
+    "rimraf": "^6.1.2",
+    "typescript": "^5.9.3"
+  }
+}

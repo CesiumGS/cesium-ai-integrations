@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Cesium MCP Client</title>
+    <!-- Include the CesiumJS JavaScript and CSS files -->
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.134/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.134/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/src/css/style.css">
+</head>
+
+<body>
+    <div id="cesiumContainer"></div>
+    
+    <!-- Status Panel -->
+    <div id="statusPanel" class="status-panel">
+        <div class="status-header">
+            <h3>🌍 Cesium MCP Status</h3>
+            <button id="toggleStatus" class="toggle-btn">−</button>
+        </div>
+        <div id="statusContent" class="status-content">
+            <div class="status-section">
+                <h4>MCP Servers</h4>
+                <div id="mcpServerStatus" class="server-status-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Display -->
+    <div id="errorPanel" class="error-panel hidden">
+        <div class="error-header">
+            <h3>🚨 Application Error</h3>
+            <button id="closeError" class="close-btn">×</button>
+        </div>
+        <div id="errorContent" class="error-content"></div>
+        <div class="error-actions">
+            <button id="retryBtn" class="action-btn">Retry</button>
+            <button id="dismissError" class="action-btn secondary">Dismiss</button>
+        </div>
+    </div>
+    
+    <!-- Load application as ES6 module -->
+    <script type="module" src="dist/app.js"></script>
+</body>
+
+</html>

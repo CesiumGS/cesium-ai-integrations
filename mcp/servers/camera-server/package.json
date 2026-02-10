@@ -1,0 +1,37 @@
+{
+  "name": "@cesium-mcp/camera-server",
+  "version": "1.0.0",
+  "description": "MCP server for Cesium camera control operations",
+  "type": "module",
+  "main": "./build/index.js",
+  "bin": {
+    "cesium-camera-mcp": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf build",
+    "dev": "tsx src/index.ts",
+    "start": "node build/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "cesium",
+    "camera",
+    "3d"
+  ],
+  "exports": {
+    ".": "./build/index.js",
+    "./tools/camera-tools": "./build/tools/camera-tools.js"
+  },
+  "dependencies": {
+    "@cesium-mcp/shared": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "dotenv": "^16.4.7",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

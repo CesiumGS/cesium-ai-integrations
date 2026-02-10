@@ -1,0 +1,34 @@
+{
+  "name": "cesium-mcp",
+  "version": "1.0.0",
+  "description": "Monorepo for Cesium MCP servers",
+  "private": true,
+  "scripts": {
+    "build": "pnpm run build:shared && pnpm run build:camera && pnpm run build:poc",
+    "build:shared": "pnpm --filter @cesium-mcp/shared build",
+    "build:camera": "pnpm --filter @cesium-mcp/camera-server build",
+    "build:poc": "pnpm --filter @cesium-mcp/poc build",
+    "dev:camera": "pnpm --filter @cesium-mcp/camera-server dev",
+    "start:web": "pnpm --filter @cesium-mcp/poc start:web",
+    "clean": "pnpm -r run clean",
+    "test": "pnpm -r run test"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "cesium",
+    "camera",
+    "3d",
+    "geospatial"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
