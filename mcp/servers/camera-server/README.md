@@ -2,6 +2,8 @@
 
 MCP server for advanced camera control and navigation in CesiumJS 3D globe applications.
 
+<video src="https://github.com/user-attachments/assets/348f7575-4cd2-4732-9885-2da40962bdf3" controls></video>
+
 ## ✨ Features
 
 - **Smooth Camera Flights**: Animated camera transitions with customizable easing functions
