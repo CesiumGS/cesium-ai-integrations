@@ -28,7 +28,7 @@ Built on open standards, these integrations are designed to be modular, composab
 
 ## 🌟 Awesome community examples
 
-These community projects are great references for Cesium + AI integrations:
+These community projects are great references for Cesium + AI integrations. **We welcome contributions!** If you've built something cool with Cesium and AI, feel free to open a PR to add your project to this list.
 
 ### 🔌 MCP Servers:
 
@@ -37,6 +37,14 @@ TBA
 ### 🔌 [MCP Apps](https://blog.modelcontextprotocol.io/posts/2026-01-26-mcp-apps/)
 
 - [Interactive 3D globe map](https://github.com/modelcontextprotocol/ext-apps/tree/main/examples/map-server) – Interactive 3D globe viewer using CesiumJS with OpenStreetMap tiles. Demonstrates geocoding integration and full MCP App capabilities.
+
+<details>
+<summary>📹 View demo video</summary>
+
+<video src="https://github.com/user-attachments/assets/bfed4125-e17f-4e21-8f6a-0608f226e6db" controls></video>
+
+</details>
+
 
 ## 🤝 Contributing
 
