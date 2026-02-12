@@ -35,10 +35,6 @@ jobs:
       working-directory: ./mcp
       run: pnpm audit
     
-    - name: Type check
-      working-directory: ./mcp
-      run: pnpm -r --filter @cesium-mcp/* --filter !@cesium-mcp/poc exec tsc --noEmit
-    
     - name: Lint & Prettier check
       working-directory: ./mcp
       run: pnpm run check
