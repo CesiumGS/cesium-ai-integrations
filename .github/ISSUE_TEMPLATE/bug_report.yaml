@@ -1,0 +1,41 @@
+name: Report a bug
+description: Let us know so we can fix it!
+labels: ["needs triage", "type - bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping us improve! Please describe what the expected behavior is vs what actually happens.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us, what did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps
+      description: "How do you trigger this bug? Please walk us through it step by step."
+      value: |
+        1.
+        2.
+        3.
+        ...
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: What Browsers and OS are you experiencing this issue on?
+      value: |
+        Browser:
+        Operating System:
+  - type: markdown
+    attributes:
+      value: |
+        If you can also contribute a fix, we'd absolutely appreciate it!
+
+        Check out the contributor guide to get started: [CONTRIBUTING.md](https://github.com/CesiumGS/cesium-ai-integrations/blob/main/CONTRIBUTING.md)
+
+        Just let us know you're working on it and we'd be happy to provide advice and feedback.

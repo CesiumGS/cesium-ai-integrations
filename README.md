@@ -20,6 +20,10 @@ Built on open standards, these integrations are designed to be modular, composab
 - Approaches for grounding AI responses with geospatial context
 - Example workflows for data ingestion, retrieval, and analysis
 - Prototypes that demonstrate AI-assisted exploration of 3D geospatial content
+### 📂 Repository Structure
+
+- **[mcp/](mcp/README.md)** - Model Context Protocol servers and applications that integrate Cesium with AI assistants
+- **[skills/](skills/README.md)** - Agent skills for automatic activation of Cesium-related capabilities in AI assistants
 
 ## 📚 Documentation
 

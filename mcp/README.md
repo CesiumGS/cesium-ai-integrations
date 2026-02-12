@@ -1,26 +1,28 @@
-# Cesium MCP Camera Server
+# 🔌 MCP (Model Context Protocol) Integrations
 
-A monorepo of Model Context Protocol (MCP) servers for controlling CesiumJS applications through AI assistants.
+This directory contains Model Context Protocol servers and applications that integrate with Cesium's 3D geospatial platform.
 
-## 📦 Packages
+## 📦 Available MCP Servers
 
-This monorepo contains the following packages:
+### 🔧 Custom MCP Servers (Built In-House)
 
-### 🎥 [@cesium-mcp/camera-server](./servers/camera-server/README.md)
+#### 🎥 [cesium-camera-server](./servers/camera-server/README.md)
 
-Camera control operations for 3D navigation and positioning.
+Camera control operations for 3D navigation and positioning in CesiumJS applications.
 
 **Tools:** `camera_fly_to`, `camera_set_view`, `camera_look_at_transform`, `camera_start_orbit`, `camera_stop_orbit`, `camera_get_position`, `camera_set_controller_options`
 
-### 🔧 @cesium-mcp/shared
+### 🌐 External MCP Servers
 
-Shared utilities including SSE and WebSocket communication servers.
+#### 📚 [cesium-context7](./servers/cesium-context7/README.md)
 
-### 🧪 [PoC/CesiumJs](./PoC/CesiumJs/README.md)
+Real-time access to Cesium documentation and code examples via Context7 service. Includes agent skills for VS Code and Claude Code.
 
-Proof-of-concept CesiumJS web application that demonstrates mcp servers integrations.
+## 🚀 Getting Started
 
-## 🚀 Installation
+Each MCP server has its own README with detailed setup and usage instructions. Navigate to the specific server directory to get started.
+
+### Quick Start
 
 ```bash
 # From the mcp directory
@@ -42,7 +44,7 @@ pnpm run build:poc          # PoC CesiumJs applications
 pnpm run clean              # Clean build artifacts
 ```
 
-### Run MCP Server
+### Run MCP Servers
 
 ```bash
 pnpm run dev:camera       # Camera server (port 3002)
@@ -56,19 +58,9 @@ pnpm run dev:camera       # Camera server (port 3002)
 pnpm run start:web       # Start web client on http://localhost:8080
 ```
 
-## 🔧 Usage
+## 🔧 MCP Configuration
 
-### Running the Camera Server
-
-After building, you can run the camera server:
-
-```bash
-pnpm run dev:camera
-```
-
-### MCP Configuration
-
-#### Claude Desktop / Cline Configuration
+### Claude Desktop / Cline Configuration
 
 Add to your MCP client configuration file:
 
@@ -131,13 +123,11 @@ mcp/
 │       │       │   ├── cesium-app.ts  # Main CesiumApp class
 │       │       │   └── index.ts   # Package exports
 │       │       └── package.json
-│       ├── web-app/               # Browser web application
-│       │   ├── src/
-│       │   │   └── app.ts         # Browser UI initialization
-│       │   ├── index.html
-│       │   └── package.json
-
-│       └── package.json           # Workspace configuration
+│       └── web-app/               # Browser web application
+│           ├── src/
+│           │   └── app.ts         # Browser UI initialization
+│           ├── index.html
+│           └── package.json
 └── package.json                   # Root package (workspaces)
 ```
 
@@ -149,18 +139,10 @@ mcp/
 
 ### PoC Applications
 
-The PoC application uses the shared `@cesium-mcp/client-core` library:
+The [PoC/CesiumJs](./PoC/CesiumJs/README.md) application demonstrates MCP server integrations:
 
-- **Web App** - Browser-based 3D viewer
-  - Runs on `http://localhost:8080`
-  - ES modules served via HTTP
-
-**Shared Core Library** (`packages/client-core/`)
-
-- CesiumApp initialization and management
-- MCP Servers Managers
-- Communication handlers (SSE, WebSocket)
-- Utility functions and type definitions
+- **Web App** - Browser-based 3D viewer on `http://localhost:8080`
+- **Shared Core Library** (`packages/client-core/`) - CesiumApp initialization, managers, and utilities
 
 ## 🛠️ Technology Stack
 
@@ -172,8 +154,15 @@ The PoC application uses the shared `@cesium-mcp/client-core` library:
 
 ## 🤝 Contributing
 
-Interested in contributing? Please read [CONTRIBUTING.md](CONTRIBUTING.md). We also ask that you follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+Contributions are welcome! Please see the main [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
 
-## 📗 License
+## 📚 Resources
 
-Apache 2.0. See [LICENSE](../LICENSE).
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
+- [MCP Apps Documentation](https://blog.modelcontextprotocol.io/posts/2026-01-26-mcp-apps/)
+- [CesiumJS Documentation](https://cesium.com/learn/cesiumjs/ref-doc/)
+
+## 📄 License
+
+See the [LICENSE](../LICENSE) file in the root of this repository.
+
