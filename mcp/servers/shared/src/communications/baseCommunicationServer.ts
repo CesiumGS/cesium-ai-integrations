@@ -1,15 +1,24 @@
-import express, { Request, Response } from 'express';
-import cors from 'cors';
+import express, { Request, Response } from "express";
+import cors from "cors";
+import type { Server as HttpServer } from "http";
 import { ServerConfig, ServerStats } from "../models/serverConfig.js";
-import { ICommunicationServer } from "./communication-server.js";
+import {
+  CommandPayload,
+  CommandResult,
+  ICommunicationServer,
+} from "./communication-server.js";
 
 /**
  * Interface for pending command promise handlers
  */
 interface PendingCommand {
-  resolve: (value: any) => void;
-  reject: (reason?: any) => void;
+  resolve: (value: CommandResult) => void;
+  reject: (reason?: Error) => void;
   timeout: NodeJS.Timeout;
+}
+
+interface ServerToStart {
+  listen: (port: number, callback: () => void) => HttpServer;
 }
 
 /**
@@ -19,7 +28,7 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
   protected pendingCommands: Map<string, PendingCommand> = new Map();
   protected actualPort: number = 0;
   protected app: express.Application;
-  protected server: any = null;
+  protected server: HttpServer | null = null;
 
   public constructor() {
     this.app = express();
@@ -31,7 +40,7 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
    * Get the server instance to start (can be HTTP server or other)
    * Subclasses override this to return their specific server instance
    */
-  protected abstract getServerToStart(): any;
+  protected abstract getServerToStart(): ServerToStart;
 
   /**
    * Get the protocol name for logging
@@ -47,11 +56,13 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
    * Setup Express middleware (CORS, JSON parsing)
    */
   protected setupMiddleware(): void {
-    this.app.use(cors({
-      origin: '*',
-      methods: ['GET', 'POST'],
-      allowedHeaders: ['Content-Type', 'Cache-Control', 'Connection']
-    }));
+    this.app.use(
+      cors({
+        origin: "*",
+        methods: ["GET", "POST"],
+        allowedHeaders: ["Content-Type", "Cache-Control", "Connection"],
+      }),
+    );
     this.app.use(express.json());
   }
 
@@ -61,11 +72,11 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
    */
   protected setupRoutes(): void {
     // Health check endpoint
-    this.app.get('/mcp/health', (req: Request, res: Response) => {
+    this.app.get("/mcp/health", (req: Request, res: Response) => {
       res.json({
-        status: 'healthy',
+        status: "healthy",
         connected: this.isClientConnected(),
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     });
   }
@@ -75,29 +86,41 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
    */
   public async start(config: ServerConfig): Promise<number> {
     return new Promise((resolve, reject) => {
-      let port = config.port;
+      const port = config.port;
       let retries = config.maxRetries;
       const strictPort = config.strictPort ?? false;
 
       const tryPort = (portToTry: number) => {
-        this.server = this.getServerToStart();
-        
-        this.server.listen(portToTry, () => {
+        const serverToStart = this.getServerToStart();
+
+        this.server = serverToStart.listen(portToTry, () => {
           this.actualPort = portToTry;
-          console.error(`${this.getProtocolName()} server running on port ${portToTry}`);
+          console.error(
+            `${this.getProtocolName()} server running on port ${portToTry}`,
+          );
           resolve(portToTry);
         });
 
-        this.server.on('error', (err: any) => {
-          if (err.code === 'EADDRINUSE') {
+        this.server.on("error", (err: NodeJS.ErrnoException) => {
+          if (err.code === "EADDRINUSE") {
             if (strictPort) {
-              reject(new Error(`Port ${config.port} is in use and strictPort mode is enabled. Please free up port ${config.port} or disable strictPort.`));
+              reject(
+                new Error(
+                  `Port ${config.port} is in use and strictPort mode is enabled. Please free up port ${config.port} or disable strictPort.`,
+                ),
+              );
             } else if (retries > 0) {
-              console.error(`Port ${portToTry} is in use, trying port ${portToTry + 1}...`);
+              console.error(
+                `Port ${portToTry} is in use, trying port ${portToTry + 1}...`,
+              );
               retries--;
               tryPort(portToTry + 1);
             } else {
-              reject(new Error(`No available ports found after ${config.maxRetries} retries starting from port ${config.port}`));
+              reject(
+                new Error(
+                  `No available ports found after ${config.maxRetries} retries starting from port ${config.port}`,
+                ),
+              );
             }
           } else {
             reject(err);
@@ -116,10 +139,10 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
     return {
       port: this.actualPort,
       clients: this.isClientConnected() ? 1 : 0,
-      pendingCommands: this.pendingCommands.size
+      pendingCommands: this.pendingCommands.size,
     };
   }
-  
+
   /**
    * Check if a client is connected
    */
@@ -140,14 +163,14 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
    * Send a command to the client via the transport-specific method
    * @param command Command object with id already assigned
    */
-  protected sendCommand(command: any): void {
+  protected sendCommand(command: CommandPayload): void {
     if (!this.isClientConnected()) {
-      throw new Error('No client connected');
+      throw new Error("No client connected");
     }
 
     const commandData = JSON.stringify({
-      type: 'command',
-      command: command
+      type: "command",
+      command: command,
     });
 
     try {
@@ -163,9 +186,14 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
    * Execute a command by sending it to the connected client and waiting for response
    * Uses deferred promise pattern for immediate response when result arrives
    */
-  public async executeCommand(command: any, timeoutMs: number = 10000): Promise<any> {
+  public async executeCommand(
+    command: CommandPayload,
+    timeoutMs: number = 10000,
+  ): Promise<CommandResult> {
     if (!this.isClientConnected()) {
-      throw new Error('No client connected - Cesium application may not be running');
+      throw new Error(
+        "No client connected - Cesium application may not be running",
+      );
     }
 
     const commandId = Date.now().toString() + Math.random().toString(36);
@@ -176,20 +204,32 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
       // Setup timeout
       const timeoutHandle = setTimeout(() => {
         this.pendingCommands.delete(commandId);
-        reject(new Error('Command timeout - Cesium application may not be responding'));
+        reject(
+          new Error(
+            "Command timeout - Cesium application may not be responding",
+          ),
+        );
       }, timeoutMs);
 
       // Store resolver/rejector
-      this.pendingCommands.set(commandId, { resolve, reject, timeout: timeoutHandle });
+      this.pendingCommands.set(commandId, {
+        resolve,
+        reject,
+        timeout: timeoutHandle,
+      });
 
       // Send command
       try {
         this.sendCommand(command);
-        console.error('Command sent to client');
+        console.error("Command sent to client");
       } catch (error) {
         clearTimeout(timeoutHandle);
         this.pendingCommands.delete(commandId);
-        reject(new Error(`Failed to send command: ${error}`));
+        reject(
+          new Error(
+            `Failed to send command: ${error instanceof Error ? error.message : String(error)}`,
+          ),
+        );
       }
     });
   }
@@ -200,7 +240,7 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
    * @param id Command ID
    * @param result Command result
    */
-  protected storeCommandResult(id: string, result: any): void {
+  protected storeCommandResult(id: string, result: CommandResult): void {
     const pending = this.pendingCommands.get(id);
     if (pending) {
       clearTimeout(pending.timeout);
@@ -217,7 +257,7 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
    * @param reason The error message to reject pending promises with
    */
   protected rejectAllPendingCommands(reason: string): void {
-    for (const [id, pending] of this.pendingCommands.entries()) {
+    for (const [, pending] of this.pendingCommands.entries()) {
       clearTimeout(pending.timeout);
       pending.reject(new Error(reason));
     }

@@ -1,5 +1,35 @@
 import { ServerConfig, ServerStats } from "../models/serverConfig.js";
 
+export type CommandPayload = Record<string, unknown> & {
+  id?: string;
+  type: string;
+};
+
+export type CommandResult = {
+  success?: boolean;
+  error?: string;
+  actualDuration?: number;
+  position?: {
+    longitude: number;
+    latitude: number;
+    height: number;
+  };
+  orientation?: {
+    heading: number;
+    pitch: number;
+    roll: number;
+  };
+  viewRectangle?: {
+    west: number;
+    south: number;
+    east: number;
+    north: number;
+  };
+  altitude?: number;
+  settings?: Record<string, unknown>;
+  [key: string]: unknown;
+};
+
 export interface ICommunicationServer {
   /**
    * Start the communication server
@@ -19,7 +49,10 @@ export interface ICommunicationServer {
    * @param timeoutMs Maximum time to wait for response in milliseconds (default: 10000)
    * @returns Promise resolving to the command result
    */
-  executeCommand(command: any, timeoutMs?: number): Promise<any>;
+  executeCommand(
+    command: CommandPayload,
+    timeoutMs?: number,
+  ): Promise<CommandResult>;
 
   /**
    * Get current server statistics

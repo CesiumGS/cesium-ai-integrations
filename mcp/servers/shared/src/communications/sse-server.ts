@@ -1,15 +1,15 @@
-import { Request, Response } from 'express';
-import { BaseCommunicationServer } from './baseCommunicationServer.js';
+import { Request, Response } from "express";
+import { BaseCommunicationServer } from "./baseCommunicationServer.js";
 
 export class CesiumSSEServer extends BaseCommunicationServer {
   private sseClient: Response | null = null;
 
-  protected override getServerToStart(): any {
+  protected override getServerToStart() {
     return this.app;
   }
 
   protected override getProtocolName(): string {
-    return 'SSE HTTP';
+    return "SSE HTTP";
   }
 
   protected override setupRoutes(): void {
@@ -17,40 +17,45 @@ export class CesiumSSEServer extends BaseCommunicationServer {
     super.setupRoutes();
 
     // HTTP POST endpoint for SSE clients to send command results
-    this.app.post('/mcp/result', (req: Request, res: Response) => {
+    this.app.post("/mcp/result", (req: Request, res: Response) => {
       const { id, result } = req.body;
       this.storeCommandResult(id, result);
       res.json({ success: true });
     });
 
     // SSE endpoint for real-time commands
-    this.app.get('/mcp/events', (req: Request, res: Response) => {
+    this.app.get("/mcp/events", (req: Request, res: Response) => {
       // Only allow one client connection
       if (this.sseClient) {
-        res.status(409).json({ error: 'A client is already connected. Only one client is supported per MCP server instance.' });
+        res.status(409).json({
+          error:
+            "A client is already connected. Only one client is supported per MCP server instance.",
+        });
         return;
       }
 
       // Set SSE headers
       res.writeHead(200, {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Cache-Control'
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Cache-Control",
       });
 
       // Send initial connection event
-      res.write('data: {"type":"connected","message":"SSE connection established"}\n\n');
+      res.write(
+        'data: {"type":"connected","message":"SSE connection established"}\n\n',
+      );
 
       // Set the single client connection
       this.sseClient = res;
-      console.error('SSE client connected');
+      console.error("SSE client connected");
 
       // Handle client disconnect
-      req.on('close', () => {
+      req.on("close", () => {
         this.sseClient = null;
-        console.error('SSE client disconnected');
+        console.error("SSE client disconnected");
       });
 
       // Keep connection alive with heartbeat
@@ -62,7 +67,7 @@ export class CesiumSSEServer extends BaseCommunicationServer {
         res.write('data: {"type":"heartbeat"}\n\n');
       }, 30000); // 30 seconds
 
-      req.on('close', () => {
+      req.on("close", () => {
         clearInterval(heartbeat);
       });
     });
@@ -70,7 +75,7 @@ export class CesiumSSEServer extends BaseCommunicationServer {
 
   public override async stop(): Promise<void> {
     // Reject all pending commands
-    this.rejectAllPendingCommands('Server shutting down');
+    this.rejectAllPendingCommands("Server shutting down");
 
     // Close SSE connection
     if (this.sseClient) {
@@ -81,8 +86,8 @@ export class CesiumSSEServer extends BaseCommunicationServer {
     // Close HTTP server
     if (this.server) {
       return new Promise((resolve) => {
-        this.server.close(() => {
-          console.error('SSE HTTP server stopped');
+        this.server!.close(() => {
+          console.error("SSE HTTP server stopped");
           resolve();
         });
       });
@@ -99,7 +104,7 @@ export class CesiumSSEServer extends BaseCommunicationServer {
 
   protected override handleConnectionDeath(): void {
     // Reject all pending commands on disconnect
-    this.rejectAllPendingCommands('Client disconnected');
+    this.rejectAllPendingCommands("Client disconnected");
     this.sseClient = null;
   }
 }

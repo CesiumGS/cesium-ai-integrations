@@ -1,39 +1,42 @@
 /**
  * Cesium Application Core
- * Environment-agnostic Cesium application setup and configuration
- * Works in both browser and Electron renderer processes
- * 
- * Note: Cesium is expected to be available globally (from CDN or bundled)
- * This allows compatibility with both browser (CDN) and Electron (bundled) environments
+ * Browser-based Cesium application setup and configuration
+ *
+ * Note: Cesium is expected to be available globally (from CDN)
  */
 
-// Declare global Cesium for TypeScript
-declare const Cesium: any;
-import CesiumCameraController from './managers/camera-controller.js';
-import { BaseCommunicationManager } from './communications/base-communication.js';
-import SSECommunicationManager from './communications/sse-communication.js';
-import WebSocketCommunicationManager from './communications/websocket-communication.js';
-import type { ManagerInterface, ServerConfig } from './types/mcp.js';
+import type { CesiumViewer } from "./types/cesium-types.js";
+import CesiumCameraController from "./managers/camera-controller.js";
+import { BaseCommunicationManager } from "./communications/base-communication.js";
+import SSECommunicationManager from "./communications/sse-communication.js";
+import WebSocketCommunicationManager from "./communications/websocket-communication.js";
+import type { ManagerInterface, ServerConfig } from "./types/mcp.js";
 
 export interface CesiumAppConfig {
   cesiumAccessToken: string;
   mcpServers: ServerConfig[];
-  mcpProtocol?: 'sse' | 'websocket';
+  mcpProtocol?: "sse" | "websocket";
 }
 
 export interface ApplicationStatus {
   isInitialized: boolean;
   viewer: boolean;
-  mcpCommunication: ReturnType<BaseCommunicationManager['getConnectionStatus']> | null;
+  mcpCommunication: ReturnType<
+    BaseCommunicationManager["getConnectionStatus"]
+  > | null;
 }
 
 export class CesiumApp {
-  viewer: any | null;  // Using any for compatibility with both CDN and @cesium/engine
+  viewer: CesiumViewer | null;
   mcpCommunication: BaseCommunicationManager | null;
   config: CesiumAppConfig;
   isInitialized: boolean;
   managers: ManagerInterface[];
   private containerId: string;
+
+  private getErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : String(error);
+  }
 
   constructor(containerId: string, config: CesiumAppConfig) {
     this.containerId = containerId;
@@ -48,29 +51,29 @@ export class CesiumApp {
   }
 
   async initialize(): Promise<void> {
-    try {
-      await this.initializeViewer();
-      this.initializeControllers();
-      await this.initializeMCPCommunication();
-      this.isInitialized = true;
-    } catch (error) {
-      throw error;
-    }
+    await this.initializeViewer();
+    this.initializeControllers();
+    await this.initializeMCPCommunication();
+    this.isInitialized = true;
   }
 
   async initializeViewer(): Promise<void> {
     try {
       // Validate Cesium is available
-      if (typeof Cesium === 'undefined') {
-        throw new Error('Cesium library is not loaded. Ensure Cesium is available globally.');
+      if (typeof Cesium === "undefined") {
+        throw new Error(
+          "Cesium library is not loaded. Ensure Cesium is available globally.",
+        );
       }
-      
+
       // Validate container exists
       const container = document.getElementById(this.containerId);
       if (!container) {
-        throw new Error(`Container element with id '${this.containerId}' not found.`);
+        throw new Error(
+          `Container element with id '${this.containerId}' not found.`,
+        );
       }
-      
+
       // Initialize viewer with Cesium Ion World Terrain
       this.viewer = new Cesium.Viewer(this.containerId, {
         terrain: Cesium.Terrain.fromWorldTerrain(),
@@ -82,7 +85,7 @@ export class CesiumApp {
         this.enableGlobeLighting();
       }
     } catch (error) {
-      console.error('Failed to initialize Cesium Viewer:', error);
+      console.error("Failed to initialize Cesium Viewer:", error);
       throw error;
     }
   }
@@ -96,20 +99,24 @@ export class CesiumApp {
   }
 
   initializeControllers(): void {
-    if (!this.viewer) return;
+    if (!this.viewer) {
+      return;
+    }
 
-    this.managers = [
-      new CesiumCameraController(this.viewer)
-    ];
+    this.managers = [new CesiumCameraController(this.viewer)];
   }
 
   async initializeMCPCommunication(): Promise<void> {
-    const protocol = this.config.mcpProtocol || 'websocket';
-    
+    const protocol = this.config.mcpProtocol || "websocket";
+
     // Directly instantiate the appropriate communication manager
-    this.mcpCommunication = protocol === 'websocket'
-      ? new WebSocketCommunicationManager(this.managers, this.config.mcpServers)
-      : new SSECommunicationManager(this.managers, this.config.mcpServers);
+    this.mcpCommunication =
+      protocol === "websocket"
+        ? new WebSocketCommunicationManager(
+            this.managers,
+            this.config.mcpServers,
+          )
+        : new SSECommunicationManager(this.managers, this.config.mcpServers);
 
     await this.mcpCommunication.connect();
   }
@@ -118,7 +125,9 @@ export class CesiumApp {
     return {
       isInitialized: this.isInitialized,
       viewer: !!this.viewer,
-      mcpCommunication: this.mcpCommunication ? this.mcpCommunication.getConnectionStatus() : null,
+      mcpCommunication: this.mcpCommunication
+        ? this.mcpCommunication.getConnectionStatus()
+        : null,
     };
   }
 
@@ -128,18 +137,24 @@ export class CesiumApp {
       if (this.mcpCommunication) {
         try {
           this.mcpCommunication.disconnect();
-        } catch (error) {
-          console.error('Error disconnecting MCP communication:', error);
+        } catch (error: unknown) {
+          console.error(
+            "Error disconnecting MCP communication:",
+            this.getErrorMessage(error),
+          );
         }
         this.mcpCommunication = null;
       }
 
       // Shutdown all managers
-      this.managers.forEach(manager => {
+      this.managers.forEach((manager) => {
         try {
           manager.shutdown();
-        } catch (error) {
-          console.error('Error shutting down manager:', error);
+        } catch (error: unknown) {
+          console.error(
+            "Error shutting down manager:",
+            this.getErrorMessage(error),
+          );
         }
       });
       this.managers = [];
@@ -148,15 +163,21 @@ export class CesiumApp {
       if (this.viewer && !this.viewer.isDestroyed()) {
         try {
           this.viewer.destroy();
-        } catch (error) {
-          console.error('Error destroying viewer:', error);
+        } catch (error: unknown) {
+          console.error(
+            "Error destroying viewer:",
+            this.getErrorMessage(error),
+          );
         }
         this.viewer = null;
       }
 
       this.isInitialized = false;
-    } catch (error) {
-      console.error('Error during application shutdown:', error);
+    } catch (error: unknown) {
+      console.error(
+        "Error during application shutdown:",
+        this.getErrorMessage(error),
+      );
       throw error;
     }
   }

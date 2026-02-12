@@ -2,6 +2,7 @@
   "name": "cesium-mcp",
   "version": "1.0.0",
   "description": "Monorepo for Cesium MCP servers",
+  "type": "module",
   "private": true,
   "scripts": {
     "build": "pnpm run build:shared && pnpm run build:camera && pnpm run build:poc",
@@ -11,7 +12,10 @@
     "dev:camera": "pnpm --filter @cesium-mcp/camera-server dev",
     "start:web": "pnpm --filter @cesium-mcp/poc start:web",
     "clean": "pnpm -r run clean",
-    "test": "pnpm -r run test"
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "pnpm run format:check && pnpm run lint"
   },
   "keywords": [
     "mcp",
@@ -28,7 +32,14 @@
     "pnpm": ">=8.0.0"
   },
   "devDependencies": {
+    "@cesium/eslint-config": "^13.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "globals": "^17.3.0",
+    "prettier": "^3.8.1",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.55.0"
   }
 }

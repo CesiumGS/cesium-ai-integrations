@@ -3,16 +3,16 @@
  * Handles Server-Sent Events and HTTP communication with MCP servers
  */
 
-import { BaseCommunicationManager } from './base-communication.js';
+import { BaseCommunicationManager } from "./base-communication.js";
 import type {
   MCPCommand,
   MCPCommandResult,
   ManagerInterface,
-  ServerConfig
-} from '../types/mcp.js';
+  ServerConfig,
+} from "../types/mcp.js";
 
 interface SSEMessage {
-  type: 'connected' | 'command' | 'heartbeat';
+  type: "connected" | "command" | "heartbeat";
   command?: MCPCommand;
   message?: string;
 }
@@ -20,19 +20,25 @@ interface SSEMessage {
 class SSECommunicationManager extends BaseCommunicationManager {
   private sseConnections: Map<number, EventSource>;
 
-  constructor(managers: ManagerInterface[] = [], serverConfig: ServerConfig[] = []) {
+  constructor(
+    managers: ManagerInterface[] = [],
+    serverConfig: ServerConfig[] = [],
+  ) {
     super(managers, serverConfig);
     this.sseConnections = new Map();
   }
 
   protected getDefaultBaseUrl(): string {
-    return window.CONFIG?.MCP_BASE_URL || 'http://localhost';
+    return window.CONFIG?.MCP_BASE_URL || "http://localhost";
   }
 
   /**
    * Establish Server-Sent Events connection for a specific server
    */
-  protected async connectToServer(port: number, serverName: string = 'MCP Server'): Promise<void> {
+  protected async connectToServer(
+    port: number,
+    serverName: string = "MCP Server",
+  ): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
         // Close existing connection if any
@@ -42,7 +48,9 @@ class SSECommunicationManager extends BaseCommunicationManager {
         }
 
         // Create new SSE connection
-        const eventSource = new EventSource(`${this.baseUrl}:${port}/mcp/events`);
+        const eventSource = new EventSource(
+          `${this.baseUrl}:${port}/mcp/events`,
+        );
         this.sseConnections.set(port, eventSource);
 
         eventSource.onopen = () => {
@@ -54,12 +62,17 @@ class SSECommunicationManager extends BaseCommunicationManager {
             const data = JSON.parse(event.data) as SSEMessage;
             await this.handleSSEMessage(data, port);
           } catch (error) {
-            console.error(`❌ Error processing SSE message from ${serverName}:`, error);
+            console.error(
+              `❌ Error processing SSE message from ${serverName}:`,
+              error,
+            );
           }
         };
 
         eventSource.onerror = () => {
-          console.error(`❌ SSE connection error: ${serverName} (port ${port})`);
+          console.error(
+            `❌ SSE connection error: ${serverName} (port ${port})`,
+          );
 
           // Don't delete from map - keep it so status shows as disconnected
           // The readyState will be CLOSED (2) or CONNECTING (0)
@@ -74,7 +87,6 @@ class SSECommunicationManager extends BaseCommunicationManager {
 
           reject(new Error(`SSE connection failed: ${serverName}`));
         };
-
       } catch (error) {
         reject(error);
       }
@@ -84,18 +96,21 @@ class SSECommunicationManager extends BaseCommunicationManager {
   /**
    * Handle incoming SSE messages
    */
-  private async handleSSEMessage(data: SSEMessage, port: number): Promise<void> {
+  private async handleSSEMessage(
+    data: SSEMessage,
+    port: number,
+  ): Promise<void> {
     switch (data.type) {
-      case 'connected':
+      case "connected":
         break;
 
-      case 'command':
+      case "command":
         if (data.command) {
           await this.handleCommandMessage(data.command, port);
         }
         break;
 
-      case 'heartbeat':
+      case "heartbeat":
         break;
 
       default:
@@ -106,19 +121,23 @@ class SSECommunicationManager extends BaseCommunicationManager {
   /**
    * Send command result back to MCP server via HTTP POST
    */
-  protected async sendCommandResult(commandId: string, result: MCPCommandResult, port: number): Promise<void> {
+  protected async sendCommandResult(
+    commandId: string,
+    result: MCPCommandResult,
+    port: number,
+  ): Promise<void> {
     try {
       await fetch(`${this.baseUrl}:${port}/mcp/result`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           id: commandId,
-          result: result
-        })
+          result: result,
+        }),
       });
-    } catch (error) {
+    } catch {
       // Silently fail - server may be down
     }
   }
@@ -147,7 +166,7 @@ class SSECommunicationManager extends BaseCommunicationManager {
       port: server.port,
       capabilities: server.capabilities,
       isConnected: isConnected,
-      readyState: connection ? connection.readyState : 'not initialized'
+      readyState: connection ? connection.readyState : "not initialized",
     };
   }
 }

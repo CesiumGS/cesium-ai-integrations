@@ -2,21 +2,32 @@
  * MCP Communication Types
  */
 
+import type {
+  CesiumClockRange,
+  CesiumClockStep,
+  CesiumLabelStyle,
+  CesiumQuaternion,
+} from "./cesium-types.js";
+
+export type JsonPrimitive = string | number | boolean | null;
+export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
+export type JsonObject = { [key: string]: JsonValue };
+export type JsonArray = JsonValue[];
+
 export interface MCPCommand {
   id?: string;
   type: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface MCPCommandResult {
   success: boolean;
-  message?: string;
-  error?: string;
-  [key: string]: any;
+  message?: string | null;
+  error?: string | null;
 }
 
 export interface SSEMessage {
-  type: 'connected' | 'command' | 'heartbeat';
+  type: "connected" | "command" | "heartbeat";
   command?: MCPCommand;
   message?: string;
 }
@@ -33,7 +44,7 @@ export interface ManagerInterface {
   getCommandHandlers(): Map<string, CommandHandler>;
 }
 
-// Camera types
+// Camera types - These are naturally JsonValue-compatible
 export interface CameraOrientation {
   heading?: number;
   pitch?: number;
@@ -44,6 +55,58 @@ export interface CameraPosition {
   longitude: number;
   latitude: number;
   height: number;
+}
+
+export interface ViewRectangle {
+  west: number;
+  south: number;
+  east: number;
+  north: number;
+}
+
+// Specific result types for camera operations
+export interface CameraFlyToResult extends MCPCommandResult {
+  position?: CameraPosition;
+  orientation?: CameraOrientation;
+  actualDuration?: number;
+  cancelled?: boolean;
+}
+
+export interface CameraViewResult extends MCPCommandResult {
+  position?: CameraPosition;
+  orientation?: CameraOrientation;
+}
+
+export interface CameraPositionResult extends MCPCommandResult {
+  position?: CameraPosition;
+  orientation?: CameraOrientation;
+  viewRectangle?: ViewRectangle | null;
+  altitude?: number;
+}
+
+export interface CameraOrbitResult extends MCPCommandResult {
+  orbitActive?: boolean;
+  speed?: number;
+}
+
+export interface CameraTargetResult extends MCPCommandResult {
+  target?: CameraPosition;
+  offset?: CameraOrientation | Record<string, number>;
+}
+
+export interface CameraControllerSettings {
+  enableCollisionDetection?: boolean;
+  minimumZoomDistance?: number;
+  maximumZoomDistance?: number;
+  enableTilt?: boolean;
+  enableRotate?: boolean;
+  enableTranslate?: boolean;
+  enableZoom?: boolean;
+  enableLook?: boolean;
+}
+
+export interface CameraControllerResult extends MCPCommandResult {
+  settings?: CameraControllerSettings;
 }
 
 export interface CameraFlyToOptions {
@@ -75,7 +138,7 @@ export interface LabelOptions extends EntityOptions {
   fillColor?: string | ColorRGBA;
   outlineColor?: string | ColorRGBA;
   outlineWidth?: number;
-  style?: any;
+  style?: CesiumLabelStyle | string;
   scale?: number;
   pixelOffset?: { x: number; y: number };
 }
@@ -105,7 +168,7 @@ export interface BillboardOptions extends EntityOptions {
 }
 
 export interface ModelOptions extends EntityOptions {
-  orientation?: any;
+  orientation?: CesiumQuaternion;
   scale?: number;
   minimumPixelSize?: number;
   maximumScale?: number;
@@ -132,8 +195,8 @@ export interface ClockConfig {
   stopTime?: string | JulianDate;
   currentTime?: string | JulianDate;
   multiplier?: number;
-  clockRange?: any;
-  clockStep?: any;
+  clockRange?: CesiumClockRange;
+  clockStep?: CesiumClockStep;
   shouldAnimate?: boolean;
 }
 
@@ -150,7 +213,7 @@ export interface GlobeLightingOptions {
 }
 
 // Server configuration types
-export type Protocol = 'sse' | 'websocket';
+export type Protocol = "sse" | "websocket";
 
 export interface ServerConfig {
   name: string;

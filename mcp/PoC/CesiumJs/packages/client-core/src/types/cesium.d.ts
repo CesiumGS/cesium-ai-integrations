@@ -3,17 +3,18 @@
  * Since we're loading Cesium via CDN, we need to declare the global Cesium namespace
  */
 
-import type CesiumApp from '../cesium-app';
+import type CesiumApp from "../cesium-app";
+
+type CesiumGlobal = typeof import("cesium");
 
 declare global {
-  // Using any for Cesium because the CDN version includes classes not in @cesium/engine
-  const Cesium: any;
-  
+  const Cesium: CesiumGlobal;
+
   interface Window {
     CONFIG?: AppConfig;
     cesiumApp?: () => CesiumApp | null;
     getApplicationStatus?: () => ApplicationStatus;
-    Cesium: any;
+    Cesium: CesiumGlobal;
   }
 
   const CONFIG: AppConfig | undefined;

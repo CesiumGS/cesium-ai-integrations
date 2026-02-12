@@ -87,6 +87,7 @@ The web application uses the `@cesium-mcp/client-core` shared library:
 ### Cesium Loading Strategy
 
 The app loads Cesium from CDN rather than bundling via npm. This approach:
+
 - **Simplifies builds**: No need to configure asset loaders or copy 200MB+ of Cesium workers, shaders, and terrain data
 - **Reduces bundle size**: App bundle stays small (~100KB) while Cesium loads separately and caches in the browser
 - **Avoids complexity**: No `CESIUM_BASE_URL` configuration, worker bundling, or dynamic import handling required
@@ -94,6 +95,7 @@ The app loads Cesium from CDN rather than bundling via npm. This approach:
 The global `Cesium` object is declared in TypeScript and accessed throughout the client-core library.
 
 ### Web App (web-app/src/app.ts)
+
 - Loads config from environment variables (injected at build time)
 - Browser-specific DOM event handling
 - ES modules built with esbuild
@@ -103,6 +105,7 @@ The global `Cesium` object is declared in TypeScript and accessed throughout the
 ### Environment Variables
 
 Create `web-app/.env`:
+
 ```bash
 CESIUM_ACCESS_TOKEN=your_token_here
 MCP_PROTOCOL=websocket
@@ -114,6 +117,7 @@ These variables are injected at build time by esbuild and accessed via `process.
 ## Building
 
 ### Development Builds
+
 ```bash
 # Watch mode for core library
 cd packages/client-core && pnpm run build:watch
@@ -123,6 +127,7 @@ cd web-app && pnpm run build:watch
 ```
 
 ### Production Builds
+
 ```bash
 # Build everything
 pnpm run build
@@ -133,6 +138,7 @@ pnpm run build
 ### "Cannot find module '@cesium-mcp/client-core'"
 
 1. Build the core library first:
+
    ```bash
    pnpm run build:core
    ```

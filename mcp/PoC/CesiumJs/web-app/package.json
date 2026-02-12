@@ -22,13 +22,12 @@
   "devDependencies": {
     "@types/node": "^25.2.2",
     "dotenv": "^16.4.7",
-    "esbuild": "^0.24.2",
+    "esbuild": "^0.27.3",
     "http-server": "^14.1.1",
     "rimraf": "^6.1.2",
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@cesium-mcp/client-core": "workspace:*",
-    "@cesium/engine": "^22.3.0"
+    "@cesium-mcp/client-core": "workspace:*"
   }
 }

@@ -1,4 +1,3 @@
-
 export interface CommunicationManager {
   connect(): Promise<void>;
   disconnect(): void;

@@ -1,11 +1,15 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import express, { Request, Response } from 'express';
-import { randomUUID } from 'crypto';
-import { ICommunicationServer } from '../communications/communication-server.js';
-import { ServerConfig } from '../models/serverConfig.js';
-import { MCPServerConfig, ToolRegistrationFunction } from '../models/mcpServerConfig.js';
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import express, { Request, Response } from "express";
+import { randomUUID } from "crypto";
+import type { Server as HttpServer } from "http";
+import { ICommunicationServer } from "../communications/communication-server.js";
+import { ServerConfig } from "../models/serverConfig.js";
+import {
+  MCPServerConfig,
+  ToolRegistrationFunction,
+} from "../models/mcpServerConfig.js";
 
 /**
  * Generic MCP Server class that handles common setup for all Cesium MCP servers
@@ -17,25 +21,25 @@ export class CesiumMCPServer {
   private toolRegistrationFunctions: ToolRegistrationFunction[] = [];
   private serverConfig?: ServerConfig;
   private mcpTransportApp?: express.Application;
-  private mcpTransportServer?: any;
+  private mcpTransportServer?: HttpServer;
 
   constructor(
     config: MCPServerConfig,
-    communicationServer?: ICommunicationServer
+    communicationServer?: ICommunicationServer,
   ) {
     this.config = config;
     this.communicationServer = communicationServer;
 
     this.mcpServer = new McpServer({
       name: this.config.name,
-      version: this.config.version
+      version: this.config.version,
     });
 
     if (this.communicationServer && this.config.communicationServerPort) {
       this.serverConfig = {
         port: this.config.communicationServerPort,
         maxRetries: this.config.communicationServerMaxRetries ?? 10,
-        strictPort: this.config.communicationServerStrictPort ?? true
+        strictPort: this.config.communicationServerStrictPort ?? true,
       };
     }
   }
@@ -55,7 +59,9 @@ export class CesiumMCPServer {
     try {
       // Start communication server if provided
       if (this.communicationServer && this.serverConfig) {
-        const actualPort = await this.communicationServer.start(this.serverConfig);
+        const actualPort = await this.communicationServer.start(
+          this.serverConfig,
+        );
         console.error(`Communication server started on port ${actualPort}`);
       }
 
@@ -65,13 +71,13 @@ export class CesiumMCPServer {
       }
 
       // Start MCP server with configured transport
-      const transportType = this.config.mcpTransport || 'stdio';
-      
+      const transportType = this.config.mcpTransport || "stdio";
+
       switch (transportType) {
-        case 'stdio':
+        case "stdio":
           await this.startStdioTransport();
           break;
-        case 'streamable-http':
+        case "streamable-http":
           await this.startStreamableHttpTransport();
           break;
         default:
@@ -94,16 +100,16 @@ export class CesiumMCPServer {
   private async startStdioTransport(): Promise<void> {
     const transport = new StdioServerTransport();
     await this.mcpServer.connect(transport);
-    console.error('MCP Server running with stdio transport');
+    console.error("MCP Server running with stdio transport");
   }
 
   /**
    * Start Streamable HTTP transport (recommended for HTTP-based scenarios)
    */
   private async startStreamableHttpTransport(): Promise<void> {
-    const endpoint = this.config.mcpTransportEndpoint || '/mcp';
+    const endpoint = this.config.mcpTransportEndpoint || "/mcp";
     const mcpPort = (this.config.communicationServerPort || 3000) + 1000; // Use different port for MCP transport
-    
+
     this.mcpTransportApp = express();
     this.mcpTransportApp.use(express.json());
 
@@ -115,7 +121,7 @@ export class CesiumMCPServer {
       },
       onsessionclosed: (sessionId) => {
         console.error(`Session closed: ${sessionId}`);
-      }
+      },
     });
 
     await this.mcpServer.connect(transport);
@@ -126,7 +132,9 @@ export class CesiumMCPServer {
     });
 
     this.mcpTransportServer = this.mcpTransportApp.listen(mcpPort, () => {
-      console.error(`MCP Server running with Streamable HTTP transport on port ${mcpPort}${endpoint}`);
+      console.error(
+        `MCP Server running with Streamable HTTP transport on port ${mcpPort}${endpoint}`,
+      );
     });
   }
 
@@ -134,18 +142,18 @@ export class CesiumMCPServer {
    * Stop the server gracefully
    */
   public async stop(): Promise<void> {
-    console.error('\n🛑 Shutting down...');
-    
+    console.error("\n🛑 Shutting down...");
+
     // Close MCP transport server if it exists
     if (this.mcpTransportServer) {
       await new Promise<void>((resolve) => {
-        this.mcpTransportServer.close(() => {
-          console.error('MCP transport server closed');
+        this.mcpTransportServer!.close(() => {
+          console.error("MCP transport server closed");
           resolve();
         });
       });
     }
-    
+
     // Stop communication server if it exists
     if (this.communicationServer) {
       await this.communicationServer.stop();
@@ -177,7 +185,7 @@ export class CesiumMCPServer {
       process.exit(0);
     };
 
-    process.on('SIGINT', shutdown);
-    process.on('SIGTERM', shutdown);
+    process.on("SIGINT", shutdown);
+    process.on("SIGTERM", shutdown);
   }
 }

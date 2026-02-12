@@ -5,33 +5,61 @@
 
 import type {
   MCPCommand,
-  MCPCommandResult,
   CommandHandler,
   ManagerInterface,
   CameraOrientation,
-  CameraFlyToOptions
-} from '../types/mcp.js';
+  CameraFlyToOptions,
+  CameraPosition,
+  CameraFlyToResult,
+  CameraViewResult,
+  CameraPositionResult,
+  CameraOrbitResult,
+  CameraTargetResult,
+  CameraControllerResult,
+} from "../types/mcp.js";
+import type { CesiumViewer } from "../types/cesium-types.js";
 
-import { 
-  flyToPosition, 
-  setCameraView, 
+import {
+  flyToPosition,
+  setCameraView,
   getCameraPosition,
   lookAtPosition,
-  getCameraViewRectangle 
-} from '../shared/camera-utils.js';
-import { validateLongitude, validateLatitude, validateHeight } from '../shared/validation-utils.js';
+  getCameraViewRectangle,
+} from "../shared/camera-utils.js";
+import {
+  validateLongitude,
+  validateLatitude,
+  validateHeight,
+} from "../shared/validation-utils.js";
+
+type CameraLookAtOffset = { heading?: number; pitch?: number; range?: number };
+
+type CameraControllerOptions = {
+  enableCollisionDetection?: boolean;
+  minimumZoomDistance?: number;
+  maximumZoomDistance?: number;
+  enableTilt?: boolean;
+  enableRotate?: boolean;
+  enableTranslate?: boolean;
+  enableZoom?: boolean;
+  enableLook?: boolean;
+};
 
 class CesiumCameraController implements ManagerInterface {
-  viewer: any;
+  viewer: CesiumViewer;
   orbitSpeed: number;
   orbitHandler: (() => void) | null;
   prefix: string;
 
-  constructor(viewer: any) {
+  constructor(viewer: CesiumViewer) {
     this.viewer = viewer;
     this.orbitSpeed = 0;
     this.orbitHandler = null;
-    this.prefix = 'camera';
+    this.prefix = "camera";
+  }
+
+  private getErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : String(error);
   }
 
   /**
@@ -40,11 +68,11 @@ class CesiumCameraController implements ManagerInterface {
   async setUp(): Promise<void> {
     return new Promise<void>((resolve) => {
       flyToPosition(
-        this.viewer, 
+        this.viewer,
         { longitude: 25.2797, latitude: 54.6872, height: 400 },
         { heading: 0, pitch: -15, roll: 0 },
         3,
-        { complete: () => resolve() }
+        { complete: () => resolve() },
       );
     });
   }
@@ -58,28 +86,28 @@ class CesiumCameraController implements ManagerInterface {
     height: number,
     orientation: CameraOrientation = {},
     duration: number = 3,
-    options: CameraFlyToOptions = {}
-  ): Promise<MCPCommandResult> {
+    options: CameraFlyToOptions = {},
+  ): Promise<CameraFlyToResult> {
     try {
       // Validate inputs
       const lonCheck = validateLongitude(longitude);
       if (!lonCheck.valid) {
-        return { success: false, error: lonCheck.error };
+        return { success: false, error: lonCheck.error ?? "Invalid longitude" };
       }
-      
+
       const latCheck = validateLatitude(latitude);
       if (!latCheck.valid) {
-        return { success: false, error: latCheck.error };
+        return { success: false, error: latCheck.error ?? "Invalid latitude" };
       }
-      
+
       const heightCheck = validateHeight(height);
       if (!heightCheck.valid) {
-        return { success: false, error: heightCheck.error };
+        return { success: false, error: heightCheck.error ?? "Invalid height" };
       }
-      
+
       let completed = false;
       let cancelled = false;
-      
+
       await new Promise<void>((resolve) => {
         flyToPosition(
           this.viewer,
@@ -95,22 +123,23 @@ class CesiumCameraController implements ManagerInterface {
             cancel: () => {
               cancelled = true;
               resolve();
-            }
-          }
+            },
+          },
         );
       });
-      
-      return {
+
+      const result: CameraFlyToResult = {
         success: completed,
         position: { longitude, latitude, height },
         orientation: orientation,
         actualDuration: duration,
-        cancelled: cancelled
+        cancelled: cancelled,
       };
-    } catch (error: any) {
+      return result;
+    } catch (error: unknown) {
       return {
         success: false,
-        error: `Camera flight failed: ${error.message}`
+        error: `Camera flight failed: ${this.getErrorMessage(error)}`,
       };
     }
   }
@@ -122,35 +151,36 @@ class CesiumCameraController implements ManagerInterface {
     longitude: number,
     latitude: number,
     height: number,
-    orientation: CameraOrientation = {}
-  ): MCPCommandResult {
+    orientation: CameraOrientation = {},
+  ): CameraViewResult {
     try {
       // Validate inputs
       const lonCheck = validateLongitude(longitude);
       if (!lonCheck.valid) {
-        return { success: false, error: lonCheck.error };
+        return { success: false, error: lonCheck.error ?? "Invalid longitude" };
       }
-      
+
       const latCheck = validateLatitude(latitude);
       if (!latCheck.valid) {
-        return { success: false, error: latCheck.error };
+        return { success: false, error: latCheck.error ?? "Invalid latitude" };
       }
-      
+
       const heightCheck = validateHeight(height);
       if (!heightCheck.valid) {
-        return { success: false, error: heightCheck.error };
+        return { success: false, error: heightCheck.error ?? "Invalid height" };
       }
-      
+
       setCameraView(this.viewer, { longitude, latitude, height }, orientation);
-      return {
+      const result: CameraViewResult = {
         success: true,
         position: { longitude, latitude, height },
-        orientation: orientation
+        orientation: orientation,
       };
-    } catch (error: any) {
+      return result;
+    } catch (error: unknown) {
       return {
         success: false,
-        error: `Failed to set camera view: ${error.message}`
+        error: `Failed to set camera view: ${this.getErrorMessage(error)}`,
       };
     }
   }
@@ -158,22 +188,27 @@ class CesiumCameraController implements ManagerInterface {
   /**
    * Get current camera position and comprehensive view information
    */
-  getCurrentPosition(): MCPCommandResult {
+  getCurrentPosition(): CameraPositionResult {
     try {
       const cameraData = getCameraPosition(this.viewer);
       const viewRectangle = getCameraViewRectangle(this.viewer);
 
-      return {
+      const result: CameraPositionResult = {
         success: true,
-        position: cameraData.position,
+        position: {
+          longitude: cameraData.position.longitude,
+          latitude: cameraData.position.latitude,
+          height: cameraData.position.height ?? 0,
+        },
         orientation: cameraData.orientation,
         viewRectangle: viewRectangle,
-        altitude: cameraData.position.height
+        altitude: cameraData.position.height ?? 0,
       };
-    } catch (error: any) {
+      return result;
+    } catch (error: unknown) {
       return {
         success: false,
-        error: error.message
+        error: this.getErrorMessage(error),
       };
     }
   }
@@ -185,23 +220,28 @@ class CesiumCameraController implements ManagerInterface {
     targetLon: number,
     targetLat: number,
     targetHeight: number,
-    offset: any = {}
-  ): MCPCommandResult {
+    offset: CameraLookAtOffset = {},
+  ): CameraTargetResult {
     try {
       lookAtPosition(
-        this.viewer, 
+        this.viewer,
         { longitude: targetLon, latitude: targetLat, height: targetHeight },
-        offset
+        offset,
       );
-      return {
+      const result: CameraTargetResult = {
         success: true,
-        target: { longitude: targetLon, latitude: targetLat, height: targetHeight },
-        offset: offset
+        target: {
+          longitude: targetLon,
+          latitude: targetLat,
+          height: targetHeight,
+        },
+        offset: offset,
       };
-    } catch (error: any) {
+      return result;
+    } catch (error: unknown) {
       return {
         success: false,
-        error: error.message
+        error: this.getErrorMessage(error),
       };
     }
   }
@@ -209,25 +249,28 @@ class CesiumCameraController implements ManagerInterface {
   /**
    * Start camera orbit around current target
    */
-  startOrbit(speed: number = 0.005): MCPCommandResult {
+  startOrbit(speed?: number): CameraOrbitResult {
     try {
       this.stopOrbit(); // Stop any existing orbit
 
-      this.orbitSpeed = speed;
+      this.orbitSpeed = speed ?? 0.005;
       this.orbitHandler = this.viewer.clock.onTick.addEventListener(() => {
         this.viewer.scene.camera.rotateRight(this.orbitSpeed);
       });
 
-      return {
+      const result: CameraOrbitResult = {
         success: true,
         orbitActive: true,
-        speed: speed
       };
-    } catch (error: any) {
+      if (speed !== undefined) {
+        result.speed = speed;
+      }
+      return result;
+    } catch (error: unknown) {
       return {
         success: false,
-        error: error.message,
-        orbitActive: false
+        error: this.getErrorMessage(error),
+        orbitActive: false,
       };
     }
   }
@@ -235,7 +278,7 @@ class CesiumCameraController implements ManagerInterface {
   /**
    * Stop camera orbit
    */
-  stopOrbit(): MCPCommandResult {
+  stopOrbit(): CameraOrbitResult {
     try {
       if (this.orbitHandler) {
         this.orbitHandler();
@@ -243,15 +286,16 @@ class CesiumCameraController implements ManagerInterface {
       }
       this.orbitSpeed = 0;
 
-      return {
+      const result: CameraOrbitResult = {
         success: true,
-        orbitActive: false
+        orbitActive: false,
       };
-    } catch (error: any) {
+      return result;
+    } catch (error: unknown) {
       return {
         success: false,
-        error: error.message,
-        orbitActive: false
+        error: this.getErrorMessage(error),
+        orbitActive: false,
       };
     }
   }
@@ -259,7 +303,9 @@ class CesiumCameraController implements ManagerInterface {
   /**
    * Configure camera controller options and constraints
    */
-  setControllerOptions(options: any = {}): MCPCommandResult {
+  setControllerOptions(
+    options: CameraControllerOptions = {},
+  ): CameraControllerResult {
     try {
       const controller = this.viewer.scene.screenSpaceCameraController;
 
@@ -297,17 +343,18 @@ class CesiumCameraController implements ManagerInterface {
         enableRotate: controller.enableRotate,
         enableTranslate: controller.enableTranslate,
         enableZoom: controller.enableZoom,
-        enableLook: controller.enableLook
+        enableLook: controller.enableLook,
       };
 
-      return {
+      const result: CameraControllerResult = {
         success: true,
-        settings: currentSettings
+        settings: currentSettings,
       };
-    } catch (error: any) {
+      return result;
+    } catch (error: unknown) {
       return {
         success: false,
-        error: error.message
+        error: this.getErrorMessage(error),
       };
     }
   }
@@ -325,53 +372,61 @@ class CesiumCameraController implements ManagerInterface {
   getCommandHandlers(): Map<string, CommandHandler> {
     const handlers = new Map<string, CommandHandler>();
 
-    handlers.set('camera_fly_to', async (cmd: MCPCommand) => {
+    handlers.set("camera_fly_to", async (cmd: MCPCommand) => {
+      const destination = cmd.destination as unknown as CameraPosition;
       return await this.flyTo(
-        cmd.destination.longitude,
-        cmd.destination.latitude,
-        cmd.destination.height,
-        cmd.orientation,
-        cmd.duration,
+        destination.longitude,
+        destination.latitude,
+        destination.height,
+        (cmd.orientation as CameraOrientation | undefined) ?? {},
+        (cmd.duration as number | undefined) ?? 3,
         {
-          easingFunction: cmd.easingFunction,
-          maximumHeight: cmd.maximumHeight,
-          pitchAdjustHeight: cmd.pitchAdjustHeight,
-          flyOverLongitude: cmd.flyOverLongitude,
-          flyOverLongitudeWeight: cmd.flyOverLongitudeWeight
-        }
+          easingFunction: cmd.easingFunction as string | undefined,
+          maximumHeight: cmd.maximumHeight as number | undefined,
+          pitchAdjustHeight: cmd.pitchAdjustHeight as number | undefined,
+          flyOverLongitude: cmd.flyOverLongitude as number | undefined,
+          flyOverLongitudeWeight: cmd.flyOverLongitudeWeight as
+            | number
+            | undefined,
+        },
       );
     });
 
-    handlers.set('camera_set_view', (cmd: MCPCommand) => {
+    handlers.set("camera_set_view", (cmd: MCPCommand) => {
+      const destination = cmd.destination as unknown as CameraPosition;
       return this.setView(
-        cmd.destination.longitude,
-        cmd.destination.latitude,
-        cmd.destination.height,
-        cmd.orientation
+        destination.longitude,
+        destination.latitude,
+        destination.height,
+        (cmd.orientation as CameraOrientation | undefined) ?? {},
       );
     });
 
-    handlers.set('camera_get_position', () => {
+    handlers.set("camera_get_position", () => {
       return this.getCurrentPosition();
     });
-    
-    handlers.set('camera_look_at_transform', (cmd: MCPCommand) => {
+
+    handlers.set("camera_look_at_transform", (cmd: MCPCommand) => {
+      const target = cmd.target as unknown as CameraPosition;
       return this.lookAtTransform(
-        cmd.target.longitude,
-        cmd.target.latitude,
-        cmd.target.height,
-        cmd.offset
+        target.longitude,
+        target.latitude,
+        target.height,
+        (cmd.offset as CameraLookAtOffset | undefined) ?? {},
       );
     });
-    
-    handlers.set('camera_start_orbit', (cmd: MCPCommand) => {
-      return this.startOrbit(cmd.speed);
+
+    handlers.set("camera_start_orbit", (cmd: MCPCommand) => {
+      const speed = typeof cmd.speed === "number" ? cmd.speed : undefined;
+      return this.startOrbit(speed);
     });
-    
-    handlers.set('camera_stop_orbit', () => {
+
+    handlers.set("camera_stop_orbit", () => {
       return this.stopOrbit();
-    });    handlers.set('camera_set_controller_options', (cmd: MCPCommand) => {
-      return this.setControllerOptions(cmd.options);
+    });
+
+    handlers.set("camera_set_controller_options", (cmd: MCPCommand) => {
+      return this.setControllerOptions(cmd.options as CameraControllerOptions);
     });
 
     return handlers;

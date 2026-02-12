@@ -32,11 +32,13 @@ The server will start on port 3002 with SSE transport.
 ## 🛠️ Tools
 
 ### 1. `camera_fly_to`
+
 **Execute camera fly operation with advanced options**
 
 Smoothly animates the camera to a destination with configurable easing and flight path.
 
 **Capabilities:**
+
 - Customizable flight duration (default: 3 seconds)
 - 40+ easing functions (LINEAR, QUADRATIC, CUBIC, QUARTIC, QUINTIC, SINUSOIDAL, EXPONENTIAL, CIRCULAR, ELASTIC, BOUNCE, BACK)
 - Maximum height control during flight
@@ -45,6 +47,7 @@ Smoothly animates the camera to a destination with configurable easing and fligh
 - Automatic orientation adjustment
 
 **Input:**
+
 - `destination`: Target position (longitude, latitude, height)
 - `orientation` (optional): Camera orientation (heading, pitch, roll in degrees)
 - `duration` (optional): Animation duration in seconds
@@ -55,80 +58,95 @@ Smoothly animates the camera to a destination with configurable easing and fligh
 - `flyOverLongitudeWeight` (optional): Weight of flyOverLongitude (0-1)
 
 **Output:**
+
 - Final camera position and orientation
 - Animation statistics (duration, client count, response time)
 
 ---
 
 ### 2. `camera_set_view`
+
 **Instantly set camera position without animation**
 
 Immediately positions the camera at the specified location and orientation.
 
 **Capabilities:**
+
 - Zero-animation instant positioning
 - Precise position and orientation control
 - Rectangle-based view framing
 - Heading-pitch-range positioning relative to targets
 
 **Input:**
+
 - `destination`: Target position (longitude, latitude, height)
 - `orientation` (optional): Camera orientation (heading, pitch, roll in degrees)
 
 **Output:**
+
 - Final camera position and orientation
 - Client broadcast statistics
 
 ---
 
 ### 3. `camera_look_at_transform`
+
 **Lock camera to look at a specific point on Earth**
 
 Sets up a look-at relationship between the camera and a target point, useful for orbiting around landmarks.
 
 **Capabilities:**
+
 - Target-relative camera positioning
 - Automatic heading/pitch/range calculation
 - Orbit-ready camera setup
 - Landmark inspection mode
 
 **Input:**
+
 - `target`: Target position to look at (longitude, latitude, height)
 - `offset` (optional): Camera offset from target (heading, pitch, range)
 
 **Output:**
+
 - Camera configuration confirmation
 - Target and offset details
 
 ---
 
 ### 4. `camera_start_orbit`
+
 **Start automated camera orbit around target**
 
 Begins automatic circular orbit around the current look-at target.
 
 **Capabilities:**
+
 - Configurable orbit speed and direction
 - Smooth circular motion
 - Maintains fixed altitude and distance
 - Automatic heading updates
 
 **Input:**
+
 - `speed` (optional): Orbit speed multiplier (default: 1.0, range: 0.1-10.0)
 - `direction` (optional): 'clockwise' or 'counterclockwise' (default: 'clockwise')
 
 **Output:**
+
 - Orbit activation confirmation
 - Speed and direction settings
 
 ---
 
 ### 5. `camera_stop_orbit`
+
 **Stop the current camera orbit animation**
 
 Halts any active automated orbit, returning camera control to user.
 
 **Capabilities:**
+
 - Immediate orbit cessation
 - Preserves current camera position
 - Restores manual camera control
@@ -136,16 +154,19 @@ Halts any active automated orbit, returning camera control to user.
 **Input:** None
 
 **Output:**
+
 - Orbit deactivation confirmation
 
 ---
 
 ### 6. `camera_get_position`
+
 **Get comprehensive camera information**
 
 Retrieves detailed camera state including position, orientation, and visible bounds.
 
 **Capabilities:**
+
 - Current position in cartographic coordinates
 - Full orientation (heading, pitch, roll)
 - View rectangle (visible lat/lon bounds)
@@ -155,6 +176,7 @@ Retrieves detailed camera state including position, orientation, and visible bou
 **Input:** None
 
 **Output:**
+
 - `position`: Current camera position (longitude, latitude, height)
 - `orientation`: Current orientation (heading, pitch, roll in degrees)
 - `viewRectangle`: Visible bounds (west, south, east, north in degrees)
@@ -163,11 +185,13 @@ Retrieves detailed camera state including position, orientation, and visible bou
 ---
 
 ### 7. `camera_set_controller_options`
+
 **Configure camera movement constraints and behavior**
 
 Adjusts camera controller settings to customize user interaction and enforce constraints.
 
 **Capabilities:**
+
 - Enable/disable specific camera movements (rotate, translate, zoom, tilt, look)
 - Set maximum/minimum zoom distances
 - Configure collision detection
@@ -175,6 +199,7 @@ Adjusts camera controller settings to customize user interaction and enforce con
 - Set movement speed multipliers
 
 **Input:**
+
 - `enableRotate` (optional): Allow camera rotation
 - `enableTranslate` (optional): Allow camera panning
 - `enableZoom` (optional): Allow zoom in/out
@@ -185,11 +210,11 @@ Adjusts camera controller settings to customize user interaction and enforce con
 - `enableCollisionDetection` (optional): Prevent camera from going underground
 
 **Output:**
+
 - Applied configuration settings
 - Client broadcast statistics
 
 ---
-
 
 ## 🔌 Using with AI Clients
 
@@ -304,6 +329,7 @@ MCP_CAMERA_PORT=3002
 ### Server Configuration
 
 Environment variables for the camera server:
+
 - `PORT` or `CAMERA_SERVER_PORT`: Override default server port (default: 3002)
 - `COMMUNICATION_PROTOCOL`: Choose 'sse' or 'websocket' (default: 'websocket')
 - `MAX_RETRIES`: Maximum retry attempts for port binding (default: 10)
@@ -313,6 +339,6 @@ Environment variables for the camera server:
 
 Interested in contributing? Please read [CONTRIBUTING.md](CONTRIBUTING.md). We also ask that you follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-##  License
+## License
 
 Apache 2.0. See [LICENSE](LICENSE).

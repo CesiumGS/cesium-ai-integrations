@@ -11,30 +11,24 @@ Shared core library for Cesium MCP clients. This package contains:
 ## Usage
 
 ### Browser Application
+
 ```typescript
-import { CesiumApp, SSECommunication } from '@cesium-mcp/client-core';
+import { CesiumApp, SSECommunication } from "@cesium-mcp/client-core";
 
 const config = {
-  cesiumAccessToken: 'your-token',
-  mcpServers: [/* ... */]
+  cesiumAccessToken: "your-token",
+  mcpServers: [
+    /* ... */
+  ],
 };
 
-const app = new CesiumApp('cesiumContainer', config);
-await app.initialize();
-```
-
-### Electron Application
-```typescript
-import { CesiumApp, WebSocketCommunication } from '@cesium-mcp/client-core';
-
-// Same API as browser
-const app = new CesiumApp('cesiumContainer', config);
+const app = new CesiumApp("cesiumContainer", config);
 await app.initialize();
 ```
 
 ## Architecture
 
-This package is environment-agnostic and works in both browser and Electron renderer processes. It uses HTTP/SSE/WebSocket for MCP communication, which works seamlessly with localhost servers in both environments.
+This package is designed for browser applications and uses HTTP/SSE/WebSocket for MCP communication with localhost servers.
 
 ## 🤝 Contributing
 
