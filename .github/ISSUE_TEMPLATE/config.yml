@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+- name: Ask a question
+  url: https://community.cesium.com/
+  about: The Cesium platform is a big ecosystem, so we use GitHub for feature requests and bug tracking exclusively. Please use the community forum for general questions. The Cesium team and community actively monitor it and love seeing what people are working on!
