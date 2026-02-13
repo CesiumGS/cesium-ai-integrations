@@ -6,11 +6,12 @@
  */
 
 import type { CesiumViewer } from "./types/cesium-types.js";
-import CesiumCameraController from "./managers/camera-controller.js";
+import CesiumCameraController from "./managers/camera-manager.js";
 import { BaseCommunicationManager } from "./communications/base-communication.js";
 import SSECommunicationManager from "./communications/sse-communication.js";
 import WebSocketCommunicationManager from "./communications/websocket-communication.js";
 import type { ManagerInterface, ServerConfig } from "./types/mcp.js";
+import { getErrorMessage } from "./shared/error-utils.js";
 
 export interface CesiumAppConfig {
   cesiumAccessToken: string;
@@ -33,10 +34,6 @@ export class CesiumApp {
   isInitialized: boolean;
   managers: ManagerInterface[];
   private containerId: string;
-
-  private getErrorMessage(error: unknown): string {
-    return error instanceof Error ? error.message : String(error);
-  }
 
   constructor(containerId: string, config: CesiumAppConfig) {
     this.containerId = containerId;
@@ -140,7 +137,7 @@ export class CesiumApp {
         } catch (error: unknown) {
           console.error(
             "Error disconnecting MCP communication:",
-            this.getErrorMessage(error),
+            getErrorMessage(error),
           );
         }
         this.mcpCommunication = null;
@@ -151,10 +148,7 @@ export class CesiumApp {
         try {
           manager.shutdown();
         } catch (error: unknown) {
-          console.error(
-            "Error shutting down manager:",
-            this.getErrorMessage(error),
-          );
+          console.error("Error shutting down manager:", getErrorMessage(error));
         }
       });
       this.managers = [];
@@ -164,10 +158,7 @@ export class CesiumApp {
         try {
           this.viewer.destroy();
         } catch (error: unknown) {
-          console.error(
-            "Error destroying viewer:",
-            this.getErrorMessage(error),
-          );
+          console.error("Error destroying viewer:", getErrorMessage(error));
         }
         this.viewer = null;
       }
@@ -176,7 +167,7 @@ export class CesiumApp {
     } catch (error: unknown) {
       console.error(
         "Error during application shutdown:",
-        this.getErrorMessage(error),
+        getErrorMessage(error),
       );
       throw error;
     }

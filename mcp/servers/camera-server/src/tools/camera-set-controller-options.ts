@@ -1,0 +1,102 @@
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { ICommunicationServer } from "@cesium-mcp/shared";
+import {
+  CameraControllerOptionsSchema,
+  CameraControllerOptionsResponseSchema,
+} from "../schemas/index.js";
+import {
+  executeWithTiming,
+  formatErrorMessage,
+  buildSuccessResponse,
+  buildErrorResponse,
+} from "../utils/utils.js";
+
+export function registerCameraSetControllerOptions(
+  server: McpServer,
+  communicationServer: ICommunicationServer,
+): void {
+  server.registerTool(
+    "camera_set_controller_options",
+    {
+      title: "Set Camera Controller Options",
+      description: "Configure camera movement constraints and behavior",
+      inputSchema: CameraControllerOptionsSchema.shape,
+      outputSchema: CameraControllerOptionsResponseSchema.shape,
+    },
+    async ({
+      enableCollisionDetection,
+      minimumZoomDistance,
+      maximumZoomDistance,
+      enableTilt,
+      enableRotate,
+      enableTranslate,
+      enableZoom,
+      enableLook,
+    }) => {
+      try {
+        const command = {
+          type: "camera_set_controller_options",
+          options: {
+            enableCollisionDetection,
+            minimumZoomDistance,
+            maximumZoomDistance,
+            enableTilt,
+            enableRotate,
+            enableTranslate,
+            enableZoom,
+            enableLook,
+          },
+        };
+
+        const { result, responseTime } = await executeWithTiming(
+          communicationServer,
+          command,
+        );
+
+        if (result.success) {
+          const output = {
+            success: true,
+            message: "Camera controller options updated",
+            settings: result.settings || command.options,
+            stats: {
+              responseTime,
+            },
+          };
+
+          return buildSuccessResponse(
+            "settings",
+            output.message,
+            responseTime,
+            output,
+          );
+        }
+
+        throw new Error(result.error || "Unknown error from Cesium");
+      } catch (error) {
+        const errorOutput = {
+          success: false,
+          message: `Failed to set controller options: ${formatErrorMessage(error)}`,
+          settings: {
+            enableCollisionDetection: enableCollisionDetection ?? true,
+            minimumZoomDistance,
+            maximumZoomDistance,
+            enableTilt: enableTilt ?? true,
+            enableRotate: enableRotate ?? true,
+            enableTranslate: enableTranslate ?? true,
+            enableZoom: enableZoom ?? true,
+            enableLook: enableLook ?? true,
+          },
+          stats: {
+            responseTime: 0,
+          },
+        };
+
+        return buildErrorResponse(
+          errorOutput.message,
+          errorOutput.stats.responseTime,
+          errorOutput,
+        );
+      }
+    },
+  );
+}

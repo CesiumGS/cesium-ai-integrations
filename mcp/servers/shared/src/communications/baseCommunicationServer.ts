@@ -1,12 +1,22 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import type { Server as HttpServer } from "http";
-import { ServerConfig, ServerStats } from "../models/serverConfig.js";
+import { randomUUID } from "crypto";
+import { ICommunicationServer } from "./communication-server.js";
 import {
+  CommandInput,
   CommandPayload,
   CommandResult,
-  ICommunicationServer,
-} from "./communication-server.js";
+  ServerConfig,
+  ServerStats,
+  LogLevel,
+} from "../index.js";
+import {
+  DEFAULT_COMMAND_TIMEOUT_MS,
+  HEARTBEAT_INTERVAL_MS,
+  GRACEFUL_SHUTDOWN_TIMEOUT_MS,
+  ServerDefaults,
+} from "../constants.js";
 
 /**
  * Interface for pending command promise handlers
@@ -29,6 +39,10 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
   protected actualPort: number = 0;
   protected app: express.Application;
   protected server: HttpServer | null = null;
+  protected heartbeatInterval?: NodeJS.Timeout;
+  protected startTime: number = 0;
+  protected commandsExecuted: number = 0;
+  protected logLevel: LogLevel = "info";
 
   public constructor() {
     this.app = express();
@@ -53,16 +67,24 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
   public abstract stop(): Promise<void>;
 
   /**
+   * Log a message at the specified level
+   */
+  protected log(level: LogLevel, message: string, ...args: unknown[]): void {
+    const levels: LogLevel[] = ["debug", "info", "warn", "error"];
+    const currentLevelIndex = levels.indexOf(this.logLevel);
+    const messageLevelIndex = levels.indexOf(level);
+
+    if (messageLevelIndex >= currentLevelIndex) {
+      const prefix = `[${level.toUpperCase()}]`;
+      console.error(prefix, message, ...args);
+    }
+  }
+
+  /**
    * Setup Express middleware (CORS, JSON parsing)
    */
   protected setupMiddleware(): void {
-    this.app.use(
-      cors({
-        origin: "*",
-        methods: ["GET", "POST"],
-        allowedHeaders: ["Content-Type", "Cache-Control", "Connection"],
-      }),
-    );
+    // CORS will be configured in start() with config
     this.app.use(express.json());
   }
 
@@ -71,64 +93,101 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
    * Subclasses can override to add protocol-specific routes
    */
   protected setupRoutes(): void {
-    // Health check endpoint
+    // Enhanced health check endpoint
     this.app.get("/mcp/health", (req: Request, res: Response) => {
+      const stats = this.getStats();
       res.json({
         status: "healthy",
         connected: this.isClientConnected(),
         timestamp: new Date().toISOString(),
+        port: stats.port,
+        clients: stats.clients,
+        uptime: stats.uptime,
+        commandsExecuted: stats.commandsExecuted,
       });
     });
+  }
+
+  /**
+   * Hook method called after server successfully starts and binds to a port
+   * Subclasses can override this to perform initialization that depends on the server being ready
+   */
+  protected onServerStarted(): void {
+    // Default implementation does nothing
   }
 
   /**
    * Generic start method that handles port binding and retries
    */
   public async start(config: ServerConfig): Promise<number> {
+    // Configure logging level
+    this.logLevel = config.logLevel || "info";
+
+    // Configure CORS
+    const corsOrigin = config.corsOrigin || ServerDefaults.CORS_ORIGIN;
+    this.app.use(
+      cors({
+        origin: corsOrigin,
+        methods: ["GET", "POST"],
+        allowedHeaders: ["Content-Type", "Cache-Control", "Connection"],
+      }),
+    );
+
     return new Promise((resolve, reject) => {
-      const port = config.port;
-      let retries = config.maxRetries;
-      const strictPort = config.strictPort ?? false;
+      this.tryBindPort(config, resolve, reject);
+    });
+  }
 
-      const tryPort = (portToTry: number) => {
-        const serverToStart = this.getServerToStart();
+  /**
+   * Attempt to bind to a port with retry logic
+   */
+  private tryBindPort(
+    config: ServerConfig,
+    resolve: (port: number) => void,
+    reject: (error: Error) => void,
+    currentPort?: number,
+    retriesLeft?: number,
+  ): void {
+    const port = currentPort ?? config.port;
+    const retries = retriesLeft ?? config.maxRetries;
+    const strictPort = config.strictPort ?? false;
+    const serverToStart = this.getServerToStart();
 
-        this.server = serverToStart.listen(portToTry, () => {
-          this.actualPort = portToTry;
-          console.error(
-            `${this.getProtocolName()} server running on port ${portToTry}`,
+    this.server = serverToStart.listen(port, () => {
+      this.actualPort = port;
+      this.startTime = Date.now();
+      this.log(
+        "info",
+        `${this.getProtocolName()} server running on port ${port}`,
+      );
+      this.onServerStarted();
+      resolve(port);
+    });
+
+    this.server.on("error", (err: NodeJS.ErrnoException) => {
+      if (err.code === "EADDRINUSE") {
+        if (strictPort) {
+          reject(
+            new Error(
+              `Port ${config.port} is in use and strictPort mode is enabled. Please free up port ${config.port} or disable strictPort.`,
+            ),
           );
-          resolve(portToTry);
-        });
-
-        this.server.on("error", (err: NodeJS.ErrnoException) => {
-          if (err.code === "EADDRINUSE") {
-            if (strictPort) {
-              reject(
-                new Error(
-                  `Port ${config.port} is in use and strictPort mode is enabled. Please free up port ${config.port} or disable strictPort.`,
-                ),
-              );
-            } else if (retries > 0) {
-              console.error(
-                `Port ${portToTry} is in use, trying port ${portToTry + 1}...`,
-              );
-              retries--;
-              tryPort(portToTry + 1);
-            } else {
-              reject(
-                new Error(
-                  `No available ports found after ${config.maxRetries} retries starting from port ${config.port}`,
-                ),
-              );
-            }
-          } else {
-            reject(err);
-          }
-        });
-      };
-
-      tryPort(port);
+        } else if (retries > 0) {
+          this.log(
+            "warn",
+            `Port ${port} is in use, trying port ${port + 1}...`,
+          );
+          this.tryBindPort(config, resolve, reject, port + 1, retries - 1);
+        } else {
+          reject(
+            new Error(
+              `No available ports found after ${config.maxRetries} retries starting from port ${config.port}`,
+            ),
+          );
+        }
+      } else {
+        reject(err);
+      }
     });
   }
 
@@ -139,7 +198,8 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
     return {
       port: this.actualPort,
       clients: this.isClientConnected() ? 1 : 0,
-      pendingCommands: this.pendingCommands.size,
+      uptime: this.startTime > 0 ? Date.now() - this.startTime : 0,
+      commandsExecuted: this.commandsExecuted,
     };
   }
 
@@ -187,8 +247,8 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
    * Uses deferred promise pattern for immediate response when result arrives
    */
   public async executeCommand(
-    command: CommandPayload,
-    timeoutMs: number = 10000,
+    command: CommandInput,
+    timeoutMs: number = DEFAULT_COMMAND_TIMEOUT_MS,
   ): Promise<CommandResult> {
     if (!this.isClientConnected()) {
       throw new Error(
@@ -196,8 +256,8 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
       );
     }
 
-    const commandId = Date.now().toString() + Math.random().toString(36);
-    command.id = commandId;
+    const commandId = randomUUID();
+    const commandPayload: CommandPayload = { ...command, id: commandId };
 
     // Create deferred promise with timeout
     return new Promise((resolve, reject) => {
@@ -220,8 +280,9 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
 
       // Send command
       try {
-        this.sendCommand(command);
-        console.error("Command sent to client");
+        this.sendCommand(commandPayload);
+        this.commandsExecuted++;
+        this.log("debug", `Command sent to client: ${commandId}`);
       } catch (error) {
         clearTimeout(timeoutHandle);
         this.pendingCommands.delete(commandId);
@@ -246,8 +307,9 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
       clearTimeout(pending.timeout);
       this.pendingCommands.delete(id);
       pending.resolve(result);
+      this.log("debug", `Command result received: ${id}`);
     } else {
-      console.error(`⚠️ Received result for unknown command ID: ${id}`);
+      this.log("warn", `Received result for unknown command ID: ${id}`);
     }
   }
 
@@ -262,5 +324,59 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
       pending.reject(new Error(reason));
     }
     this.pendingCommands.clear();
+  }
+
+  /**
+   * Start a heartbeat interval for keeping connections alive
+   * @param onHeartbeat Callback function to execute on each heartbeat
+   * @param intervalMs Interval in milliseconds (default: 30 seconds)
+   */
+  protected startHeartbeat(
+    onHeartbeat: () => void,
+    intervalMs: number = HEARTBEAT_INTERVAL_MS,
+  ): void {
+    this.heartbeatInterval = setInterval(onHeartbeat, intervalMs);
+  }
+
+  /**
+   * Stop and clear the heartbeat interval
+   */
+  protected cleanupHeartbeat(): void {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = undefined;
+    }
+  }
+
+  /**
+   * Perform common shutdown tasks
+   * @param shutdownTimeout Maximum time to wait for graceful shutdown
+   */
+  protected async performShutdown(shutdownTimeout?: number): Promise<void> {
+    const timeout = shutdownTimeout ?? GRACEFUL_SHUTDOWN_TIMEOUT_MS;
+
+    // Reject all pending commands
+    this.rejectAllPendingCommands("Server shutting down");
+
+    // Clear heartbeat
+    this.cleanupHeartbeat();
+
+    // Wait for server to close with timeout
+    if (this.server) {
+      return Promise.race([
+        new Promise<void>((resolve) => {
+          this.server!.close(() => {
+            this.log("info", `${this.getProtocolName()} server stopped`);
+            resolve();
+          });
+        }),
+        new Promise<void>((resolve) => {
+          setTimeout(() => {
+            this.log("warn", "Shutdown timeout reached, forcing close");
+            resolve();
+          }, timeout);
+        }),
+      ]);
+    }
   }
 }

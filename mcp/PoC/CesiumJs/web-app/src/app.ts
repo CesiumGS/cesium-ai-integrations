@@ -1,10 +1,12 @@
 import { CesiumApp, type CesiumAppConfig } from "@cesium-mcp/client-core";
 
+// Constants
+const STATUS_UPDATE_INTERVAL = 2000; // milliseconds
+
 type McpServerStatus = {
   isConnected: boolean;
   name: string;
   port: number;
-  capabilities: string[];
 };
 
 type AppGlobals = Window & {
@@ -24,7 +26,6 @@ const config: CesiumAppConfig = {
     {
       name: "Camera Server",
       port: parseInt(process.env.MCP_CAMERA_PORT || "3002"),
-      capabilities: ["camera"],
     },
   ],
 };
@@ -45,6 +46,13 @@ async function initializeApplication(): Promise<void> {
 }
 
 /**
+ * Get protocol icon based on protocol type
+ */
+function getProtocolIcon(protocol: string): string {
+  return protocol === "websocket" ? "🔌 WS" : "📡 SSE";
+}
+
+/**
  * Initialize UI event handlers
  */
 function initializeUI(): void {
@@ -52,24 +60,20 @@ function initializeUI(): void {
   const statusContent = document.getElementById("statusContent");
   const statusPanel = document.getElementById("statusPanel");
 
-  if (toggleBtn && statusContent) {
+  if (toggleBtn && statusContent && statusPanel) {
     toggleBtn.addEventListener("click", () => {
       const isCollapsed = statusContent.style.display === "none";
       statusContent.style.display = isCollapsed ? "block" : "none";
       toggleBtn.textContent = isCollapsed ? "−" : "+";
-      statusPanel?.classList.toggle("collapsed", !isCollapsed);
+      statusPanel.classList.toggle("collapsed", !isCollapsed);
     });
   }
 
   const closeError = document.getElementById("closeError");
-  const dismissError = document.getElementById("dismissError");
   const retryBtn = document.getElementById("retryBtn");
 
   if (closeError) {
     closeError.addEventListener("click", hideError);
-  }
-  if (dismissError) {
-    dismissError.addEventListener("click", hideError);
   }
   if (retryBtn) {
     retryBtn.addEventListener("click", () => {
@@ -117,11 +121,10 @@ function updateStatus(): void {
   const status = cesiumApp.getStatus();
   const mcpServerStatus = document.getElementById("mcpServerStatus");
 
-  if (mcpServerStatus && status.mcpCommunication) {
-    const servers = (status.mcpCommunication.servers ||
-      []) as McpServerStatus[];
+  if (mcpServerStatus && status.mcpCommunication?.servers) {
+    const servers = status.mcpCommunication.servers as McpServerStatus[];
     const protocol = config.mcpProtocol || "websocket";
-    const protocolIcon = protocol === "websocket" ? "🔌 WS" : "📡 SSE";
+    const protocolIcon = getProtocolIcon(protocol);
 
     mcpServerStatus.innerHTML = servers
       .map(
@@ -131,7 +134,6 @@ function updateStatus(): void {
         <span class="server-name">${server.name}</span>
         <span class="server-port">:${server.port}</span>
         <span class="server-protocol">${protocolIcon}</span>
-        <span class="server-capabilities">[${server.capabilities.join(", ")}]</span>
       </div>
     `,
       )
@@ -144,7 +146,10 @@ function updateStatus(): void {
  */
 function startStatusUpdates(): void {
   updateStatus();
-  statusUpdateInterval = window.setInterval(updateStatus, 2000);
+  statusUpdateInterval = window.setInterval(
+    updateStatus,
+    STATUS_UPDATE_INTERVAL,
+  );
 }
 
 /**

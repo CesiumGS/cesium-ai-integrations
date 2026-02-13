@@ -182,26 +182,45 @@ pnpm install @cesium-mcp/shared
 
 ## Development
 
-````bash
+```bash
 pnpm run build    # Compile TypeScript
 pnpm run dev      # Watch mode
 pnpm run clean    # Remove build artifacts
-```## API Reference
+```
+
+<details>
+<summary>💡 Why does this codebase use <code>console.error</code> everywhere?</summary>
+
+MCP servers using stdio transport (the default) reserve stdout for JSON-RPC protocol messages. All logging must go to stderr to avoid corrupting the message stream.
+
+```typescript
+// ✅ Correct
+console.error("Server started");
+
+// ❌ Wrong - breaks MCP protocol
+console.log("Server started");
+```
+
+</details>
+
+## API Reference
 
 See [TRANSPORT_EXAMPLES.md](./TRANSPORT_EXAMPLES.md) for detailed usage examples.
 
 **Key APIs:**
+
 - `CesiumMCPServer` - MCP server wrapper with transport support
 - `CesiumSSEServer` - SSE communication server
 - `CesiumWebSocketServer` - WebSocket communication server
 
 **Configuration:**
+
 ```typescript
 interface MCPServerConfig {
   name: string;
   version: string;
   communicationServerPort?: number;
-  mcpTransport?: 'stdio' | 'sse' | 'streamable-http';
+  mcpTransport?: "stdio" | "sse" | "streamable-http";
   mcpTransportEndpoint?: string;
 }
-````
+```

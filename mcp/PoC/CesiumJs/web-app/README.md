@@ -46,7 +46,7 @@ Get your token from: https://ion.cesium.com/tokens
 In `config.local.js`, configure the camera MCP server connection:
 
 ```javascript
-MCP_SERVERS: [{ name: "Camera Server", port: 3002, capabilities: ["camera"] }];
+MCP_SERVERS: [{ name: "Camera Server", port: 3002 }];
 ```
 
 ### 3. Start Everything

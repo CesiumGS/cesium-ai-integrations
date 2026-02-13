@@ -10,6 +10,7 @@ import {
   MCPServerConfig,
   ToolRegistrationFunction,
 } from "../models/mcpServerConfig.js";
+import { MCP_PORT_OFFSET } from "../constants.js";
 
 /**
  * Generic MCP Server class that handles common setup for all Cesium MCP servers
@@ -67,7 +68,7 @@ export class CesiumMCPServer {
 
       // Register all tools
       for (const registerFn of this.toolRegistrationFunctions) {
-        registerFn(this.mcpServer, this.communicationServer!);
+        registerFn(this.mcpServer, this.communicationServer);
       }
 
       // Start MCP server with configured transport
@@ -108,7 +109,8 @@ export class CesiumMCPServer {
    */
   private async startStreamableHttpTransport(): Promise<void> {
     const endpoint = this.config.mcpTransportEndpoint || "/mcp";
-    const mcpPort = (this.config.communicationServerPort || 3000) + 1000; // Use different port for MCP transport
+    const mcpPort =
+      (this.config.communicationServerPort || 3000) + MCP_PORT_OFFSET; // Use different port for MCP transport
 
     this.mcpTransportApp = express();
     this.mcpTransportApp.use(express.json());
@@ -159,21 +161,6 @@ export class CesiumMCPServer {
       await this.communicationServer.stop();
     }
     // MCP server doesn't have an explicit stop method
-  }
-
-  /**
-   * Get the MCP server instance for advanced usage
-   */
-  public getMCPServer(): McpServer {
-    return this.mcpServer;
-  }
-
-  /**
-   * Get the communication server instance for advanced usage
-   * Returns undefined if no communication server was provided
-   */
-  public getCommunicationServer(): ICommunicationServer | undefined {
-    return this.communicationServer;
   }
 
   /**

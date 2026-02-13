@@ -26,7 +26,7 @@ export class CesiumSSEServer extends BaseCommunicationServer {
     // SSE endpoint for real-time commands
     this.app.get("/mcp/events", (req: Request, res: Response) => {
       // Only allow one client connection
-      if (this.sseClient) {
+      if (this.isClientConnected()) {
         res.status(409).json({
           error:
             "A client is already connected. Only one client is supported per MCP server instance.",
@@ -50,48 +50,35 @@ export class CesiumSSEServer extends BaseCommunicationServer {
 
       // Set the single client connection
       this.sseClient = res;
-      console.error("SSE client connected");
+      this.log("info", "SSE client connected");
 
       // Handle client disconnect
       req.on("close", () => {
         this.sseClient = null;
-        console.error("SSE client disconnected");
+        this.cleanupHeartbeat();
+        this.log("info", "SSE client disconnected");
       });
 
       // Keep connection alive with heartbeat
-      const heartbeat = setInterval(() => {
+      this.startHeartbeat(() => {
         if (res.writableEnded) {
-          clearInterval(heartbeat);
+          this.cleanupHeartbeat();
           return;
         }
         res.write('data: {"type":"heartbeat"}\n\n');
-      }, 30000); // 30 seconds
-
-      req.on("close", () => {
-        clearInterval(heartbeat);
       });
     });
   }
 
   public override async stop(): Promise<void> {
-    // Reject all pending commands
-    this.rejectAllPendingCommands("Server shutting down");
-
     // Close SSE connection
     if (this.sseClient) {
       this.sseClient.end();
       this.sseClient = null;
     }
 
-    // Close HTTP server
-    if (this.server) {
-      return new Promise((resolve) => {
-        this.server!.close(() => {
-          console.error("SSE HTTP server stopped");
-          resolve();
-        });
-      });
-    }
+    // Perform common shutdown tasks
+    await this.performShutdown();
   }
 
   protected override isClientConnected(): boolean {
@@ -105,6 +92,7 @@ export class CesiumSSEServer extends BaseCommunicationServer {
   protected override handleConnectionDeath(): void {
     // Reject all pending commands on disconnect
     this.rejectAllPendingCommands("Client disconnected");
+    this.cleanupHeartbeat();
     this.sseClient = null;
   }
 }

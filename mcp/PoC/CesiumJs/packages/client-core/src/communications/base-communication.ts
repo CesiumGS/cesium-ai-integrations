@@ -15,6 +15,12 @@ import type {
   ManagerInterface,
   ServerConfig,
 } from "../types/mcp.js";
+import { getErrorMessage } from "../shared/error-utils.js";
+import {
+  DEFAULT_SERVER_CONFIG,
+  DEFAULT_RECONNECT_DELAY,
+  MAX_RECONNECT_ATTEMPTS,
+} from "../shared/constants.js";
 
 /**
  * Abstract base class for communication managers
@@ -23,12 +29,10 @@ export abstract class BaseCommunicationManager implements CommunicationManager {
   protected managers: ManagerInterface[];
   protected serverConfig: ServerConfig[];
   protected reconnectDelay: number;
+  protected maxReconnectAttempts: number;
+  protected reconnectAttempts: Map<number, number>;
   protected commandHandlers: Map<string, CommandHandler>;
   protected baseUrl: string;
-
-  protected getErrorMessage(error: unknown): string {
-    return error instanceof Error ? error.message : String(error);
-  }
 
   constructor(
     managers: ManagerInterface[] = [],
@@ -36,16 +40,10 @@ export abstract class BaseCommunicationManager implements CommunicationManager {
   ) {
     this.managers = managers;
     this.serverConfig =
-      serverConfig.length > 0
-        ? serverConfig
-        : [
-            {
-              name: "Default Server",
-              port: 3002,
-              capabilities: ["camera", "entity", "clock", "animation"],
-            },
-          ];
-    this.reconnectDelay = 5000;
+      serverConfig.length > 0 ? serverConfig : [DEFAULT_SERVER_CONFIG];
+    this.reconnectDelay = DEFAULT_RECONNECT_DELAY;
+    this.maxReconnectAttempts = MAX_RECONNECT_ATTEMPTS;
+    this.reconnectAttempts = new Map();
     this.commandHandlers = this.initializeCommandHandlers();
     this.baseUrl = this.getDefaultBaseUrl();
   }
@@ -79,6 +77,44 @@ export abstract class BaseCommunicationManager implements CommunicationManager {
     }
 
     return handlers;
+  }
+
+  /**
+   * Schedule a reconnection attempt with exponential backoff
+   */
+  protected scheduleReconnect(
+    port: number,
+    serverName: string,
+    useExponentialBackoff: boolean = false,
+  ): void {
+    const attempts = this.reconnectAttempts.get(port) || 0;
+
+    if (attempts >= this.maxReconnectAttempts) {
+      console.error(`❌ Max reconnection attempts reached for ${serverName}`);
+      return;
+    }
+
+    this.reconnectAttempts.set(port, attempts + 1);
+
+    const delay = useExponentialBackoff
+      ? this.reconnectDelay * Math.pow(1.5, attempts)
+      : this.reconnectDelay;
+
+    setTimeout(() => {
+      console.log(
+        `🔄 Attempting to reconnect to ${serverName} (attempt ${attempts + 1}/${this.maxReconnectAttempts})...`,
+      );
+      this.connectToServer(port, serverName).catch((error) => {
+        console.error(`🔄 Reconnection failed: ${serverName}`, error);
+      });
+    }, delay);
+  }
+
+  /**
+   * Reset reconnection attempt counter for a server
+   */
+  protected resetReconnectAttempts(port: number): void {
+    this.reconnectAttempts.set(port, 0);
   }
 
   /**
@@ -124,7 +160,7 @@ export abstract class BaseCommunicationManager implements CommunicationManager {
       console.error(`❌ Handler error for ${command.type}:`, error);
       return {
         success: false,
-        error: this.getErrorMessage(error),
+        error: getErrorMessage(error),
       };
     }
   }

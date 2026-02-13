@@ -29,7 +29,6 @@ export interface AppConfig {
 export interface ServerConfig {
   name: string;
   port: number;
-  capabilities: string[];
 }
 
 export interface ApplicationStatus {
@@ -45,7 +44,6 @@ export interface ApplicationStatus {
 export interface ServerStatus {
   name: string;
   port: number;
-  capabilities: string[];
   isConnected: boolean;
   readyState: number | string;
 }

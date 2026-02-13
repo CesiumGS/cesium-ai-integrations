@@ -13,7 +13,6 @@ export interface ConnectionStatus {
 export interface ServerStatus {
   name: string;
   port: number;
-  capabilities: string[];
   isConnected: boolean;
   readyState: string | number;
   reconnectAttempts?: number;

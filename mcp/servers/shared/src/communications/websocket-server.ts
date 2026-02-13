@@ -1,11 +1,7 @@
 import { WebSocketServer, WebSocket } from "ws";
 import { createServer, Server as HttpServer } from "http";
 import { BaseCommunicationServer } from "./baseCommunicationServer.js";
-import type { CommandResult } from "./communication-server.js";
-
-type ClientMessage =
-  | { type: "result"; id: string; result: CommandResult }
-  | { type: "pong" };
+import type { ClientMessage } from "../index.js";
 
 export class CesiumWebSocketServer extends BaseCommunicationServer {
   private httpServer?: HttpServer;
@@ -13,10 +9,18 @@ export class CesiumWebSocketServer extends BaseCommunicationServer {
   private wsClient?: WebSocket;
 
   protected override getServerToStart() {
-    // Create HTTP server
+    // Create HTTP server only
+    // WebSocket server will be created after port is successfully bound
     this.httpServer = createServer(this.app);
+    return this.httpServer;
+  }
 
-    // Create WebSocket server
+  protected override onServerStarted(): void {
+    // Create WebSocket server after HTTP server successfully binds to port
+    if (!this.httpServer) {
+      throw new Error("HTTP server not initialized");
+    }
+
     this.wss = new WebSocketServer({
       server: this.httpServer,
       path: "/mcp/ws",
@@ -24,8 +28,6 @@ export class CesiumWebSocketServer extends BaseCommunicationServer {
 
     // Setup WebSocket handlers
     this.setupWebSocket();
-
-    return this.httpServer;
   }
 
   protected override getProtocolName(): string {
@@ -39,19 +41,20 @@ export class CesiumWebSocketServer extends BaseCommunicationServer {
 
     this.wss.on("connection", (ws: WebSocket) => {
       // Only allow one client connection
-      if (this.wsClient && this.wsClient.readyState === WebSocket.OPEN) {
+      if (this.isClientConnected()) {
         ws.close(
           1008,
           "A client is already connected. Only one client is supported per MCP server instance.",
         );
-        console.error(
+        this.log(
+          "warn",
           "WebSocket connection rejected: client already connected",
         );
         return;
       }
 
       this.wsClient = ws;
-      console.error("WebSocket client connected");
+      this.log("info", "WebSocket client connected");
 
       // Send initial connection message
       ws.send(
@@ -67,29 +70,30 @@ export class CesiumWebSocketServer extends BaseCommunicationServer {
           const message = JSON.parse(data.toString()) as ClientMessage;
           this.handleClientMessage(message);
         } catch (error) {
-          console.error("❌ Error parsing WebSocket message:", error);
+          this.log("error", "Error parsing WebSocket message:", error);
         }
       });
 
       // Handle client disconnect
       ws.on("close", () => {
         this.wsClient = undefined;
-        clearInterval(heartbeatInterval);
+        this.cleanupHeartbeat();
       });
 
       // Handle errors
       ws.on("error", () => {
         this.wsClient = undefined;
+        this.cleanupHeartbeat();
       });
 
       // Heartbeat to keep connection alive
-      const heartbeatInterval = setInterval(() => {
+      this.startHeartbeat(() => {
         if (ws.readyState === WebSocket.OPEN) {
           ws.ping();
         } else {
-          clearInterval(heartbeatInterval);
+          this.cleanupHeartbeat();
         }
-      }, 30000); // 30 seconds
+      });
     });
   }
 
@@ -108,14 +112,11 @@ export class CesiumWebSocketServer extends BaseCommunicationServer {
         break;
 
       default:
-        console.error(`⚠️ Unknown message type: ${JSON.stringify(message)}`);
+        this.log("warn", `Unknown message type: ${JSON.stringify(message)}`);
     }
   }
 
   public override async stop(): Promise<void> {
-    // Reject all pending commands
-    this.rejectAllPendingCommands("Server shutting down");
-
     // Close WebSocket connection
     if (this.wsClient) {
       this.wsClient.close(1000, "Server shutting down");
@@ -124,30 +125,16 @@ export class CesiumWebSocketServer extends BaseCommunicationServer {
 
     // Close WebSocket server
     if (this.wss) {
-      return new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         this.wss!.close(() => {
-          console.error("WebSocket server stopped");
-
-          // Close HTTP server
-          if (this.httpServer) {
-            this.httpServer.close(() => {
-              console.error("HTTP server stopped");
-              resolve();
-            });
-          } else {
-            resolve();
-          }
-        });
-      });
-    } else if (this.httpServer) {
-      // Fallback: close HTTP server directly
-      return new Promise((resolve) => {
-        this.httpServer!.close(() => {
-          console.error("HTTP server stopped");
+          this.log("info", "WebSocket server stopped");
           resolve();
         });
       });
     }
+
+    // Perform common shutdown tasks
+    await this.performShutdown();
   }
 
   protected override isClientConnected(): boolean {
@@ -163,6 +150,7 @@ export class CesiumWebSocketServer extends BaseCommunicationServer {
   protected override handleConnectionDeath(): void {
     // Reject all pending commands on disconnect
     this.rejectAllPendingCommands("Client disconnected");
+    this.cleanupHeartbeat();
     this.wsClient = undefined;
   }
 }

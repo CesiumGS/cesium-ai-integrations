@@ -6,9 +6,8 @@ import {
   CesiumSSEServer,
   CesiumWebSocketServer,
 } from "@cesium-mcp/shared";
-import { registerCameraTools } from "./tools/camera-tools.js";
+import { registerCameraTools } from "./tools/index.js";
 
-// Azure-ready configuration with environment variables
 const PORT = parseInt(
   process.env.PORT || process.env.CAMERA_SERVER_PORT || "3002",
 );
@@ -31,6 +30,8 @@ async function main() {
         communicationServerPort: PORT,
         communicationServerMaxRetries: MAX_RETRIES,
         communicationServerStrictPort: STRICT_PORT,
+        // mcpTransport: process.env.MCP_TRANSPORT || "stdio", optionally specify transport type
+        // mcpTransportEndpoint: process.env.MCP_TRANSPORT_ENDPOINT, optionally specify transport endpoint
       },
       communicationServer,
     );

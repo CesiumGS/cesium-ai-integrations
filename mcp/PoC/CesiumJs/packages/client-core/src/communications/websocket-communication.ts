@@ -23,8 +23,6 @@ type WSOutboundMessage =
 
 class WebSocketCommunicationManager extends BaseCommunicationManager {
   private wsConnections: Map<number, WebSocket>;
-  private reconnectAttempts: Map<number, number>;
-  private maxReconnectAttempts: number;
 
   constructor(
     managers: ManagerInterface[] = [],
@@ -32,8 +30,6 @@ class WebSocketCommunicationManager extends BaseCommunicationManager {
   ) {
     super(managers, serverConfig);
     this.wsConnections = new Map();
-    this.reconnectAttempts = new Map();
-    this.maxReconnectAttempts = 10;
   }
 
   protected getDefaultBaseUrl(): string {
@@ -63,7 +59,7 @@ class WebSocketCommunicationManager extends BaseCommunicationManager {
 
         ws.onopen = () => {
           console.log(`✅ WebSocket connected: ${serverName} (port ${port})`);
-          this.reconnectAttempts.set(port, 0);
+          this.resetReconnectAttempts(port);
           resolve();
         };
 
@@ -91,28 +87,8 @@ class WebSocketCommunicationManager extends BaseCommunicationManager {
             `❌ WebSocket connection closed: ${serverName} (port ${port})`,
           );
 
-          // Attempt reconnection with exponential backoff
-          const attempts = this.reconnectAttempts.get(port) || 0;
-          if (attempts < this.maxReconnectAttempts) {
-            this.reconnectAttempts.set(port, attempts + 1);
-            const delay = this.reconnectDelay * Math.pow(1.5, attempts);
-
-            setTimeout(() => {
-              console.log(
-                `🔄 Attempting to reconnect to ${serverName} (attempt ${attempts + 1}/${this.maxReconnectAttempts})...`,
-              );
-              this.connectToServer(port, serverName).catch((error) => {
-                console.error(
-                  `🔄 WebSocket reconnection failed: ${serverName}`,
-                  error,
-                );
-              });
-            }, delay);
-          } else {
-            console.error(
-              `❌ Max reconnection attempts reached for ${serverName}`,
-            );
-          }
+          // Schedule reconnection with exponential backoff
+          this.scheduleReconnect(port, serverName, true);
 
           reject(new Error(`WebSocket connection failed: ${serverName}`));
         };
@@ -201,7 +177,6 @@ class WebSocketCommunicationManager extends BaseCommunicationManager {
     return {
       name: server.name,
       port: server.port,
-      capabilities: server.capabilities,
       isConnected: isConnected,
       readyState: connection
         ? this.getReadyStateString(connection.readyState)

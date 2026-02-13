@@ -1,34 +1,5 @@
+import { CommandInput, CommandResult } from "../index.js";
 import { ServerConfig, ServerStats } from "../models/serverConfig.js";
-
-export type CommandPayload = Record<string, unknown> & {
-  id?: string;
-  type: string;
-};
-
-export type CommandResult = {
-  success?: boolean;
-  error?: string;
-  actualDuration?: number;
-  position?: {
-    longitude: number;
-    latitude: number;
-    height: number;
-  };
-  orientation?: {
-    heading: number;
-    pitch: number;
-    roll: number;
-  };
-  viewRectangle?: {
-    west: number;
-    south: number;
-    east: number;
-    north: number;
-  };
-  altitude?: number;
-  settings?: Record<string, unknown>;
-  [key: string]: unknown;
-};
 
 export interface ICommunicationServer {
   /**
@@ -45,18 +16,18 @@ export interface ICommunicationServer {
 
   /**
    * Execute a command by sending it to the connected client and waiting for response
-   * @param command The command object to send
-   * @param timeoutMs Maximum time to wait for response in milliseconds (default: 10000)
+   * @param command The command object to send (id will be auto-assigned)
+   * @param timeoutMs Maximum time to wait for response in milliseconds (default: DEFAULT_COMMAND_TIMEOUT_MS)
    * @returns Promise resolving to the command result
    */
   executeCommand(
-    command: CommandPayload,
+    command: CommandInput,
     timeoutMs?: number,
   ): Promise<CommandResult>;
 
   /**
    * Get current server statistics
-   * @returns Server statistics including port, client count, and pending results
+   * @returns Server statistics including port, client count, and uptime
    */
   getStats(): ServerStats;
 }

@@ -16,6 +16,8 @@ import type {
   CameraOrbitResult,
   CameraTargetResult,
   CameraControllerResult,
+  CameraLookAtOffset,
+  CameraControllerOptions,
 } from "../types/mcp.js";
 import type { CesiumViewer } from "../types/cesium-types.js";
 
@@ -31,35 +33,25 @@ import {
   validateLatitude,
   validateHeight,
 } from "../shared/validation-utils.js";
+import { getErrorMessage } from "../shared/error-utils.js";
+import {
+  DEFAULT_ORBIT_SPEED,
+  DEFAULT_CAMERA_PITCH,
+  DEFAULT_CAMERA_HEADING,
+  DEFAULT_CAMERA_ROLL,
+  DEFAULT_CAMERA_POSITION,
+  DEFAULT_FLY_DURATION,
+} from "../shared/constants.js";
 
-type CameraLookAtOffset = { heading?: number; pitch?: number; range?: number };
-
-type CameraControllerOptions = {
-  enableCollisionDetection?: boolean;
-  minimumZoomDistance?: number;
-  maximumZoomDistance?: number;
-  enableTilt?: boolean;
-  enableRotate?: boolean;
-  enableTranslate?: boolean;
-  enableZoom?: boolean;
-  enableLook?: boolean;
-};
-
-class CesiumCameraController implements ManagerInterface {
+class CesiumCameraManager implements ManagerInterface {
   viewer: CesiumViewer;
   orbitSpeed: number;
   orbitHandler: (() => void) | null;
-  prefix: string;
 
   constructor(viewer: CesiumViewer) {
     this.viewer = viewer;
     this.orbitSpeed = 0;
     this.orbitHandler = null;
-    this.prefix = "camera";
-  }
-
-  private getErrorMessage(error: unknown): string {
-    return error instanceof Error ? error.message : String(error);
   }
 
   /**
@@ -69,9 +61,13 @@ class CesiumCameraController implements ManagerInterface {
     return new Promise<void>((resolve) => {
       flyToPosition(
         this.viewer,
-        { longitude: 25.2797, latitude: 54.6872, height: 400 },
-        { heading: 0, pitch: -15, roll: 0 },
-        3,
+        DEFAULT_CAMERA_POSITION,
+        {
+          heading: DEFAULT_CAMERA_HEADING,
+          pitch: DEFAULT_CAMERA_PITCH,
+          roll: DEFAULT_CAMERA_ROLL,
+        },
+        DEFAULT_FLY_DURATION,
         { complete: () => resolve() },
       );
     });
@@ -139,7 +135,7 @@ class CesiumCameraController implements ManagerInterface {
     } catch (error: unknown) {
       return {
         success: false,
-        error: `Camera flight failed: ${this.getErrorMessage(error)}`,
+        error: `Camera flight failed: ${getErrorMessage(error)}`,
       };
     }
   }
@@ -180,7 +176,7 @@ class CesiumCameraController implements ManagerInterface {
     } catch (error: unknown) {
       return {
         success: false,
-        error: `Failed to set camera view: ${this.getErrorMessage(error)}`,
+        error: `Failed to set camera view: ${getErrorMessage(error)}`,
       };
     }
   }
@@ -208,7 +204,7 @@ class CesiumCameraController implements ManagerInterface {
     } catch (error: unknown) {
       return {
         success: false,
-        error: this.getErrorMessage(error),
+        error: getErrorMessage(error),
       };
     }
   }
@@ -241,7 +237,7 @@ class CesiumCameraController implements ManagerInterface {
     } catch (error: unknown) {
       return {
         success: false,
-        error: this.getErrorMessage(error),
+        error: getErrorMessage(error),
       };
     }
   }
@@ -253,7 +249,7 @@ class CesiumCameraController implements ManagerInterface {
     try {
       this.stopOrbit(); // Stop any existing orbit
 
-      this.orbitSpeed = speed ?? 0.005;
+      this.orbitSpeed = speed ?? DEFAULT_ORBIT_SPEED;
       this.orbitHandler = this.viewer.clock.onTick.addEventListener(() => {
         this.viewer.scene.camera.rotateRight(this.orbitSpeed);
       });
@@ -269,7 +265,7 @@ class CesiumCameraController implements ManagerInterface {
     } catch (error: unknown) {
       return {
         success: false,
-        error: this.getErrorMessage(error),
+        error: getErrorMessage(error),
         orbitActive: false,
       };
     }
@@ -294,7 +290,7 @@ class CesiumCameraController implements ManagerInterface {
     } catch (error: unknown) {
       return {
         success: false,
-        error: this.getErrorMessage(error),
+        error: getErrorMessage(error),
         orbitActive: false,
       };
     }
@@ -354,7 +350,7 @@ class CesiumCameraController implements ManagerInterface {
     } catch (error: unknown) {
       return {
         success: false,
-        error: this.getErrorMessage(error),
+        error: getErrorMessage(error),
       };
     }
   }
@@ -379,7 +375,7 @@ class CesiumCameraController implements ManagerInterface {
         destination.latitude,
         destination.height,
         (cmd.orientation as CameraOrientation | undefined) ?? {},
-        (cmd.duration as number | undefined) ?? 3,
+        (cmd.duration as number | undefined) ?? DEFAULT_FLY_DURATION,
         {
           easingFunction: cmd.easingFunction as string | undefined,
           maximumHeight: cmd.maximumHeight as number | undefined,
@@ -433,4 +429,4 @@ class CesiumCameraController implements ManagerInterface {
   }
 }
 
-export default CesiumCameraController;
+export default CesiumCameraManager;

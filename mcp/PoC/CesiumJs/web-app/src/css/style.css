@@ -123,24 +123,6 @@ body {
   font-size: 11px;
 }
 
-.server-capabilities {
-  color: #66b3ff;
-  font-size: 10px;
-}
-
-.status-info {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.status-item {
-  padding: 6px 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-  font-size: 12px;
-}
-
 /* Utility Classes */
 .hidden {
   display: none !important;
@@ -240,12 +222,4 @@ body {
 
 .action-btn:hover {
   background: #3a8eef;
-}
-
-.action-btn.secondary {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.action-btn.secondary:hover {
-  background: rgba(255, 255, 255, 0.2);
 }

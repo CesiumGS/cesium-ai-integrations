@@ -7,8 +7,6 @@ import type { Position, CameraOrientation } from "../types/mcp.js";
 import type {
   CesiumViewer,
   CesiumCameraFlyToOptions,
-  CesiumHeadingPitchRange,
-  CesiumZoomTarget,
 } from "../types/cesium-types.js";
 import {
   createCartesian3,
@@ -16,6 +14,7 @@ import {
   createHeadingPitchRange,
   parseEasingFunction,
 } from "./cesium-utils.js";
+import { DEFAULT_CAMERA_PITCH } from "./constants.js";
 
 /**
  * Fly camera to position with animation
@@ -44,7 +43,7 @@ export function flyToPosition(
     ),
     orientation: new Cesium.HeadingPitchRoll(
       toRadians(orientation.heading || 0),
-      toRadians(orientation.pitch || -15),
+      toRadians(orientation.pitch || DEFAULT_CAMERA_PITCH),
       toRadians(orientation.roll || 0),
     ),
     duration: duration,
@@ -94,7 +93,7 @@ export function setCameraView(
     ),
     orientation: {
       heading: toRadians(orientation.heading || 0),
-      pitch: toRadians(orientation.pitch || -15),
+      pitch: toRadians(orientation.pitch || DEFAULT_CAMERA_PITCH),
       roll: toRadians(orientation.roll || 0),
     },
   });
@@ -144,74 +143,6 @@ export function lookAtPosition(
     offset.range || 1000,
   );
   viewer.camera.lookAtTransform(transform, headingPitchRange);
-}
-
-/**
- * Reset camera look-at transform to default
- */
-export function resetCameraTransform(viewer: CesiumViewer): void {
-  viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
-}
-
-/**
- * Look at a target position with automatic cleanup
- * Returns a cleanup function to reset the transform
- */
-export function lookAtPositionWithCleanup(
-  viewer: CesiumViewer,
-  target: Position,
-  offset: { heading?: number; pitch?: number; range?: number } = {},
-): () => void {
-  lookAtPosition(viewer, target, offset);
-  return () => resetCameraTransform(viewer);
-}
-
-/**
- * Fly to view multiple positions (bounding box)
- * Calculates the bounding rectangle from position array
- */
-export function flyToBoundingBox(
-  viewer: CesiumViewer,
-  positions: Position[],
-  duration: number = 2,
-): void {
-  if (positions.length === 0) {
-    console.warn("flyToBoundingBox: No positions provided");
-    return;
-  }
-
-  // Calculate bounding rectangle from positions
-  let west = positions[0].longitude;
-  let south = positions[0].latitude;
-  let east = positions[0].longitude;
-  let north = positions[0].latitude;
-
-  positions.forEach((p) => {
-    west = Math.min(west, p.longitude);
-    south = Math.min(south, p.latitude);
-    east = Math.max(east, p.longitude);
-    north = Math.max(north, p.latitude);
-  });
-
-  viewer.camera.flyTo({
-    destination: Cesium.Rectangle.fromDegrees(west, south, east, north),
-    duration: duration,
-  });
-}
-
-/**
- * Zoom camera to entity or entities
- */
-export function zoomToEntity(
-  viewer: CesiumViewer,
-  entity: CesiumZoomTarget,
-  offset?: CesiumHeadingPitchRange,
-): Promise<void> {
-  return new Promise((resolve) => {
-    // CesiumZoomTarget already includes all valid types for zoomTo
-    const validTarget = entity as Parameters<typeof viewer.zoomTo>[0];
-    viewer.zoomTo(validTarget, offset).then(() => resolve());
-  });
 }
 
 /**

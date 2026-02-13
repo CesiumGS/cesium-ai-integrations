@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { ICommunicationServer } from "../communications/communication-server.js";
 
-export type MCPTransportType = "stdio" | "sse" | "streamable-http";
+export type MCPTransportType = "stdio" | "streamable-http";
 
 export interface MCPServerConfig {
   name: string;

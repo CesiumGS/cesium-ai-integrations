@@ -5,17 +5,11 @@
 
 import { BaseCommunicationManager } from "./base-communication.js";
 import type {
-  MCPCommand,
   MCPCommandResult,
   ManagerInterface,
   ServerConfig,
+  SSEMessage,
 } from "../types/mcp.js";
-
-interface SSEMessage {
-  type: "connected" | "command" | "heartbeat";
-  command?: MCPCommand;
-  message?: string;
-}
 
 class SSECommunicationManager extends BaseCommunicationManager {
   private sseConnections: Map<number, EventSource>;
@@ -54,6 +48,7 @@ class SSECommunicationManager extends BaseCommunicationManager {
         this.sseConnections.set(port, eventSource);
 
         eventSource.onopen = () => {
+          this.resetReconnectAttempts(port);
           resolve();
         };
 
@@ -77,13 +72,8 @@ class SSECommunicationManager extends BaseCommunicationManager {
           // Don't delete from map - keep it so status shows as disconnected
           // The readyState will be CLOSED (2) or CONNECTING (0)
 
-          // Attempt reconnection after delay
-          setTimeout(() => {
-            console.log(`🔄 Attempting to reconnect to ${serverName}...`);
-            this.connectToServer(port, serverName).catch((error) => {
-              console.error(`🔄 SSE reconnection failed: ${serverName}`, error);
-            });
-          }, this.reconnectDelay);
+          // Schedule reconnection
+          this.scheduleReconnect(port, serverName);
 
           reject(new Error(`SSE connection failed: ${serverName}`));
         };
@@ -164,7 +154,6 @@ class SSECommunicationManager extends BaseCommunicationManager {
     return {
       name: server.name,
       port: server.port,
-      capabilities: server.capabilities,
       isConnected: isConnected,
       readyState: connection ? connection.readyState : "not initialized",
     };

@@ -7,10 +7,9 @@
   "types": "./build/index.d.ts",
   "exports": {
     ".": "./build/index.js",
-    "./sse-server": "./build/sse-server.js",
-    "./websocket-server": "./build/websocket-server.js",
-    "./communication-server": "./build/communication-server.js",
-    "./locations": "./build/locations.js"
+    "./sse-server": "./build/communications/sse-server.js",
+    "./websocket-server": "./build/communications/websocket-server.js",
+    "./communication-server": "./build/communications/communication-server.js"
   },
   "scripts": {
     "build": "tsc",
