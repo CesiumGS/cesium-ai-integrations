@@ -14,13 +14,13 @@ AI assistants often hallucinate non-existent APIs, incorrect parameters, and obs
 
 The following Cesium-related documentation sources are available through Context7:
 
-| Documentation              | Original                                                                 | Context7                                                                   | Context7 Library ID               |
-| -------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------- | --------------------------------- |
-| **CesiumJS API Reference** | [CesiumJS API](https://cesium.com/learn/cesiumjs/ref-doc/)               | [Context7 CesiumJS](https://context7.com/websites/cesium_learn_cesiumjs)   | `/websites/cesium_learn_cesiumjs` |
-| **Cesium Repository**      | [GitHub cesium](https://github.com/cesiumgs/cesium)                      | [Context7 cesium](https://context7.com/cesiumgs/cesium)                    | `/cesiumgs/cesium`                |
-| **Cesium for Unreal**      | [GitHub cesium-unreal](https://github.com/cesiumgs/cesium-unreal)        | [Context7 cesium-unreal](https://context7.com/cesiumgs/cesium-unreal)      | `/cesiumgs/cesium-unreal`         |
-| **Cesium for Unity**       | [GitHub cesium-unity](https://github.com/cesiumgs/cesium-unity)          | [Context7 cesium-unity](https://context7.com/cesiumgs/cesium-unity)        | `/cesiumgs/cesium-unity`          |
-| **3D Tiles Specification** | [OGC 3D Tiles](https://docs.ogc.org/cs/22-025r4/22-025r4.html)           | [Context7 3D Tiles](https://context7.com/websites/ogc_cs_22-025r4)         | `/websites/ogc_cs_22-025r4`       |
+| Documentation              | Original                                                          | Context7                                                                 | Context7 Library ID               |
+| -------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------ | --------------------------------- |
+| **CesiumJS API Reference** | [CesiumJS API](https://cesium.com/learn/cesiumjs/ref-doc/)        | [Context7 CesiumJS](https://context7.com/websites/cesium_learn_cesiumjs) | `/websites/cesium_learn_cesiumjs` |
+| **Cesium Repository**      | [GitHub cesium](https://github.com/cesiumgs/cesium)               | [Context7 cesium](https://context7.com/cesiumgs/cesium)                  | `/cesiumgs/cesium`                |
+| **Cesium for Unreal**      | [GitHub cesium-unreal](https://github.com/cesiumgs/cesium-unreal) | [Context7 cesium-unreal](https://context7.com/cesiumgs/cesium-unreal)    | `/cesiumgs/cesium-unreal`         |
+| **Cesium for Unity**       | [GitHub cesium-unity](https://github.com/cesiumgs/cesium-unity)   | [Context7 cesium-unity](https://context7.com/cesiumgs/cesium-unity)      | `/cesiumgs/cesium-unity`          |
+| **3D Tiles Specification** | [OGC 3D Tiles](https://docs.ogc.org/cs/22-025r4/22-025r4.html)    | [Context7 3D Tiles](https://context7.com/websites/ogc_cs_22-025r4)       | `/websites/ogc_cs_22-025r4`       |
 
 ## ⚙️ Setup Instructions
 
@@ -108,7 +108,7 @@ Create a Cesium Viewer with Bing Maps imagery. use context7
 #### Example 1: CesiumJS API Reference
 
 ```text
-Create a Cesium Viewer with terrain enabled and Ion asset access. 
+Create a Cesium Viewer with terrain enabled and Ion asset access.
 use library /websites/cesium_learn_cesiumjs
 ```
 
@@ -117,7 +117,7 @@ Expected result: Current `Viewer` constructor with proper terrain configuration 
 #### Example 2: Cesium Repository
 
 ```text
-How do I implement custom post-processing effects in CesiumJS? 
+How do I implement custom post-processing effects in CesiumJS?
 use library /cesiumgs/cesium
 ```
 
@@ -126,7 +126,7 @@ Expected result: Source code examples and implementation patterns from the Cesiu
 #### Example 3: Cesium for Unreal
 
 ```text
-Set up a Cesium3DTileset in Unreal Engine and configure georeference settings. 
+Set up a Cesium3DTileset in Unreal Engine and configure georeference settings.
 use library /cesiumgs/cesium-unreal
 ```
 
@@ -135,7 +135,7 @@ Expected result: Unreal-specific integration code using ACesium3DTileset and ACe
 #### Example 4: Cesium for Unity
 
 ```text
-Add a Cesium3DTileset component to a GameObject and configure camera controls. 
+Add a Cesium3DTileset component to a GameObject and configure camera controls.
 use library /cesiumgs/cesium-unity
 ```
 
@@ -144,7 +144,7 @@ Expected result: Unity-specific C# code with Cesium3DTileset and CesiumCameraCon
 #### Example 5: 3D Tiles Specification
 
 ```text
-Explain the tile refinement strategy for REPLACE and ADD in 3D Tiles 1.1. 
+Explain the tile refinement strategy for REPLACE and ADD in 3D Tiles 1.1.
 use library /websites/ogc_cs_22-025r4
 ```
 

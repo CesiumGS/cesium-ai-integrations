@@ -1,0 +1,6 @@
+packages:
+  - "servers/shared"
+  - "servers/camera-server"
+  - "PoC/CesiumJs"
+  - "PoC/CesiumJs/packages/*"
+  - "PoC/CesiumJs/web-app"

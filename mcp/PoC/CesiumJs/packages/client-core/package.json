@@ -1,0 +1,33 @@
+{
+  "name": "@cesium-mcp/client-core",
+  "version": "1.0.0",
+  "description": "Shared core library for Cesium MCP browser clients",
+  "type": "module",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "clean": "node -e \"require('fs').rmSync('build', {recursive: true, force: true})\""
+  },
+  "keywords": [
+    "cesium",
+    "mcp",
+    "3d",
+    "geospatial"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "cesium": ">=1.112.0"
+  },
+  "peerDependenciesMeta": {
+    "cesium": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "cesium": "^1.112.0"
+  }
+}
