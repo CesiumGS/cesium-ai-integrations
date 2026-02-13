@@ -7,7 +7,7 @@ Shared utilities and infrastructure for Cesium MCP servers.
 This package provides:
 
 - **CesiumMCPServer**: MCP server wrapper with multiple transport types
-- **Communication Servers**: SSE and WebSocket servers for browser/Unity/Unreal visualization
+- **Communication Servers**: SSE and WebSocket servers for browser visualization
 - **Location Resources**: Predefined geographic locations
 - **Common Types**: Shared TypeScript interfaces
 
@@ -52,13 +52,6 @@ server.registerTools((mcpServer, commServer) => {
 await server.start();
 ```
 
-**See [TRANSPORT_EXAMPLES.md](./TRANSPORT_EXAMPLES.md) for:**
-
-- HTTP transport examples
-- Unity/Desktop integration
-- WebSocket vs SSE selection guide
-- Testing and debugging
-
 ---
 
 ## Communication Servers
@@ -84,13 +77,13 @@ await sseServer.stop();
 
 ### CesiumWebSocketServer
 
-WebSocket-based server for Unity/Unreal/Desktop apps.
+WebSocket-based server for bidirectional communication.
 
 **Use for:**
 
-- Unity/Unreal applications
+- Browser applications requiring full-duplex communication
 - Desktop apps (Electron, Tauri, WPF)
-- Bidirectional real-time updates
+- Real-time bidirectional updates
 
 **Connection:**
 
@@ -102,16 +95,6 @@ ws.onmessage = (event) => {
   ws.send(JSON.stringify({ id: command.id, result }));
 };
 ```
-
-### Choosing Server Type
-
-| Client           | Server                | Reason                        |
-| ---------------- | --------------------- | ----------------------------- |
-| CesiumJS Browser | CesiumSSEServer       | Simple, auto-reconnect        |
-| Unity/Unreal     | CesiumWebSocketServer | Bidirectional, native support |
-| Desktop Apps     | CesiumWebSocketServer | Full-duplex                   |
-
-**See [TRANSPORT_EXAMPLES.md](./TRANSPORT_EXAMPLES.md) for detailed examples.**
 
 ---
 
@@ -205,8 +188,6 @@ console.log("Server started");
 
 ## API Reference
 
-See [TRANSPORT_EXAMPLES.md](./TRANSPORT_EXAMPLES.md) for detailed usage examples.
-
 **Key APIs:**
 
 - `CesiumMCPServer` - MCP server wrapper with transport support
@@ -220,7 +201,7 @@ interface MCPServerConfig {
   name: string;
   version: string;
   communicationServerPort?: number;
-  mcpTransport?: "stdio" | "sse" | "streamable-http";
+  mcpTransport?: "stdio" | "streamable-http";
   mcpTransportEndpoint?: string;
 }
 ```

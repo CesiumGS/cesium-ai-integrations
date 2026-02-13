@@ -21,32 +21,32 @@ pnpm run serve:dev     # Start and open browser
 
 ### 1. Configure Access Token
 
-Create a local configuration file with your Cesium Ion access token:
+Create a local environment file with your Cesium Ion access token:
 
 ```bash
 # Copy the template
-cp config.js config.local.js
+cp .env.example .env
 ```
 
-Edit `config.local.js` and add your token:
+Edit `.env` and add your token:
 
-```javascript
-const CONFIG = {
-  CESIUM_ACCESS_TOKEN: "your_actual_token_here",
-  // ... other settings
-};
+```bash
+CESIUM_ACCESS_TOKEN=your_actual_token_here
+MCP_PROTOCOL=websocket
+MCP_CAMERA_PORT=3002
 ```
 
 Get your token from: https://ion.cesium.com/tokens
 
-⚠️ **Important:** `config.local.js` is gitignored and should never be committed!
+⚠️ **Important:** `.env` is gitignored and should never be committed!
 
 ### 2. Configure Camera Server
 
-In `config.local.js`, configure the camera MCP server connection:
+In `.env`, the camera MCP server connection is configured via:
 
-```javascript
-MCP_SERVERS: [{ name: "Camera Server", port: 3002 }];
+```bash
+MCP_PROTOCOL=websocket
+MCP_CAMERA_PORT=3002
 ```
 
 ### 3. Start Everything
@@ -92,31 +92,32 @@ The browser app only contains:
 
 ## Configuration Files
 
-- `config.js` - Template configuration (committed to git)
-- `config.local.js` - Your personal configuration (gitignored, not committed)
+- `.env.example` - Template configuration (committed to git)
+- `.env` - Your personal configuration (gitignored, not committed)
 - `.gitignore` - Ensures secrets aren't committed
 
 ## Security
 
 **Never commit your access tokens!**
 
-- `config.local.js` is automatically gitignored
-- Always use the local config for personal tokens
-- The default `config.js` contains placeholder values only
+- `.env` is automatically gitignored
+- Always use the `.env` file for personal tokens
+- The default `.env.example` contains placeholder values only
 
 ## Troubleshooting
 
 ### "Access token not configured" error
 
-- Create `config.local.js` from `config.js`
-- Add your Cesium Ion access token
+- Create `.env` from `.env.example`
+- Add your Cesium Ion access token to `.env`
+- Rebuild the app with `pnpm run build:web`
 - Refresh the page
 
 ### Camera server showing as disconnected
 
 - Ensure camera server is running on port 3002
 - Check console for connection errors
-- Verify port in `config.local.js` matches the running server
+- Verify port in `.env` (MCP_CAMERA_PORT) matches the running server
 
 ### CORS errors
 
