@@ -40,6 +40,14 @@ export {
   parseEasingFunction,
 } from "./shared/cesium-utils.js";
 
+// Utilities - Entity
+export {
+  addPointEntity,
+  addLabelEntity,
+  addPolylineEntity,
+  addPolygonEntity,
+} from "./shared/entity-utils.js";
+
 // Utilities - Validation
 export {
   validateLongitude,

@@ -12,6 +12,7 @@ export interface MCPCommandResult {
   success: boolean;
   message?: string | null;
   error?: string | null;
+  [key: string]: unknown; // Allow additional properties like entityId, entities, etc.
 }
 
 export interface SSEMessage {
@@ -122,6 +123,79 @@ export interface Position {
 export interface JulianDate {
   dayNumber?: number;
   secondsOfDay?: number;
+}
+
+// Entity Graphics Options
+export interface PointOptions {
+  id?: string;
+  name?: string;
+  description?: string;
+  pixelSize?: number;
+  color?: ColorRGBA | string;
+  outlineColor?: ColorRGBA | string;
+  outlineWidth?: number;
+}
+
+export interface LabelOptions {
+  id?: string;
+  name?: string;
+  description?: string;
+  font?: string;
+  fillColor?: ColorRGBA | string;
+  outlineColor?: ColorRGBA | string;
+  outlineWidth?: number;
+  style?: string;
+  scale?: number;
+  pixelOffset?: { x: number; y: number };
+}
+
+export interface PolygonOptions {
+  id?: string;
+  name?: string;
+  description?: string;
+  height?: number;
+  extrudedHeight?: number;
+  material?: unknown;
+  fillColor?: ColorRGBA | string;
+  fillOpacity?: number;
+  outline?: boolean;
+  outlineColor?: ColorRGBA | string;
+}
+
+export interface PolylineOptions {
+  id?: string;
+  name?: string;
+  description?: string;
+  width?: number;
+  color?: ColorRGBA | string;
+  material?: unknown;
+  clampToGround?: boolean;
+}
+
+export interface BillboardOptions {
+  id?: string;
+  name?: string;
+  description?: string;
+  width?: number;
+  height?: number;
+  scale?: number;
+  color?: ColorRGBA | string;
+}
+
+export interface ModelOptions {
+  id?: string;
+  name?: string;
+  description?: string;
+  scale?: number;
+  minimumPixelSize?: number;
+  maximumScale?: number;
+  runAnimations?: boolean;
+  show?: boolean;
+  orientation?: {
+    heading?: number;
+    pitch?: number;
+    roll?: number;
+  };
 }
 
 // Camera controller types

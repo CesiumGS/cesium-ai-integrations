@@ -1,10 +1,9 @@
+import { ICommunicationServer } from "../communications/communication-server.js";
 import {
   CommandInput,
   CommandResult,
-  ICommunicationServer,
-} from "@cesium-mcp/shared";
+} from "../types/types.js";
 import { RESPONSE_EMOJIS, ResponseEmoji } from "./constants.js";
-import { StructuredContent } from "./types.js";
 
 /**
  * Formats error messages consistently
@@ -33,39 +32,50 @@ export async function executeWithTiming<
 }
 
 /**
- * Builds a success response structure
+ * Builds an error response structure (raw version with string emoji)
+ */
+function buildResponse<T extends { message: string }>(
+  errorEmoji: string,
+  responseTime: number,
+  structuredContent: T,
+) {
+  return {
+    content: [
+      {
+        type: "text" as const,
+        text: `${errorEmoji} ${structuredContent.message} (${responseTime}ms)`,
+      },
+    ],
+    structuredContent,
+    isError: true,
+  };
+}
+
+/**
+ * Builds a success response structure with emoji mapping
  */
 export function buildSuccessResponse<T extends { message: string }>(
   emoji: ResponseEmoji,
   responseTime: number,
   structuredContent: T,
 ) {
-  return {
-    content: [
-      {
-        type: "text" as const,
-        text: `${RESPONSE_EMOJIS[emoji]} ${structuredContent.message} (${responseTime}ms)`,
-      },
-    ],
+  return buildResponse(
+    RESPONSE_EMOJIS[emoji],
+    responseTime,
     structuredContent,
-  };
+  );
 }
 
 /**
- * Builds an error response structure
+ * Builds an error response structure with emoji mapping
  */
 export function buildErrorResponse<T extends { message: string }>(
   responseTime: number,
   structuredContent: T,
 ) {
-  return {
-    content: [
-      {
-        type: "text" as const,
-        text: `${RESPONSE_EMOJIS.error} ${structuredContent.message} (${responseTime}ms)`,
-      },
-    ],
+  return buildResponse(
+    RESPONSE_EMOJIS[ResponseEmoji.Error],
+    responseTime,
     structuredContent,
-    isError: true,
-  };
+  );
 }

@@ -1,16 +1,17 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { ICommunicationServer } from "@cesium-mcp/shared";
 import {
   OrbitOptionsSchema,
   CameraOrbitResponseSchema,
 } from "../schemas/index.js";
-import { DEFAULT_ORBIT_SPEED, ResponseEmoji } from "../utils/constants.js";
+import { DEFAULT_ORBIT_SPEED  } from "../utils/constants.js";
 import {
   executeWithTiming,
   formatErrorMessage,
   buildSuccessResponse,
   buildErrorResponse,
-} from "../utils/utils.js";
+  ResponseEmoji,
+  ICommunicationServer
+} from "@cesium-mcp/shared";
 
 export function registerCameraStartOrbit(
   server: McpServer,

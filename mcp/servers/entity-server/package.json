@@ -1,27 +1,20 @@
 {
-  "name": "@cesium-mcp/camera-server",
+  "name": "@cesium-mcp/entity-server",
   "version": "1.0.0",
-  "description": "MCP server for Cesium camera control operations",
+  "description": "MCP server for Cesium entity management operations",
   "type": "module",
-  "main": "./build/index.js",
+  "main": "build/index.js",
   "bin": {
-    "cesium-camera-mcp": "./build/index.js"
+    "cesium-entity-mcp": "./build/index.js"
+  },
+  "exports": {
+    ".": "./build/index.js",
+    "./schemas": "./build/schemas.js"
   },
   "scripts": {
     "build": "tsc",
-    "clean": "rimraf build",
     "dev": "tsx src/index.ts",
-    "start": "node build/index.js"
-  },
-  "keywords": [
-    "mcp",
-    "cesium",
-    "camera",
-    "3d"
-  ],
-  "license": "Apache-2.0",
-  "exports": {
-    ".": "./build/index.js"
+    "clean": "rimraf build"
   },
   "dependencies": {
     "@cesium-mcp/shared": "workspace:*",
