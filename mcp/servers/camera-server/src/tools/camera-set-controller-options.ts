@@ -58,7 +58,16 @@ export function registerCameraSetControllerOptions(
           const output = {
             success: true,
             message: "Camera controller options updated",
-            settings: result.settings || command.options,
+            settings: {
+              enableCollisionDetection: enableCollisionDetection ?? null,
+              minimumZoomDistance: minimumZoomDistance ?? null,
+              maximumZoomDistance: maximumZoomDistance ?? null,
+              enableTilt: enableTilt ?? null,
+              enableRotate: enableRotate ?? null,
+              enableTranslate: enableTranslate ?? null,
+              enableZoom: enableZoom ?? null,
+              enableLook: enableLook ?? null,
+            },
             stats: {
               responseTime,
             },
@@ -78,8 +87,8 @@ export function registerCameraSetControllerOptions(
           message: `Failed to set controller options: ${formatErrorMessage(error)}`,
           settings: {
             enableCollisionDetection: enableCollisionDetection ?? true,
-            minimumZoomDistance,
-            maximumZoomDistance,
+            minimumZoomDistance: minimumZoomDistance ?? null,
+            maximumZoomDistance: maximumZoomDistance ?? null,
             enableTilt: enableTilt ?? true,
             enableRotate: enableRotate ?? true,
             enableTranslate: enableTranslate ?? true,

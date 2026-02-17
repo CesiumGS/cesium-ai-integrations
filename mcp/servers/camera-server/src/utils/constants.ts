@@ -18,6 +18,7 @@ export const DEFAULT_ORBIT_SPEED = 0.005;
 
 export const TIMEOUT_BUFFER_MS = 2000;
 
+/* eslint-disable no-unused-vars */
 export enum ResponseEmoji {
   Success = "success",
   Error = "error",
@@ -26,6 +27,7 @@ export enum ResponseEmoji {
   Stop = "stop",
   Settings = "settings",
 }
+/* eslint-enable no-unused-vars */
 
 export const RESPONSE_EMOJIS = {
   [ResponseEmoji.Success]: "✅",

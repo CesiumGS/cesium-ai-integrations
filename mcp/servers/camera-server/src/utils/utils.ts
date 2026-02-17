@@ -35,7 +35,7 @@ export async function executeWithTiming<
 /**
  * Builds a success response structure
  */
-export function buildSuccessResponse<T extends { message: string }>(
+export function buildSuccessResponse<T extends StructuredContent>(
   emoji: ResponseEmoji,
   responseTime: number,
   structuredContent: T,
@@ -54,7 +54,7 @@ export function buildSuccessResponse<T extends { message: string }>(
 /**
  * Builds an error response structure
  */
-export function buildErrorResponse<T extends { message: string }>(
+export function buildErrorResponse<T extends StructuredContent>(
   responseTime: number,
   structuredContent: T,
 ) {
