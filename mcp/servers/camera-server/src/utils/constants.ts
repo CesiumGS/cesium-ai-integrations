@@ -10,7 +10,7 @@ export const DEFAULT_ORIENTATION = {
 
 export const DEFAULT_LOOK_AT_OFFSET = {
   heading: 0,
-  pitch: -Math.PI / 2, // -90 degrees
+  pitch: -90,
   range: 1000,
 } as const;
 
@@ -18,11 +18,20 @@ export const DEFAULT_ORBIT_SPEED = 0.005;
 
 export const TIMEOUT_BUFFER_MS = 2000;
 
+export enum ResponseEmoji {
+  Success = "success",
+  Error = "error",
+  Position = "position",
+  Orbit = "orbit",
+  Stop = "stop",
+  Settings = "settings",
+}
+
 export const RESPONSE_EMOJIS = {
-  success: "✅",
-  error: "❌",
-  position: "📍",
-  orbit: "🔄",
-  stop: "⏹️",
-  settings: "⚙️",
+  [ResponseEmoji.Success]: "✅",
+  [ResponseEmoji.Error]: "❌",
+  [ResponseEmoji.Position]: "📍",
+  [ResponseEmoji.Orbit]: "🔄",
+  [ResponseEmoji.Stop]: "⏹️",
+  [ResponseEmoji.Settings]: "⚙️",
 } as const;

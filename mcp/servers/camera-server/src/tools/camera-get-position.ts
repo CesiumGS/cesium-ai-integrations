@@ -7,6 +7,7 @@ import {
   buildSuccessResponse,
   buildErrorResponse,
   CameraPositionResult,
+  ResponseEmoji,
 } from "../utils/index.js";
 
 export function registerCameraGetPosition(
@@ -36,6 +37,8 @@ export function registerCameraGetPosition(
 
         if (result.success && result.position && result.orientation) {
           const output = {
+            success: true,
+            message: `Camera at ${result.position.latitude.toFixed(4)}°, ${result.position.longitude.toFixed(4)}° (${Math.round(result.position.height)}m altitude)`,
             position: result.position,
             orientation: result.orientation,
             viewRectangle: result.viewRectangle,
@@ -47,8 +50,7 @@ export function registerCameraGetPosition(
           };
 
           return buildSuccessResponse(
-            "position",
-            `Camera at ${result.position.latitude.toFixed(4)}°, ${result.position.longitude.toFixed(4)}° (${Math.round(result.position.height)}m altitude)`,
+            ResponseEmoji.Position,
             responseTime,
             output,
           );
@@ -57,8 +59,11 @@ export function registerCameraGetPosition(
         throw new Error(result.error || "Failed to get camera position");
       } catch (error) {
         const errorOutput = {
+          success: false,
+          message: `Failed to get camera position: ${formatErrorMessage(error)}`,
           position: { longitude: 0, latitude: 0, height: 0 },
           orientation: { heading: 0, pitch: 0, roll: 0 },
+          viewRectangle: undefined,
           altitude: 0,
           timestamp: new Date().toISOString(),
           stats: {
@@ -66,11 +71,7 @@ export function registerCameraGetPosition(
           },
         };
 
-        return buildErrorResponse(
-          `Failed to get camera position: ${formatErrorMessage(error)}`,
-          errorOutput.stats.responseTime,
-          errorOutput,
-        );
+        return buildErrorResponse(errorOutput.stats.responseTime, errorOutput);
       }
     },
   );

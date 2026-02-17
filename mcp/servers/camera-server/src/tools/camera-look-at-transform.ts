@@ -4,7 +4,7 @@ import {
   CameraLookAtTransformInputSchema,
   CameraLookAtTransformResponseSchema,
 } from "../schemas/index.js";
-import { DEFAULT_LOOK_AT_OFFSET } from "../utils/constants.js";
+import { DEFAULT_LOOK_AT_OFFSET, ResponseEmoji } from "../utils/constants.js";
 import {
   executeWithTiming,
   formatErrorMessage,
@@ -52,8 +52,7 @@ export function registerCameraLookAtTransform(
           };
 
           return buildSuccessResponse(
-            "success",
-            output.message,
+            ResponseEmoji.Success,
             responseTime,
             output,
           );
@@ -71,11 +70,7 @@ export function registerCameraLookAtTransform(
           },
         };
 
-        return buildErrorResponse(
-          errorOutput.message,
-          errorOutput.stats.responseTime,
-          errorOutput,
-        );
+        return buildErrorResponse(errorOutput.stats.responseTime, errorOutput);
       }
     },
   );

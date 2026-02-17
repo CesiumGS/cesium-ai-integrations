@@ -4,7 +4,7 @@ import {
   OrbitOptionsSchema,
   CameraOrbitResponseSchema,
 } from "../schemas/index.js";
-import { DEFAULT_ORBIT_SPEED } from "../utils/constants.js";
+import { DEFAULT_ORBIT_SPEED, ResponseEmoji } from "../utils/constants.js";
 import {
   executeWithTiming,
   formatErrorMessage,
@@ -49,8 +49,7 @@ export function registerCameraStartOrbit(
           };
 
           return buildSuccessResponse(
-            "orbit",
-            output.message,
+            ResponseEmoji.Orbit,
             responseTime,
             output,
           );
@@ -69,11 +68,7 @@ export function registerCameraStartOrbit(
           },
         };
 
-        return buildErrorResponse(
-          errorOutput.message,
-          errorOutput.stats.responseTime,
-          errorOutput,
-        );
+        return buildErrorResponse(errorOutput.stats.responseTime, errorOutput);
       }
     },
   );

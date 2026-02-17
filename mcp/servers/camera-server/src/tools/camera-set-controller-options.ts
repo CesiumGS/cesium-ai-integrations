@@ -4,6 +4,7 @@ import {
   CameraControllerOptionsSchema,
   CameraControllerOptionsResponseSchema,
 } from "../schemas/index.js";
+import { ResponseEmoji } from "../utils/constants.js";
 import {
   executeWithTiming,
   formatErrorMessage,
@@ -64,8 +65,7 @@ export function registerCameraSetControllerOptions(
           };
 
           return buildSuccessResponse(
-            "settings",
-            output.message,
+            ResponseEmoji.Settings,
             responseTime,
             output,
           );
@@ -91,11 +91,7 @@ export function registerCameraSetControllerOptions(
           },
         };
 
-        return buildErrorResponse(
-          errorOutput.message,
-          errorOutput.stats.responseTime,
-          errorOutput,
-        );
+        return buildErrorResponse(errorOutput.stats.responseTime, errorOutput);
       }
     },
   );

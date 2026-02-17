@@ -3,7 +3,7 @@ import {
   CommandResult,
   ICommunicationServer,
 } from "@cesium-mcp/shared";
-import { RESPONSE_EMOJIS } from "./constants.js";
+import { RESPONSE_EMOJIS, ResponseEmoji } from "./constants.js";
 import { StructuredContent } from "./types.js";
 
 /**
@@ -35,9 +35,8 @@ export async function executeWithTiming<
 /**
  * Builds a success response structure
  */
-export function buildSuccessResponse<T = StructuredContent>(
-  emoji: keyof typeof RESPONSE_EMOJIS,
-  message: string,
+export function buildSuccessResponse<T extends { message: string }>(
+  emoji: ResponseEmoji,
   responseTime: number,
   structuredContent: T,
 ) {
@@ -45,7 +44,7 @@ export function buildSuccessResponse<T = StructuredContent>(
     content: [
       {
         type: "text" as const,
-        text: `${RESPONSE_EMOJIS[emoji]} ${message} (${responseTime}ms)`,
+        text: `${RESPONSE_EMOJIS[emoji]} ${structuredContent.message} (${responseTime}ms)`,
       },
     ],
     structuredContent,
@@ -55,8 +54,7 @@ export function buildSuccessResponse<T = StructuredContent>(
 /**
  * Builds an error response structure
  */
-export function buildErrorResponse<T = StructuredContent>(
-  message: string,
+export function buildErrorResponse<T extends { message: string }>(
   responseTime: number,
   structuredContent: T,
 ) {
@@ -64,7 +62,7 @@ export function buildErrorResponse<T = StructuredContent>(
     content: [
       {
         type: "text" as const,
-        text: `${RESPONSE_EMOJIS.error} ${message} (${responseTime}ms)`,
+        text: `${RESPONSE_EMOJIS.error} ${structuredContent.message} (${responseTime}ms)`,
       },
     ],
     structuredContent,

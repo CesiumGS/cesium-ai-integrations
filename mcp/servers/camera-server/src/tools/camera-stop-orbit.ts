@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { ICommunicationServer } from "@cesium-mcp/shared";
 import { CameraOrbitResponseSchema } from "../schemas/index.js";
+import { ResponseEmoji } from "../utils/constants.js";
 import {
   executeWithTiming,
   formatErrorMessage,
@@ -41,12 +42,7 @@ export function registerCameraStopOrbit(
             },
           };
 
-          return buildSuccessResponse(
-            "stop",
-            output.message,
-            responseTime,
-            output,
-          );
+          return buildSuccessResponse(ResponseEmoji.Stop, responseTime, output);
         }
 
         throw new Error(result.error || "Unknown error from Cesium");
@@ -60,11 +56,7 @@ export function registerCameraStopOrbit(
           },
         };
 
-        return buildErrorResponse(
-          errorOutput.message,
-          errorOutput.stats.responseTime,
-          errorOutput,
-        );
+        return buildErrorResponse(errorOutput.stats.responseTime, errorOutput);
       }
     },
   );

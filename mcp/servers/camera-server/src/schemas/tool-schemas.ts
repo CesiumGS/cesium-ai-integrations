@@ -85,8 +85,8 @@ export const CameraLookAtTransformInputSchema = z.object({
   target: CesiumPositionSchema.describe("Target position to look at"),
   offset: z
     .object({
-      heading: z.number().describe("Heading in radians"),
-      pitch: z.number().describe("Pitch in radians"),
+      heading: z.number().describe("Heading in degrees"),
+      pitch: z.number().describe("Pitch in degrees"),
       range: z.number().min(0).describe("Distance from target in meters"),
     })
     .optional()

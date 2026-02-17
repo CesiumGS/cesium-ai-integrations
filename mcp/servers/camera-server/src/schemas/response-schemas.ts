@@ -42,11 +42,9 @@ export const CameraOperationResponseSchema = z.object({
 
 /**
  * Response schema for animated camera fly operations
- * Extends movement response with actualDuration tracking
+ * Extends base camera operation response with final position/orientation and extended stats
  */
-export const CameraFlyToResponseSchema = z.object({
-  success: z.boolean().describe("Whether the operation succeeded"),
-  message: z.string().describe("Human-readable status message"),
+export const CameraFlyToResponseSchema = CameraOperationResponseSchema.extend({
   finalPosition: CesiumPositionSchema,
   finalOrientation: CesiumOrientationSchema,
   stats: ExtendedStatsSchema,
@@ -54,15 +52,14 @@ export const CameraFlyToResponseSchema = z.object({
 
 /**
  * Response schema for instant camera view changes
- * Uses 'position' and 'orientation' (not 'final...')
+ * Extends base camera operation response with position and orientation
  */
-export const CameraSetViewResponseSchema = z.object({
-  success: z.boolean().describe("Whether the operation succeeded"),
-  message: z.string().describe("Human-readable status message"),
-  position: CesiumPositionSchema,
-  orientation: CesiumOrientationSchema,
-  stats: StatsSchema,
-});
+export const CameraSetViewResponseSchema = CameraOperationResponseSchema.extend(
+  {
+    position: CesiumPositionSchema,
+    orientation: CesiumOrientationSchema,
+  },
+);
 
 /**
  * Response schema for orbit operations
@@ -75,15 +72,16 @@ export const CameraOrbitResponseSchema = CameraOperationResponseSchema.extend({
 
 /**
  * Response schema for camera position query (get_position tool)
+ * Extends base camera operation response with position, orientation, and view details
  */
-export const CameraGetPositionResponseSchema = z.object({
-  position: CesiumPositionSchema,
-  orientation: CesiumOrientationSchema,
-  viewRectangle: ViewRectangleSchema,
-  altitude: z.number().describe("Camera altitude above sea level"),
-  timestamp: z.string(),
-  stats: StatsSchema,
-});
+export const CameraGetPositionResponseSchema =
+  CameraOperationResponseSchema.extend({
+    position: CesiumPositionSchema,
+    orientation: CesiumOrientationSchema,
+    viewRectangle: ViewRectangleSchema,
+    altitude: z.number().describe("Camera altitude above sea level"),
+    timestamp: z.string(),
+  });
 
 /**
  * Response schema for look-at-transform operations
@@ -92,8 +90,8 @@ export const CameraLookAtTransformResponseSchema =
   CameraOperationResponseSchema.extend({
     target: CesiumPositionSchema,
     offset: z.object({
-      heading: z.number().describe("Heading in radians"),
-      pitch: z.number().describe("Pitch in radians"),
+      heading: z.number().describe("Heading in degrees"),
+      pitch: z.number().describe("Pitch in degrees"),
       range: z.number().min(0).describe("Distance from target in meters"),
     }),
   });

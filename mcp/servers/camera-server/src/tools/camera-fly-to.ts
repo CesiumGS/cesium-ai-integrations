@@ -4,7 +4,11 @@ import {
   CameraFlyToInputSchema,
   CameraFlyToResponseSchema,
 } from "../schemas/index.js";
-import { DEFAULT_ORIENTATION, TIMEOUT_BUFFER_MS } from "../utils/constants.js";
+import {
+  DEFAULT_ORIENTATION,
+  TIMEOUT_BUFFER_MS,
+  ResponseEmoji,
+} from "../utils/constants.js";
 import {
   executeWithTiming,
   formatErrorMessage,
@@ -73,8 +77,7 @@ export function registerCameraFlyTo(
           };
 
           return buildSuccessResponse(
-            "success",
-            output.message,
+            ResponseEmoji.Success,
             responseTime,
             output,
           );
@@ -92,11 +95,7 @@ export function registerCameraFlyTo(
           },
         };
 
-        return buildErrorResponse(
-          errorOutput.message,
-          errorOutput.stats.responseTime,
-          errorOutput,
-        );
+        return buildErrorResponse(errorOutput.stats.responseTime, errorOutput);
       }
     },
   );

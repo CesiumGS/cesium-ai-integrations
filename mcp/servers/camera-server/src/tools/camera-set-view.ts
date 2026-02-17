@@ -4,7 +4,7 @@ import {
   CameraSetViewInputSchema,
   CameraSetViewResponseSchema,
 } from "../schemas/index.js";
-import { DEFAULT_ORIENTATION } from "../utils/constants.js";
+import { DEFAULT_ORIENTATION, ResponseEmoji } from "../utils/constants.js";
 import {
   executeWithTiming,
   formatErrorMessage,
@@ -52,8 +52,7 @@ export function registerCameraSetView(
           };
 
           return buildSuccessResponse(
-            "success",
-            output.message,
+            ResponseEmoji.Success,
             responseTime,
             output,
           );
@@ -71,11 +70,7 @@ export function registerCameraSetView(
           },
         };
 
-        return buildErrorResponse(
-          errorOutput.message,
-          errorOutput.stats.responseTime,
-          errorOutput,
-        );
+        return buildErrorResponse(errorOutput.stats.responseTime, errorOutput);
       }
     },
   );
