@@ -254,18 +254,21 @@ export function addModelEntity(
 ): CesiumEntity {
   const cesiumPosition = positionToCartesian3(position);
 
-  const entityConfig: {
-    id: string;
-    name: string;
-    description?: string;
-    position: unknown;
-    model: unknown;
-    orientation?: unknown;
-  } = {
+  const entityConfig = {
     id: options.id || `model_${Date.now()}`,
     name: options.name || "3D Model",
     description: options.description,
     position: cesiumPosition,
+    orientation: options.orientation
+      ? Cesium.Transforms.headingPitchRollQuaternion(
+          cesiumPosition,
+          new Cesium.HeadingPitchRoll(
+            options.orientation.heading || 0,
+            options.orientation.pitch || 0,
+            options.orientation.roll || 0,
+          ),
+        )
+      : undefined,
     model: {
       uri: modelUri,
       scale: options.scale || 1,
@@ -275,18 +278,6 @@ export function addModelEntity(
       show: options.show !== false,
     },
   };
-
-  // Add orientation if specified
-  if (options.orientation) {
-    entityConfig.orientation = Cesium.Transforms.headingPitchRollQuaternion(
-      cesiumPosition,
-      new Cesium.HeadingPitchRoll(
-        options.orientation.heading || 0,
-        options.orientation.pitch || 0,
-        options.orientation.roll || 0,
-      ),
-    );
-  }
 
   return viewer.entities.add(entityConfig);
 }
@@ -495,18 +486,21 @@ export function addCylinderEntity(
     material = parseColor(options.fillColor) || material;
   }
 
-  const entityConfig: {
-    id: string;
-    name: string;
-    description?: string;
-    position: unknown;
-    cylinder: unknown;
-    orientation?: unknown;
-  } = {
+  const entityConfig = {
     id: options.id || `cylinder_${Date.now()}`,
     name: options.name || "Cylinder",
     description: options.description,
     position: cesiumPosition,
+    orientation: options.orientation
+      ? Cesium.Transforms.headingPitchRollQuaternion(
+          cesiumPosition,
+          new Cesium.HeadingPitchRoll(
+            options.orientation.heading || 0,
+            options.orientation.pitch || 0,
+            options.orientation.roll || 0,
+          ),
+        )
+      : undefined,
     cylinder: {
       length,
       topRadius,
@@ -516,17 +510,6 @@ export function addCylinderEntity(
       outlineColor: parseColor(options.outlineColor) || Cesium.Color.BLACK,
     },
   };
-
-  if (options.orientation) {
-    entityConfig.orientation = Cesium.Transforms.headingPitchRollQuaternion(
-      cesiumPosition,
-      new Cesium.HeadingPitchRoll(
-        options.orientation.heading || 0,
-        options.orientation.pitch || 0,
-        options.orientation.roll || 0,
-      ),
-    );
-  }
 
   return viewer.entities.add(entityConfig);
 }
@@ -568,18 +551,21 @@ export function addBoxEntity(
     material = parseColor(options.fillColor) || material;
   }
 
-  const entityConfig: {
-    id: string;
-    name: string;
-    description?: string;
-    position: unknown;
-    box: unknown;
-    orientation?: unknown;
-  } = {
+  const entityConfig = {
     id: options.id || `box_${Date.now()}`,
     name: options.name || "Box",
     description: options.description,
     position: cesiumPosition,
+    orientation: options.orientation
+      ? Cesium.Transforms.headingPitchRollQuaternion(
+          cesiumPosition,
+          new Cesium.HeadingPitchRoll(
+            options.orientation.heading || 0,
+            options.orientation.pitch || 0,
+            options.orientation.roll || 0,
+          ),
+        )
+      : undefined,
     box: {
       dimensions: new Cesium.Cartesian3(
         dimensions.x,
@@ -591,17 +577,6 @@ export function addBoxEntity(
       outlineColor: parseColor(options.outlineColor) || Cesium.Color.BLACK,
     },
   };
-
-  if (options.orientation) {
-    entityConfig.orientation = Cesium.Transforms.headingPitchRollQuaternion(
-      cesiumPosition,
-      new Cesium.HeadingPitchRoll(
-        options.orientation.heading || 0,
-        options.orientation.pitch || 0,
-        options.orientation.roll || 0,
-      ),
-    );
-  }
 
   return viewer.entities.add(entityConfig);
 }
