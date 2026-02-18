@@ -16,3 +16,4 @@ export const DEFAULT_LOOK_AT_OFFSET = {
 
 export const DEFAULT_ORBIT_SPEED = 0.005;
 
+export const TIMEOUT_BUFFER_MS = 2000;

@@ -39,9 +39,11 @@ export function registerCameraGetPosition(
           const output = {
             success: true,
             message: `Camera at ${result.position.latitude.toFixed(4)}°, ${result.position.longitude.toFixed(4)}° (${Math.round(result.position.height)}m altitude)`,
-            position: result.position,
-            orientation: result.orientation,
-            viewRectangle: result.viewRectangle,
+            position: { ...result.position },
+            orientation: { ...result.orientation },
+            viewRectangle: result.viewRectangle
+              ? { ...result.viewRectangle }
+              : null,
             altitude: result.altitude || result.position.height,
             timestamp: new Date().toISOString(),
             stats: {
@@ -63,7 +65,7 @@ export function registerCameraGetPosition(
           message: `Failed to get camera position: ${formatErrorMessage(error)}`,
           position: { longitude: 0, latitude: 0, height: 0 },
           orientation: { heading: 0, pitch: 0, roll: 0 },
-          viewRectangle: undefined,
+          viewRectangle: null,
           altitude: 0,
           timestamp: new Date().toISOString(),
           stats: {

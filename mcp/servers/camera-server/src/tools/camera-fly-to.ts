@@ -72,7 +72,7 @@ export function registerCameraFlyTo(
             finalOrientation,
             stats: {
               responseTime,
-              actualDuration: result.actualDuration,
+              actualDuration: result.actualDuration ?? null,
             },
           };
 
