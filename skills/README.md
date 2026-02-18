@@ -27,6 +27,7 @@ The Cesium platform provides powerful tools for 3D geospatial visualization and 
 This directory contains Cesium ecosystem agent skills:
 
 - **[cesium-context7](./cesium-context7/)**: Comprehensive knowledge of the Cesium platform, including CesiumJS APIs, Cesium ion workflows, 3D Tiles optimization, and best practices for building 3D geospatial applications. Use this skill to prevent hallucinations and ensure accurate Cesium-specific guidance.
+- **[creating-globe-tours](./creating-globe-tours/)**: Use when building multi-stop flyover presentations, virtual tours, guided location showcases, or cinematic sequences on the CesiumJS 3D globe. Coordinates Camera, Entity, and Clock MCP servers to create narrated flyover tours with multiple stops.
 
 ## 🚀 Using These Skills
 
