@@ -31,6 +31,18 @@
     "node": ">=18.0.0",
     "pnpm": ">=8.0.0"
   },
+  "pnpm": {
+    "overrides": {
+      "@modelcontextprotocol/sdk>ajv": ">=8.18.0",
+      "eslint>ajv": "^6.12.6",
+      "@eslint/eslintrc>ajv": "^6.12.6"
+    },
+    "auditConfig": {
+      "ignoreCves": [
+        "CVE-2025-69873"
+      ]
+    }
+  },
   "devDependencies": {
     "@cesium/eslint-config": "^13.0.0",
     "eslint": "^9.0.0",
