@@ -1,0 +1,44 @@
+name: Build Workspace
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+      
+    - name: Setup Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'pnpm'
+        cache-dependency-path: './mcp/pnpm-lock.yaml'
+    
+    - name: Install dependencies
+      working-directory: ./mcp
+      run: pnpm install --frozen-lockfile
+    
+    - name: Security audit
+      working-directory: ./mcp
+      run: pnpm audit
+    
+    - name: Lint & Prettier check
+      working-directory: ./mcp
+      run: pnpm run check
+    
+    - name: Build mcp servers
+      working-directory: ./mcp
+      run: pnpm run build

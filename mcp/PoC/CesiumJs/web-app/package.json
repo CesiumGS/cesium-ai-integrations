@@ -1,0 +1,33 @@
+{
+  "name": "@cesium-mcp/web-app",
+  "version": "1.0.0",
+  "description": "CesiumJS web client for MCP servers",
+  "type": "module",
+  "scripts": {
+    "start": "npm run serve",
+    "serve": "npx http-server . -p 8080 -c-1 --cors",
+    "serve:dev": "npx http-server . -p 8080 -c-1 --cors -o",
+    "build": "node esbuild.config.cjs",
+    "build:watch": "tsc --watch",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "cesium",
+    "mcp",
+    "3d",
+    "visualization"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/node": "^25.2.2",
+    "dotenv": "^16.4.7",
+    "esbuild": "^0.27.3",
+    "http-server": "^14.1.1",
+    "rimraf": "^6.1.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@cesium-mcp/client-core": "workspace:*"
+  }
+}

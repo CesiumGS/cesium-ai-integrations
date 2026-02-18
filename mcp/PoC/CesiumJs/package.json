@@ -1,0 +1,21 @@
+{
+  "name": "@cesium-mcp/poc",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PoC web application for Cesium MCP servers containing shared core and web app",
+  "scripts": {
+    "build": "pnpm --filter @cesium-mcp/client-core build && pnpm --filter @cesium-mcp/web-app build",
+    "build:core": "pnpm --filter @cesium-mcp/client-core build",
+    "build:web": "pnpm --filter @cesium-mcp/web-app build",
+    "start:web": "pnpm --filter @cesium-mcp/web-app serve",
+    "clean": "pnpm -r run clean"
+  },
+  "keywords": [
+    "cesium",
+    "mcp",
+    "3d",
+    "geospatial"
+  ],
+  "author": "",
+  "license": "Apache-2.0"
+}

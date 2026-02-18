@@ -1,0 +1,225 @@
+*,
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#cesiumContainer {
+  height: 100vh;
+}
+
+/* Status Panel */
+.status-panel {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(30, 30, 30, 0.95);
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  min-width: 300px;
+  max-width: 400px;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.status-panel.collapsed {
+  min-width: 200px;
+}
+
+.status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px 8px 0 0;
+}
+
+.status-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.toggle-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: background 0.2s;
+}
+
+.toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.status-content {
+  padding: 15px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.status-section {
+  margin-bottom: 15px;
+}
+
+.status-section:last-child {
+  margin-bottom: 0;
+}
+
+.status-section h4 {
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  color: #aaa;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.server-status-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.server-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  border-left: 3px solid transparent;
+}
+
+.server-item.connected {
+  border-left-color: #4caf50;
+}
+
+.server-item.disconnected {
+  border-left-color: #f44336;
+}
+
+.status-icon {
+  font-size: 10px;
+}
+
+.server-name {
+  font-weight: 600;
+  flex: 1;
+}
+
+.server-port {
+  color: #888;
+  font-size: 11px;
+}
+
+/* Utility Classes */
+.hidden {
+  display: none !important;
+}
+
+/* Error Panel */
+.error-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(30, 30, 30, 0.98);
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  font-family: Arial, sans-serif;
+  min-width: 400px;
+  max-width: 600px;
+  z-index: 2000;
+}
+
+.error-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(244, 67, 54, 0.2);
+  border-radius: 8px 8px 0 0;
+}
+
+.error-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #f44336;
+}
+
+.close-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  transition: background 0.2s;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.error-content {
+  padding: 20px;
+}
+
+.error-content p {
+  margin: 0 0 10px 0;
+}
+
+.error-message {
+  color: #ff6b6b;
+  font-size: 14px;
+  background: rgba(255, 107, 107, 0.1);
+  padding: 10px;
+  border-radius: 4px;
+  border-left: 3px solid #ff6b6b;
+}
+
+.error-hint {
+  font-size: 12px;
+  color: #888;
+}
+
+.error-actions {
+  padding: 15px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.action-btn {
+  padding: 8px 16px;
+  background: #4a9eff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.action-btn:hover {
+  background: #3a8eef;
+}
