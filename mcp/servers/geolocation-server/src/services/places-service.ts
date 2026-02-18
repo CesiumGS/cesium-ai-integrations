@@ -1,4 +1,19 @@
-import type { SearchInput, NearbySearchInput, Place } from '../schemas.js';
+import type { SearchInput, NearbySearchInput, Place } from "../schemas.js";
+
+/** Shape of a place object returned by the Google Places API (New) */
+interface GoogleApiPlace {
+  id?: string;
+  name?: string;
+  displayName?: { text?: string };
+  formattedAddress?: string;
+  location?: { latitude?: number; longitude?: number };
+  types?: string[];
+  rating?: number;
+  userRatingCount?: number;
+  priceLevel?: number;
+  currentOpeningHours?: { openNow?: boolean };
+  photos?: { name?: string }[];
+}
 
 /**
  * Google Places API Service
@@ -6,14 +21,16 @@ import type { SearchInput, NearbySearchInput, Place } from '../schemas.js';
  */
 export class PlacesService {
   private apiKey: string;
-  private baseUrl = 'https://places.googleapis.com/v1';
-  private cache: Map<string, { data: any; timestamp: number }> = new Map();
+  private baseUrl = "https://places.googleapis.com/v1";
+  private cache: Map<string, { data: unknown; timestamp: number }> = new Map();
   private cacheDuration = 5 * 60 * 1000; // 5 minutes
 
   constructor(apiKey?: string) {
-    this.apiKey = apiKey || process.env.GOOGLE_MAPS_API_KEY || '';
+    this.apiKey = apiKey || process.env.GOOGLE_MAPS_API_KEY || "";
     if (!this.apiKey) {
-      console.error('⚠️  Google Maps API key not set. Geolocation features will be limited.');
+      console.error(
+        "⚠️  Google Maps API key not set. Geolocation features will be limited.",
+      );
     }
   }
 
@@ -29,17 +46,21 @@ export class PlacesService {
    */
   async searchPlaces(input: SearchInput): Promise<Place[]> {
     if (!this.isConfigured()) {
-      throw new Error('Google Maps API key not configured. Set GOOGLE_MAPS_API_KEY environment variable.');
+      throw new Error(
+        "Google Maps API key not configured. Set GOOGLE_MAPS_API_KEY environment variable.",
+      );
     }
 
     const cacheKey = `search:${JSON.stringify(input)}`;
-    const cached = this.getFromCache(cacheKey);
-    if (cached) return cached;
+    const cached = this.getFromCache(cacheKey) as Place[] | null;
+    if (cached) {
+      return cached;
+    }
 
     try {
-      const requestBody: any = {
+      const requestBody: Record<string, unknown> = {
         textQuery: input.query,
-        maxResultCount: input.maxResults || 10
+        maxResultCount: input.maxResults || 10,
       };
 
       if (input.location) {
@@ -47,21 +68,22 @@ export class PlacesService {
           circle: {
             center: {
               latitude: input.location.latitude,
-              longitude: input.location.longitude
+              longitude: input.location.longitude,
             },
-            radius: input.radius || 5000
-          }
+            radius: input.radius || 5000,
+          },
         };
       }
 
       const response = await fetch(`${this.baseUrl}/places:searchText`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': this.apiKey,
-          'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location,places.types,places.rating,places.userRatingCount,places.priceLevel,places.currentOpeningHours,places.photos'
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": this.apiKey,
+          "X-Goog-FieldMask":
+            "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.rating,places.userRatingCount,places.priceLevel,places.currentOpeningHours,places.photos",
         },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -75,7 +97,7 @@ export class PlacesService {
       this.setCache(cacheKey, places);
       return places;
     } catch (error) {
-      console.error('Places search error:', error);
+      console.error("Places search error:", error);
       throw error;
     }
   }
@@ -85,25 +107,29 @@ export class PlacesService {
    */
   async searchNearby(input: NearbySearchInput): Promise<Place[]> {
     if (!this.isConfigured()) {
-      throw new Error('Google Maps API key not configured. Set GOOGLE_MAPS_API_KEY environment variable.');
+      throw new Error(
+        "Google Maps API key not configured. Set GOOGLE_MAPS_API_KEY environment variable.",
+      );
     }
 
     const cacheKey = `nearby:${JSON.stringify(input)}`;
-    const cached = this.getFromCache(cacheKey);
-    if (cached) return cached;
+    const cached = this.getFromCache(cacheKey) as Place[] | null;
+    if (cached) {
+      return cached;
+    }
 
     try {
-      const requestBody: any = {
+      const requestBody: Record<string, unknown> = {
         maxResultCount: input.maxResults || 10,
         locationRestriction: {
           circle: {
             center: {
               latitude: input.location.latitude,
-              longitude: input.location.longitude
+              longitude: input.location.longitude,
             },
-            radius: input.radius || 5000
-          }
-        }
+            radius: input.radius || 5000,
+          },
+        },
       };
 
       if (input.types && input.types.length > 0) {
@@ -119,13 +145,14 @@ export class PlacesService {
       }
 
       const response = await fetch(`${this.baseUrl}/places:searchNearby`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': this.apiKey,
-          'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location,places.types,places.rating,places.userRatingCount,places.priceLevel,places.currentOpeningHours,places.photos'
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": this.apiKey,
+          "X-Goog-FieldMask":
+            "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.rating,places.userRatingCount,places.priceLevel,places.currentOpeningHours,places.photos",
         },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -138,13 +165,13 @@ export class PlacesService {
 
       // Filter by openNow if specified
       if (input.openNow) {
-        places = places.filter(p => p.openNow === true);
+        places = places.filter((p) => p.openNow === true);
       }
 
       this.setCache(cacheKey, places);
       return places;
     } catch (error) {
-      console.error('Nearby search error:', error);
+      console.error("Nearby search error:", error);
       throw error;
     }
   }
@@ -152,17 +179,17 @@ export class PlacesService {
   /**
    * Transform Google Places API response to our Place schema
    */
-  private transformPlaces(apiPlaces: any[]): Place[] {
-    return apiPlaces.map(place => {
+  private transformPlaces(apiPlaces: GoogleApiPlace[]): Place[] {
+    return apiPlaces.map((place) => {
       const location = place.location || {};
       const transformed: Place = {
-        id: place.id || '',
-        name: place.displayName?.text || place.name || 'Unknown',
+        id: place.id || "",
+        name: place.displayName?.text || place.name || "Unknown",
         location: {
           latitude: location.latitude || 0,
           longitude: location.longitude || 0,
-          height: 0
-        }
+          height: 0,
+        },
       };
 
       if (place.formattedAddress) {
@@ -173,15 +200,15 @@ export class PlacesService {
         transformed.types = place.types;
       }
 
-      if (typeof place.rating === 'number') {
+      if (typeof place.rating === "number") {
         transformed.rating = place.rating;
       }
 
-      if (typeof place.userRatingCount === 'number') {
+      if (typeof place.userRatingCount === "number") {
         transformed.userRatingsTotal = place.userRatingCount;
       }
 
-      if (typeof place.priceLevel === 'number') {
+      if (typeof place.priceLevel === "number") {
         transformed.priceLevel = place.priceLevel;
       }
 
@@ -190,7 +217,7 @@ export class PlacesService {
       }
 
       if (place.photos && place.photos.length > 0) {
-        transformed.photos = place.photos.map((photo: any) => photo.name);
+        transformed.photos = place.photos.map((photo) => photo.name || "");
       }
 
       return transformed;
@@ -200,7 +227,7 @@ export class PlacesService {
   /**
    * Get data from cache if not expired
    */
-  private getFromCache(key: string): any | null {
+  private getFromCache(key: string): unknown | null {
     const cached = this.cache.get(key);
     if (cached && Date.now() - cached.timestamp < this.cacheDuration) {
       return cached.data;
@@ -212,7 +239,7 @@ export class PlacesService {
   /**
    * Set data in cache
    */
-  private setCache(key: string, data: any): void {
+  private setCache(key: string, data: unknown): void {
     this.cache.set(key, { data, timestamp: Date.now() });
 
     // Clean old entries if cache grows too large
@@ -222,7 +249,7 @@ export class PlacesService {
         .slice(0, 20)
         .map(([key]) => key);
 
-      oldestKeys.forEach(key => this.cache.delete(key));
+      oldestKeys.forEach((key) => this.cache.delete(key));
     }
   }
 
