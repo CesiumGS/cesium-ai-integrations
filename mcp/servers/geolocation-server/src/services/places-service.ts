@@ -91,8 +91,10 @@ export class PlacesService {
         throw new Error(`Places API error: ${response.status} - ${errorText}`);
       }
 
-      const data = await response.json();
-      const places = this.transformPlaces(data.places || []);
+      const data = (await response.json()) as Record<string, unknown>;
+      const places = this.transformPlaces(
+        (data.places as GoogleApiPlace[]) || [],
+      );
 
       this.setCache(cacheKey, places);
       return places;
@@ -160,8 +162,10 @@ export class PlacesService {
         throw new Error(`Places API error: ${response.status} - ${errorText}`);
       }
 
-      const data = await response.json();
-      let places = this.transformPlaces(data.places || []);
+      const data = (await response.json()) as Record<string, unknown>;
+      let places = this.transformPlaces(
+        (data.places as GoogleApiPlace[]) || [],
+      );
 
       // Filter by openNow if specified
       if (input.openNow) {

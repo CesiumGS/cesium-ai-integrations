@@ -152,8 +152,10 @@ export class RoutesService {
         throw new Error(`Routes API error: ${response.status} - ${errorText}`);
       }
 
-      const data = await response.json();
-      const routes = this.transformRoutes(data.routes || []);
+      const data = (await response.json()) as Record<string, unknown>;
+      const routes = this.transformRoutes(
+        (data.routes as GoogleApiRoute[]) || [],
+      );
 
       this.setCache(cacheKey, routes);
       return routes;
