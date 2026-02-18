@@ -4,15 +4,13 @@ import {
   EntityResponseSchema,
   type AddLabelEntityInput,
 } from "../schemas/index.js";
-import { generateEntityId } from "../utils/utils.js";
 import {
-  executeWithTiming,
-  formatErrorMessage,
-  buildSuccessResponse,
-  buildErrorResponse,
-  ResponseEmoji,
-  ICommunicationServer
-} from "@cesium-mcp/shared";
+  generateEntityId,
+  buildBaseEntity,
+  handleEntityAdd,
+  formatPositionMessage,
+} from "../utils/utils.js";
+import { ResponseEmoji, type ICommunicationServer } from "@cesium-mcp/shared";
 
 /**
  * Register the add label entity tool
@@ -32,61 +30,24 @@ export function registerAddLabelEntity(
       outputSchema: EntityResponseSchema.shape,
     },
     async ({ position, label, name, description, id }: AddLabelEntityInput) => {
-      try {
-        const entityId = id || generateEntityId("label");
-        const entityName = name || "Label";
+      const entityId = id || generateEntityId("label");
+      const entityName = name || "Label";
 
-        const entity = {
-          id: entityId,
-          name: entityName,
-          description,
-          position,
-          label,
-        };
+      const entity = buildBaseEntity(
+        { id: entityId, name: entityName, description, position },
+        label,
+        "label",
+      );
 
-        const command = {
-          type: "entity_add",
-          entity,
-        };
-
-        const { result, responseTime } = await executeWithTiming(
-          communicationServer,
-          command,
-        );
-
-        if (result.success) {
-          const output = {
-            success: true,
-            message: `Label entity "${entityName}" with text "${label.text}" added at ${position.latitude}°, ${position.longitude}°`,
-            entityId,
-            entityName,
-            position,
-            stats: {
-              totalEntities: result.totalEntities || 0,
-              responseTime,
-            },
-          };
-
-          return buildSuccessResponse(
-            ResponseEmoji.Label,
-            responseTime,
-            output,
-          );
-        }
-
-        throw new Error(result.error || "Unknown error from Cesium");
-      } catch (error) {
-        const errorOutput = {
-          success: false,
-          message: `Failed to add label entity: ${formatErrorMessage(error)}`,
-          entityId: id,
-          stats: {
-            responseTime: 0,
-          },
-        };
-
-        return buildErrorResponse(0, errorOutput);
-      }
+      return handleEntityAdd(
+        communicationServer,
+        entity,
+        "label",
+        ResponseEmoji.Label,
+        () =>
+          `Label entity "${entityName}" with text "${label.text}" added at ${formatPositionMessage(position)}`,
+        id,
+      );
     },
   );
 }

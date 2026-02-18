@@ -13,14 +13,32 @@ import type {
   PolylineOptions,
   BillboardOptions,
   ModelOptions,
+  EllipseOptions,
+  RectangleOptions,
+  WallOptions,
+  CylinderOptions,
+  BoxOptions,
+  CorridorOptions,
   Position,
+  EntityInputData,
 } from "../types/mcp.js";
 
-import { parseColor } from "../shared/cesium-utils.js";
-import { addPointEntity, addLabelEntity } from "../shared/entity-utils.js";
-
-type CesiumViewer = any; // Type from @cesium/engine or cesium
-type CesiumEntity = any; // Type from @cesium/engine or cesium
+import { cartesian3ToPosition } from "../shared/cesium-utils.js";
+import {
+  addPointEntity,
+  addLabelEntity,
+  addPolygonEntity,
+  addPolylineEntity,
+  addBillboardEntity,
+  addModelEntity,
+  addEllipseEntity,
+  addRectangleEntity,
+  addWallEntity,
+  addCylinderEntity,
+  addBoxEntity,
+  addCorridorEntity,
+} from "../shared/entity-utils.js";
+import { CesiumEntity, CesiumViewer } from "../types/cesium-types.js";
 
 class CesiumEntityManager implements ManagerInterface {
   viewer: CesiumViewer;
@@ -129,43 +147,17 @@ class CesiumEntityManager implements ManagerInterface {
   ): Promise<MCPCommandResult> {
     return new Promise((resolve) => {
       try {
-        const positions = coordinates.map((coord) =>
-          Cesium.Cartesian3.fromDegrees(
-            coord.longitude,
-            coord.latitude,
-            coord.height || 0,
-          ),
-        );
-
-        // Handle material - can be MCP format or legacy format
-        let material = Cesium.Color.BLUE.withAlpha(0.5); // default
-        if (
-          typeof options.material === "object" &&
-          options.material &&
-          "color" in options.material
-        ) {
-          material = parseColor(options.material.color) || material;
-        } else if (options.fillColor) {
-          const parsedColor = parseColor(options.fillColor);
-          material = parsedColor || material;
-          if (parsedColor && options.fillOpacity !== undefined) {
-            material = parsedColor.withAlpha(options.fillOpacity);
-          }
-        }
-
-        const entity = this.viewer.entities.add({
-          id: options.id || `polygon_${Date.now()}`,
+        const entity = addPolygonEntity(this.viewer, coordinates, {
+          id: options.id,
           name: options.name || "Polygon",
-          polygon: {
-            hierarchy: positions,
-            material: material,
-            outline: options.outline !== undefined ? options.outline : true,
-            outlineColor:
-              parseColor(options.outlineColor) || Cesium.Color.BLACK,
-            height: options.height || 0,
-            extrudedHeight: options.extrudedHeight,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          },
+          description: options.description,
+          material: options.material,
+          fillColor: options.fillColor,
+          fillOpacity: options.fillOpacity,
+          outline: options.outline,
+          outlineColor: options.outlineColor,
+          height: options.height,
+          extrudedHeight: options.extrudedHeight,
         });
 
         resolve({
@@ -192,42 +184,14 @@ class CesiumEntityManager implements ManagerInterface {
   ): Promise<MCPCommandResult> {
     return new Promise((resolve) => {
       try {
-        const positions = coordinates.map((coord) =>
-          Cesium.Cartesian3.fromDegrees(
-            coord.longitude,
-            coord.latitude,
-            coord.height || 100, // Default height of 100m to ensure visibility
-          ),
-        );
-
-        let material = Cesium.Color.RED; // Change default to red for better visibility
-        if (
-          typeof options.material === "object" &&
-          options.material &&
-          "color" in options.material
-        ) {
-          // MCP format: { material: { color: { red, green, blue, alpha } } }
-          material = parseColor(options.material.color) || material;
-        } else if (options.color) {
-          // Legacy format: { color: "red" } or { color: { red, green, blue, alpha } }
-          material = parseColor(options.color) || material;
-        }
-
-        const entity = this.viewer.entities.add({
-          id: options.id || `polyline_${Date.now()}`,
+        const entity = addPolylineEntity(this.viewer, coordinates, {
+          id: options.id,
           name: options.name || "Polyline",
-          polyline: {
-            show: true, // Explicitly show the polyline
-            positions: positions,
-            width: options.width || 5, // Increase default width for better visibility
-            material: material,
-            clampToGround:
-              options.clampToGround !== undefined
-                ? options.clampToGround
-                : false, // Don't clamp by default
-            followSurface: true, // Follow the Earth's surface
-            granularity: Cesium.Math.RADIANS_PER_DEGREE, // Add granularity for smoother curves
-          },
+          description: options.description,
+          width: options.width,
+          material: options.material,
+          color: options.color,
+          clampToGround: options.clampToGround,
         });
 
         resolve({
@@ -257,19 +221,20 @@ class CesiumEntityManager implements ManagerInterface {
   ): Promise<MCPCommandResult> {
     return new Promise((resolve) => {
       try {
-        const entity = this.viewer.entities.add({
-          id: options.id || `billboard_${Date.now()}`,
-          name: options.name || "Billboard",
-          position: Cesium.Cartesian3.fromDegrees(longitude, latitude, height),
-          billboard: {
-            image: imageUrl,
-            width: options.width || 64,
-            height: options.height || 64,
-            pixelOffset: new Cesium.Cartesian2(0, -32),
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-            scale: options.scale || 1.0,
+        const entity = addBillboardEntity(
+          this.viewer,
+          { longitude, latitude, height },
+          imageUrl,
+          {
+            id: options.id,
+            name: options.name || "Billboard",
+            description: options.description,
+            width: options.width,
+            height: options.height,
+            scale: options.scale,
+            color: options.color,
           },
-        });
+        );
 
         resolve({
           success: true,
@@ -298,54 +263,279 @@ class CesiumEntityManager implements ManagerInterface {
   ): Promise<MCPCommandResult> {
     return new Promise((resolve) => {
       try {
-        const position = Cesium.Cartesian3.fromDegrees(
-          longitude,
-          latitude,
-          height,
-        );
-
-        const entityConfig: {
-          id: string;
-          name: string;
-          description?: string;
-          position: any;
-          model: any;
-          orientation?: any;
-        } = {
-          id: options.id || `model_${Date.now()}`,
-          name: options.name || "3D Model",
-          description: options.description,
-          position: position,
-          model: {
-            uri: modelUri,
-            scale: options.scale || 1,
-            minimumPixelSize: options.minimumPixelSize || 128,
-            maximumScale: options.maximumScale || 20000,
-            runAnimations: options.runAnimations !== false,
-            show: options.show !== false,
+        const entity = addModelEntity(
+          this.viewer,
+          { longitude, latitude, height },
+          modelUri,
+          {
+            id: options.id,
+            name: options.name || "3D Model",
+            description: options.description,
+            orientation: options.orientation,
+            scale: options.scale,
+            minimumPixelSize: options.minimumPixelSize,
+            maximumScale: options.maximumScale,
+            runAnimations: options.runAnimations,
+            show: options.show,
           },
-        };
-
-        // Add orientation if specified
-        if (options.orientation) {
-          entityConfig.orientation =
-            Cesium.Transforms.headingPitchRollQuaternion(
-              position,
-              new Cesium.HeadingPitchRoll(
-                options.orientation.heading || 0,
-                options.orientation.pitch || 0,
-                options.orientation.roll || 0,
-              ),
-            );
-        }
-
-        const entity = this.viewer.entities.add(entityConfig);
+        );
 
         resolve({
           success: true,
           entityId: entity.id,
           type: "model",
           message: `3D Model entity '${entity.name}' created at ${longitude.toFixed(4)}, ${latitude.toFixed(4)}`,
+        });
+      } catch (error: unknown) {
+        resolve({
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    });
+  }
+
+  /**
+   * Add an ellipse entity
+   */
+  async addEllipse(
+    longitude: number,
+    latitude: number,
+    height: number = 0,
+    semiMajorAxis: number,
+    semiMinorAxis: number,
+    options: EllipseOptions = {},
+  ): Promise<MCPCommandResult> {
+    return new Promise((resolve) => {
+      try {
+        const entity = addEllipseEntity(
+          this.viewer,
+          { longitude, latitude, height },
+          semiMajorAxis,
+          semiMinorAxis,
+          {
+            id: options.id,
+            name: options.name || "Ellipse",
+            description: options.description,
+            material: options.material,
+            fillColor: options.fillColor,
+            fillOpacity: options.fillOpacity,
+            outline: options.outline,
+            outlineColor: options.outlineColor,
+            height: options.height,
+            extrudedHeight: options.extrudedHeight,
+            rotation: options.rotation,
+          },
+        );
+
+        resolve({
+          success: true,
+          entityId: entity.id,
+          type: "ellipse",
+          message: `Ellipse entity '${entity.name}' created at ${longitude.toFixed(4)}, ${latitude.toFixed(4)}`,
+        });
+      } catch (error: unknown) {
+        resolve({
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    });
+  }
+
+  /**
+   * Add a rectangle entity
+   */
+  async addRectangle(
+    coordinates: { west: number; south: number; east: number; north: number },
+    options: RectangleOptions = {},
+  ): Promise<MCPCommandResult> {
+    return new Promise((resolve) => {
+      try {
+        const entity = addRectangleEntity(this.viewer, coordinates, {
+          id: options.id,
+          name: options.name || "Rectangle",
+          description: options.description,
+          material: options.material,
+          fillColor: options.fillColor,
+          fillOpacity: options.fillOpacity,
+          outline: options.outline,
+          outlineColor: options.outlineColor,
+          height: options.height,
+          extrudedHeight: options.extrudedHeight,
+          rotation: options.rotation,
+        });
+
+        resolve({
+          success: true,
+          entityId: entity.id,
+          type: "rectangle",
+          message: `Rectangle entity '${entity.name}' created`,
+        });
+      } catch (error: unknown) {
+        resolve({
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    });
+  }
+
+  /**
+   * Add a wall entity
+   */
+  async addWall(
+    positions: Position[],
+    options: WallOptions = {},
+  ): Promise<MCPCommandResult> {
+    return new Promise((resolve) => {
+      try {
+        const entity = addWallEntity(this.viewer, positions, {
+          id: options.id,
+          name: options.name || "Wall",
+          description: options.description,
+          minimumHeights: options.minimumHeights,
+          maximumHeights: options.maximumHeights,
+          material: options.material,
+          fillColor: options.fillColor,
+          outline: options.outline,
+          outlineColor: options.outlineColor,
+        });
+
+        resolve({
+          success: true,
+          entityId: entity.id,
+          type: "wall",
+          message: `Wall entity '${entity.name}' created with ${positions.length} positions`,
+        });
+      } catch (error: unknown) {
+        resolve({
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    });
+  }
+
+  /**
+   * Add a cylinder entity
+   */
+  async addCylinder(
+    longitude: number,
+    latitude: number,
+    height: number = 0,
+    length: number,
+    topRadius: number,
+    bottomRadius: number,
+    options: CylinderOptions = {},
+  ): Promise<MCPCommandResult> {
+    return new Promise((resolve) => {
+      try {
+        const entity = addCylinderEntity(
+          this.viewer,
+          { longitude, latitude, height },
+          length,
+          topRadius,
+          bottomRadius,
+          {
+            id: options.id,
+            name: options.name || "Cylinder",
+            description: options.description,
+            material: options.material,
+            fillColor: options.fillColor,
+            outline: options.outline,
+            outlineColor: options.outlineColor,
+            orientation: options.orientation,
+          },
+        );
+
+        resolve({
+          success: true,
+          entityId: entity.id,
+          type: "cylinder",
+          message: `Cylinder entity '${entity.name}' created at ${longitude.toFixed(4)}, ${latitude.toFixed(4)}`,
+        });
+      } catch (error: unknown) {
+        resolve({
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    });
+  }
+
+  /**
+   * Add a box entity
+   */
+  async addBox(
+    longitude: number,
+    latitude: number,
+    height: number = 0,
+    dimensions: { x: number; y: number; z: number },
+    options: BoxOptions = {},
+  ): Promise<MCPCommandResult> {
+    return new Promise((resolve) => {
+      try {
+        const entity = addBoxEntity(
+          this.viewer,
+          { longitude, latitude, height },
+          dimensions,
+          {
+            id: options.id,
+            name: options.name || "Box",
+            description: options.description,
+            material: options.material,
+            fillColor: options.fillColor,
+            outline: options.outline,
+            outlineColor: options.outlineColor,
+            orientation: options.orientation,
+          },
+        );
+
+        resolve({
+          success: true,
+          entityId: entity.id,
+          type: "box",
+          message: `Box entity '${entity.name}' created at ${longitude.toFixed(4)}, ${latitude.toFixed(4)}`,
+        });
+      } catch (error: unknown) {
+        resolve({
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    });
+  }
+
+  /**
+   * Add a corridor entity
+   */
+  async addCorridor(
+    positions: Position[],
+    width: number,
+    options: CorridorOptions = {},
+  ): Promise<MCPCommandResult> {
+    return new Promise((resolve) => {
+      try {
+        const entity = addCorridorEntity(this.viewer, positions, width, {
+          id: options.id,
+          name: options.name || "Corridor",
+          description: options.description,
+          material: options.material,
+          fillColor: options.fillColor,
+          fillOpacity: options.fillOpacity,
+          outline: options.outline,
+          outlineColor: options.outlineColor,
+          height: options.height,
+          extrudedHeight: options.extrudedHeight,
+          cornerType: options.cornerType,
+        });
+
+        resolve({
+          success: true,
+          entityId: entity.id,
+          type: "corridor",
+          message: `Corridor entity '${entity.name}' created with ${positions.length} positions`,
         });
       } catch (error: unknown) {
         resolve({
@@ -441,14 +631,12 @@ class CesiumEntityManager implements ManagerInterface {
 
           // Add position if available
           if (entity.position) {
-            const cartographic = Cesium.Cartographic.fromCartesian(
-              entity.position.getValue(Cesium.JulianDate.now()),
+            const positionValue = entity.position.getValue(
+              Cesium.JulianDate.now(),
             );
-            entityInfo.position = {
-              longitude: Cesium.Math.toDegrees(cartographic.longitude),
-              latitude: Cesium.Math.toDegrees(cartographic.latitude),
-              height: cartographic.height,
-            };
+            if (positionValue) {
+              entityInfo.position = cartesian3ToPosition(positionValue);
+            }
           }
 
           entities.push(entityInfo);
@@ -465,36 +653,6 @@ class CesiumEntityManager implements ManagerInterface {
           success: false,
           error: error instanceof Error ? error.message : String(error),
           entities: [],
-        });
-      }
-    });
-  }
-
-  /**
-   * Clear all entities from the scene
-   */
-  async clearAll(): Promise<MCPCommandResult> {
-    return await this.clearAllEntities();
-  }
-
-  /**
-   * Clear all entities from the scene
-   */
-  async clearAllEntities(): Promise<MCPCommandResult> {
-    return new Promise((resolve) => {
-      try {
-        const count = this.viewer.entities.values.length;
-        this.viewer.entities.removeAll();
-
-        resolve({
-          success: true,
-          removedCount: count,
-          message: `Cleared all ${count} entities from the scene`,
-        });
-      } catch (error: unknown) {
-        resolve({
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
         });
       }
     });
@@ -549,7 +707,8 @@ class CesiumEntityManager implements ManagerInterface {
   async handleEntityAdd(
     command: Record<string, unknown>,
   ): Promise<MCPCommandResult> {
-    const entity = (command.entity as Record<string, unknown>) || command;
+    const entity =
+      (command.entity as EntityInputData) || (command as EntityInputData);
 
     let entityType = command.entityType;
     if (!entityType) {
@@ -563,11 +722,31 @@ class CesiumEntityManager implements ManagerInterface {
         entityType = "polyline";
       } else if (entity.billboard) {
         entityType = "billboard";
+      } else if (entity.model) {
+        entityType = "model";
+      } else if (entity.box) {
+        entityType = "box";
+      } else if (entity.corridor) {
+        entityType = "corridor";
+      } else if (entity.cylinder) {
+        entityType = "cylinder";
+      } else if (entity.ellipse) {
+        entityType = "ellipse";
+      } else if (entity.rectangle) {
+        entityType = "rectangle";
+      } else if (entity.wall) {
+        entityType = "wall";
       }
     }
 
     switch (entityType) {
       case "point":
+        if (!entity.position) {
+          return {
+            success: false,
+            error: "Position is required for point entity",
+          };
+        }
         return await this.addPoint(
           entity.position.longitude,
           entity.position.latitude,
@@ -582,12 +761,22 @@ class CesiumEntityManager implements ManagerInterface {
             outlineWidth: entity.point?.outlineWidth,
           },
         );
-      case "label":
+      case "label": {
+        if (!entity.position) {
+          return {
+            success: false,
+            error: "Position is required for label entity",
+          };
+        }
+        const labelText = entity.label?.text || entity.text;
+        if (!labelText) {
+          return { success: false, error: "Text is required for label entity" };
+        }
         return await this.addLabel(
           entity.position.longitude,
           entity.position.latitude,
           entity.position.height || 0,
-          entity.label?.text || entity.text,
+          labelText,
           {
             id: entity.id,
             name: entity.name,
@@ -601,42 +790,67 @@ class CesiumEntityManager implements ManagerInterface {
             pixelOffset: entity.label?.pixelOffset,
           },
         );
-      case "polygon":
-        return await this.addPolygon(
-          entity.polygon?.hierarchy || entity.positions || entity.coordinates,
-          {
-            id: entity.id,
-            name: entity.name,
-            description: entity.description,
-            height: entity.height || entity.polygon?.height,
-            extrudedHeight:
-              entity.extrudedHeight || entity.polygon?.extrudedHeight,
-            material: entity.material || entity.polygon?.material,
-            outline:
-              entity.outline !== undefined
-                ? entity.outline
-                : entity.polygon?.outline,
-            outlineColor: entity.outlineColor || entity.polygon?.outlineColor,
-          },
-        );
-      case "polyline":
-        return await this.addPolyline(
-          entity.polyline?.positions || entity.coordinates,
-          {
-            id: entity.id,
-            name: entity.name,
-            description: entity.description,
-            width: entity.polyline?.width,
-            material: entity.polyline?.material,
-            clampToGround: entity.polyline?.clampToGround,
-          },
-        );
-      case "billboard":
+      }
+      case "polygon": {
+        const coordinates =
+          entity.polygon?.hierarchy || entity.positions || entity.coordinates;
+        if (!coordinates) {
+          return {
+            success: false,
+            error: "Coordinates are required for polygon entity",
+          };
+        }
+        return await this.addPolygon(coordinates, {
+          id: entity.id,
+          name: entity.name,
+          description: entity.description,
+          height: entity.height || entity.polygon?.height,
+          extrudedHeight:
+            entity.extrudedHeight || entity.polygon?.extrudedHeight,
+          material: entity.material || entity.polygon?.material,
+          outline:
+            entity.outline !== undefined
+              ? entity.outline
+              : entity.polygon?.outline,
+          outlineColor: entity.outlineColor || entity.polygon?.outlineColor,
+        });
+      }
+      case "polyline": {
+        const coordinates = entity.polyline?.positions || entity.coordinates;
+        if (!coordinates) {
+          return {
+            success: false,
+            error: "Coordinates are required for polyline entity",
+          };
+        }
+        return await this.addPolyline(coordinates, {
+          id: entity.id,
+          name: entity.name,
+          description: entity.description,
+          width: entity.polyline?.width,
+          material: entity.polyline?.material,
+          clampToGround: entity.polyline?.clampToGround,
+        });
+      }
+      case "billboard": {
+        if (!entity.position) {
+          return {
+            success: false,
+            error: "Position is required for billboard entity",
+          };
+        }
+        const imageUrl = entity.billboard?.image || entity.imageUrl;
+        if (!imageUrl) {
+          return {
+            success: false,
+            error: "Image URL is required for billboard entity",
+          };
+        }
         return await this.addBillboard(
           entity.position.longitude,
           entity.position.latitude,
           entity.position.height || 0,
-          entity.billboard?.image || entity.imageUrl,
+          imageUrl,
           {
             id: entity.id,
             name: entity.name,
@@ -647,12 +861,26 @@ class CesiumEntityManager implements ManagerInterface {
             color: entity.billboard?.color,
           },
         );
-      case "model":
+      }
+      case "model": {
+        if (!entity.position) {
+          return {
+            success: false,
+            error: "Position is required for model entity",
+          };
+        }
+        const modelUri = entity.model?.uri;
+        if (!modelUri) {
+          return {
+            success: false,
+            error: "Model URI is required for model entity",
+          };
+        }
         return await this.addModel(
           entity.position.longitude,
           entity.position.latitude,
           entity.position.height || 0,
-          entity.model?.uri,
+          modelUri,
           {
             id: entity.id,
             name: entity.name,
@@ -663,6 +891,179 @@ class CesiumEntityManager implements ManagerInterface {
             maximumScale: entity.model?.maximumScale,
           },
         );
+      }
+      case "box": {
+        if (!entity.position) {
+          return {
+            success: false,
+            error: "Position is required for box entity",
+          };
+        }
+        const dimensions = entity.box?.dimensions;
+        if (!dimensions) {
+          return {
+            success: false,
+            error: "Dimensions are required for box entity",
+          };
+        }
+        return await this.addBox(
+          entity.position.longitude,
+          entity.position.latitude,
+          entity.position.height || 0,
+          dimensions,
+          {
+            id: entity.id,
+            name: entity.name,
+            description: entity.description,
+            material: entity.box?.material,
+            fillColor: entity.box?.fillColor,
+            outline: entity.box?.outline,
+            outlineColor: entity.box?.outlineColor,
+            orientation: entity.orientation,
+          },
+        );
+      }
+      case "corridor": {
+        const positions = entity.corridor?.positions;
+        const width = entity.corridor?.width;
+        if (!positions || !width) {
+          return {
+            success: false,
+            error: "Positions and width are required for corridor entity",
+          };
+        }
+        return await this.addCorridor(positions, width, {
+          id: entity.id,
+          name: entity.name,
+          description: entity.description,
+          material: entity.corridor?.material,
+          fillColor: entity.corridor?.fillColor,
+          outline: entity.corridor?.outline,
+          outlineColor: entity.corridor?.outlineColor,
+          cornerType: entity.corridor?.cornerType,
+          height: entity.corridor?.height,
+          extrudedHeight: entity.corridor?.extrudedHeight,
+        });
+      }
+      case "cylinder": {
+        if (!entity.position) {
+          return {
+            success: false,
+            error: "Position is required for cylinder entity",
+          };
+        }
+        const length = entity.cylinder?.length;
+        const topRadius = entity.cylinder?.topRadius;
+        const bottomRadius = entity.cylinder?.bottomRadius;
+        if (
+          length === undefined ||
+          topRadius === undefined ||
+          bottomRadius === undefined
+        ) {
+          return {
+            success: false,
+            error:
+              "Length, topRadius, and bottomRadius are required for cylinder entity",
+          };
+        }
+        return await this.addCylinder(
+          entity.position.longitude,
+          entity.position.latitude,
+          entity.position.height || 0,
+          length,
+          topRadius,
+          bottomRadius,
+          {
+            id: entity.id,
+            name: entity.name,
+            description: entity.description,
+            material: entity.cylinder?.material,
+            fillColor: entity.cylinder?.fillColor,
+            outline: entity.cylinder?.outline,
+            outlineColor: entity.cylinder?.outlineColor,
+            orientation: entity.orientation,
+          },
+        );
+      }
+      case "ellipse": {
+        if (!entity.position) {
+          return {
+            success: false,
+            error: "Position is required for ellipse entity",
+          };
+        }
+        const semiMajorAxis = entity.ellipse?.semiMajorAxis;
+        const semiMinorAxis = entity.ellipse?.semiMinorAxis;
+        if (semiMajorAxis === undefined || semiMinorAxis === undefined) {
+          return {
+            success: false,
+            error:
+              "semiMajorAxis and semiMinorAxis are required for ellipse entity",
+          };
+        }
+        return await this.addEllipse(
+          entity.position.longitude,
+          entity.position.latitude,
+          entity.position.height || 0,
+          semiMajorAxis,
+          semiMinorAxis,
+          {
+            id: entity.id,
+            name: entity.name,
+            description: entity.description,
+            material: entity.ellipse?.material,
+            fillColor: entity.ellipse?.fillColor,
+            fillOpacity: entity.ellipse?.fillOpacity,
+            outline: entity.ellipse?.outline,
+            outlineColor: entity.ellipse?.outlineColor,
+            height: entity.ellipse?.height,
+            extrudedHeight: entity.ellipse?.extrudedHeight,
+            rotation: entity.ellipse?.rotation,
+          },
+        );
+      }
+      case "rectangle": {
+        const coordinates = entity.rectangle?.coordinates;
+        if (!coordinates) {
+          return {
+            success: false,
+            error: "Coordinates are required for rectangle entity",
+          };
+        }
+        return await this.addRectangle(coordinates, {
+          id: entity.id,
+          name: entity.name,
+          description: entity.description,
+          material: entity.rectangle?.material,
+          fillColor: entity.rectangle?.fillColor,
+          fillOpacity: entity.rectangle?.fillOpacity,
+          outline: entity.rectangle?.outline,
+          outlineColor: entity.rectangle?.outlineColor,
+          height: entity.rectangle?.height,
+          extrudedHeight: entity.rectangle?.extrudedHeight,
+          rotation: entity.rectangle?.rotation,
+        });
+      }
+      case "wall": {
+        const positions = entity.wall?.positions;
+        if (!positions) {
+          return {
+            success: false,
+            error: "Positions are required for wall entity",
+          };
+        }
+        return await this.addWall(positions, {
+          id: entity.id,
+          name: entity.name,
+          description: entity.description,
+          minimumHeights: entity.wall?.minimumHeights,
+          maximumHeights: entity.wall?.maximumHeights,
+          material: entity.wall?.material,
+          fillColor: entity.wall?.fillColor,
+          outline: entity.wall?.outline,
+          outlineColor: entity.wall?.outlineColor,
+        });
+      }
       default:
         return {
           success: false,
@@ -682,56 +1083,10 @@ class CesiumEntityManager implements ManagerInterface {
    * Get command handlers for this manager
    */
   getCommandHandlers(): Map<string, CommandHandler> {
+    // entity_add: Generic add command that detects entity type from structure
     this.handlers.set("entity_add", async (cmd) => this.handleEntityAdd(cmd));
 
-    this.handlers.set("entity_add_point", async (cmd) => {
-      const position = cmd.position as Position;
-      return await this.addPoint(
-        position.longitude,
-        position.latitude,
-        position.height || 0,
-        {
-          id: cmd.id as string | undefined,
-          name: cmd.name as string | undefined,
-          description: cmd.description as string | undefined,
-          pixelSize: cmd.pixelSize as number | undefined,
-          color: cmd.color,
-          outlineColor: cmd.outlineColor,
-          outlineWidth: cmd.outlineWidth as number | undefined,
-        },
-      );
-    });
-
-    this.handlers.set("entity_add_label", async (cmd) => {
-      const position = cmd.position as Position;
-      return await this.addLabel(
-        position.longitude,
-        position.latitude,
-        position.height || 0,
-        cmd.text as string,
-        {
-          id: cmd.id as string | undefined,
-          name: cmd.name as string | undefined,
-          description: cmd.description as string | undefined,
-          font: cmd.font as string | undefined,
-          fillColor: cmd.fillColor,
-          outlineColor: cmd.outlineColor,
-          outlineWidth: cmd.outlineWidth as number | undefined,
-          style: cmd.style as string | undefined,
-          scale: cmd.scale as number | undefined,
-          pixelOffset: cmd.pixelOffset as { x: number; y: number } | undefined,
-        },
-      );
-    });
-
-    this.handlers.set("entity_add_polygon", async (cmd) => {
-      return await this.addPolygon(cmd.hierarchy as Position[], cmd);
-    });
-
-    this.handlers.set("entity_add_polyline", async (cmd) => {
-      return await this.addPolyline(cmd.positions as Position[], cmd);
-    });
-
+    // entity_remove: Remove entity by ID or name pattern
     this.handlers.set("entity_remove", async (cmd) => {
       if (cmd.entityId) {
         return await this.removeEntity(cmd.entityId as string);
@@ -746,16 +1101,9 @@ class CesiumEntityManager implements ManagerInterface {
       };
     });
 
-    this.handlers.set("entity_list_all", async () => {
-      return await this.listEntities();
-    });
-
+    // entity_list: List all entities with optional filtering
     this.handlers.set("entity_list", async () => {
       return await this.listEntities();
-    });
-
-    this.handlers.set("entity_clear_all", async () => {
-      return await this.clearAll();
     });
 
     return this.handlers;

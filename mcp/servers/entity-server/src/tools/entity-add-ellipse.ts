@@ -1,8 +1,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import {
-  AddBillboardEntityInputSchema,
+  AddEllipseEntityInputSchema,
   EntityResponseSchema,
-  type AddBillboardEntityInput,
+  type AddEllipseEntityInput,
 } from "../schemas/index.js";
 import {
   generateEntityId,
@@ -13,45 +13,45 @@ import {
 import { ResponseEmoji, type ICommunicationServer } from "@cesium-mcp/shared";
 
 /**
- * Register the add billboard entity tool
+ * Register the add ellipse entity tool
  */
-export function registerAddBillboardEntity(
+export function registerAddEllipseEntity(
   server: McpServer,
   communicationServer: ICommunicationServer,
 ): void {
   server.registerTool(
-    "entity_add_billboard",
+    "entity_add_ellipse",
     {
-      title: "Add Billboard Entity",
+      title: "Add Ellipse Entity",
       description:
-        "Create a billboard (image marker) entity at a specific location. " +
-        "Billboards are always screen-oriented and useful for icons and image markers.",
-      inputSchema: AddBillboardEntityInputSchema.shape,
+        "Create an ellipse entity at a specific location with customizable appearance. " +
+        "Ellipses are useful for representing circular areas, zones, or coverage regions.",
+      inputSchema: AddEllipseEntityInputSchema.shape,
       outputSchema: EntityResponseSchema.shape,
     },
     async ({
       position,
-      billboard,
+      ellipse,
       name,
       description,
       id,
-    }: AddBillboardEntityInput) => {
-      const entityId = id || generateEntityId("billboard");
-      const entityName = name || "Billboard";
+    }: AddEllipseEntityInput) => {
+      const entityId = id || generateEntityId("ellipse");
+      const entityName = name || "Ellipse";
 
       const entity = buildBaseEntity(
         { id: entityId, name: entityName, description, position },
-        billboard,
-        "billboard",
+        ellipse,
+        "ellipse",
       );
 
       return handleEntityAdd(
         communicationServer,
         entity,
-        "billboard",
-        ResponseEmoji.Billboard,
+        "ellipse",
+        ResponseEmoji.Ellipse,
         () =>
-          `Billboard entity "${entityName}" added at ${formatPositionMessage(position)}`,
+          `Ellipse entity "${entityName}" added at ${formatPositionMessage(position)}`,
         id,
       );
     },

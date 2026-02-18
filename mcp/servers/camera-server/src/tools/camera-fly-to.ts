@@ -3,9 +3,7 @@ import {
   CameraFlyToInputSchema,
   CameraFlyToResponseSchema,
 } from "../schemas/index.js";
-import {
-  DEFAULT_ORIENTATION,
-} from "../utils/constants.js";
+import { DEFAULT_ORIENTATION } from "../utils/constants.js";
 import {
   executeWithTiming,
   formatErrorMessage,
@@ -13,7 +11,7 @@ import {
   buildErrorResponse,
   TIMEOUT_BUFFER_MS,
   ResponseEmoji,
-  ICommunicationServer
+  ICommunicationServer,
 } from "@cesium-mcp/shared";
 
 export function registerCameraFlyTo(

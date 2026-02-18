@@ -5,11 +5,12 @@ import {
   type ListEntitiesInput,
   type EntitySummary,
 } from "../schemas/index.js";
+import type { EntityListResult } from "../utils/types.js";
 import {
   executeWithTiming,
   formatErrorMessage,
   buildErrorResponse,
-  ICommunicationServer
+  type ICommunicationServer,
 } from "@cesium-mcp/shared";
 
 /**
@@ -32,15 +33,16 @@ export function registerListEntities(
     async ({ includeDetails = false, filterByType }: ListEntitiesInput) => {
       try {
         const command = {
-          type: "entity_list",
+          type: "entity_list" as const,
           includeDetails,
           filterByType,
         };
 
-        const { result, responseTime } = await executeWithTiming(
-          communicationServer,
-          command,
-        );
+        const { result, responseTime } =
+          await executeWithTiming<EntityListResult>(
+            communicationServer,
+            command,
+          );
 
         if (result.success) {
           const entities: EntitySummary[] = Array.isArray(result.entities)

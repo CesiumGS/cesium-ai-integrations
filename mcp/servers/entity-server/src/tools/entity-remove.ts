@@ -4,13 +4,14 @@ import {
   RemoveEntityResponseSchema,
   type RemoveEntityInput,
 } from "../schemas/index.js";
+import type { EntityRemoveResult } from "../utils/types.js";
 import {
   executeWithTiming,
   formatErrorMessage,
   buildSuccessResponse,
   buildErrorResponse,
-  ICommunicationServer,
-  ResponseEmoji
+  ResponseEmoji,
+  type ICommunicationServer,
 } from "@cesium-mcp/shared";
 
 /**
@@ -43,17 +44,18 @@ export function registerRemoveEntity(
         }
 
         const command = {
-          type: "entity_remove",
+          type: "entity_remove" as const,
           entityId,
           namePattern,
           removeAll,
           confirmRemoval,
         };
 
-        const { result, responseTime } = await executeWithTiming(
-          communicationServer,
-          command,
-        );
+        const { result, responseTime } =
+          await executeWithTiming<EntityRemoveResult>(
+            communicationServer,
+            command,
+          );
 
         if (result.success) {
           const removedCount = result.removedCount || 1;

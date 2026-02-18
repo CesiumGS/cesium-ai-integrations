@@ -25,7 +25,7 @@ For experienced developers, here's a quick checklist:
 
 ### Integration Steps
 1. ☐ Create manager in `client-core/src/managers/[feature]-manager.ts`
-2. ☐ Register manager in `CesiumApp.initializeManagers()`
+2. ☐ Register manager in `CesiumApp.initializeControllers()` managers array
 3. ☐ Export manager from `client-core/src/index.ts`
 4. ☐ Add server to `mcpServers` array in `web-app/src/app.ts`
 5. ☐ Update environment variables (`.env` files)
@@ -76,31 +76,59 @@ Managers handle domain-specific operations and communication with MCP servers.
 ### Manager Structure
 
 ```typescript
-import { Viewer } from "cesium";
-import { BaseCommunicationManager } from "../communications/base-communication.js";
-import type { ManagerInterface, MCPCommand, MCPCommandResult } from "../types/mcp.js";
+import type { CesiumViewer } from "../types/cesium-types.js";
+import type {
+  ManagerInterface,
+  CommandHandler,
+  MCPCommandResult,
+} from "../types/mcp.js";
 
-export default class Cesium[Feature]Manager implements ManagerInterface {
-  private viewer: Viewer;
-  private communicationManager: BaseCommunicationManager;
+class Cesium[Feature]Manager implements ManagerInterface {
+  viewer: CesiumViewer;
+  prefix: string;
+  handlers: Map<string, CommandHandler>;
 
-  constructor(viewer: Viewer, communicationManager: BaseCommunicationManager) {
+  constructor(viewer: CesiumViewer) {
     this.viewer = viewer;
-    this.communicationManager = communicationManager;
-    this.setupCommandHandlers();
+    this.prefix = "[feature]";
+    this.handlers = new Map();
   }
 
-  private setupCommandHandlers(): void {
-    this.communicationManager.registerHandler(
-      "feature_action_target",
-      this.handleCommand.bind(this),
-    );
+  /**
+   * Setup method called during initialization
+   */
+  setUp(): void {
+    console.log("[Feature]Manager initialized");
   }
 
-  private async handleCommand(command: MCPCommand): Promise<MCPCommandResult> {
+  /**
+   * Get command handlers for this manager
+   * Note: This method must exist for commands to be registered
+   */
+  getCommandHandlers(): Map<string, CommandHandler> {
+    // Register handlers for each command type
+    this.handlers.set("[feature]_action", async (cmd) => {
+      return await this.handleAction(cmd);
+    });
+
+    return this.handlers;
+  }
+
+  /**
+   * Handle a specific action
+   */
+  private async handleAction(
+    command: Record<string, unknown>,
+  ): Promise<MCPCommandResult> {
     try {
       // Execute Cesium operation
-      // Return success result
+      // ...
+
+      return {
+        success: true,
+        message: "Action completed successfully",
+        data: { /* result data */ },
+      };
     } catch (error) {
       return {
         success: false,
@@ -109,66 +137,58 @@ export default class Cesium[Feature]Manager implements ManagerInterface {
     }
   }
 
-  public cleanup(): void {
-    console.log("[Feature]Manager cleanup");
+  /**
+   * Cleanup resources
+   */
+  shutdown(): void {
+    console.log("[Feature]Manager shutting down");
+    this.handlers.clear();
   }
 }
+
+export default Cesium[Feature]Manager;
 ```
 
 **Key Implementation Points:**
-- Register command handlers in `setupCommandHandlers()`
-- Implement handlers that return `MCPCommandResult` with `success`, `message`, and `data`
-- Use Cesium utilities like `positionToCartesian3()` and `parseColor()` from shared helpers
-- Add public methods for programmatic access (optional)
-- Implement `cleanup()` for resource management
+- Implement `getCommandHandlers()` - this is how the communication system discovers commands
+- Register command handlers in `getCommandHandlers()` using `this.handlers.set(commandType, handler)`
+- Command types should match what your MCP server sends (e.g., `"feature_action"`)
+- Return `MCPCommandResult` with `success`, `message`, and optional `data`
+- Implement `setUp()` for initialization and `shutdown()` for cleanup
+- Use Cesium utilities from shared helpers for common operations
 
 ## Step 2: Register Manager in CesiumApp
 
 Update `mcp/PoC/CesiumJs/packages/client-core/src/cesium-app.ts`:
 
+### 1. Import the Manager
+
 ```typescript
-// Add import
+// Add import at the top of the file
 import Cesium[Feature]Manager from "./managers/[feature]-manager.js";
+```
 
-export class CesiumApp {
-  private viewer!: Viewer;
-  private cameraManager?: CesiumCameraController;
-  private [feature]Manager?: Cesium[Feature]Manager; // Add this
-  private communicationManagers: BaseCommunicationManager[] = [];
-  // ... rest of properties
+### 2. Add Manager to the managers Array
 
-  /**
-   * Initialize all managers
-   */
-  private initializeManagers(): void {
-    this.config.mcpServers.forEach((serverConfig) => {
-      const manager = this.createCommunicationManager(serverConfig);
-      this.communicationManagers.push(manager);
+Locate the `initializeControllers()` method and add your manager to the array:
 
-      // Initialize feature-specific managers
-      if (serverConfig.name === "Camera Server") {
-        this.cameraManager = new CesiumCameraController(
-          this.viewer,
-          manager,
-        );
-      } else if (serverConfig.name === "[Feature] Server") {
-        this.[feature]Manager = new Cesium[Feature]Manager(
-          this.viewer,
-          manager,
-        );
-      }
-    });
+```typescript
+  initializeControllers(): void {
+    if (!this.viewer) {
+      return;
+    }
+
+    this.managers = [
+      new CesiumCameraController(this.viewer),
+      new Cesium[Feature]Manager(this.viewer), // Add your manager here
+    ];
   }
+```
 
-  /**
-   * Get [feature] manager instance
-   */
-  public get[Feature]Manager(): Cesium[Feature]Manager | undefined {
-    return this.[feature]Manager;
-  }
-
-  // ... rest of methods
-}
+**How It Works:**
+- The `managers` array is passed to communication managers during initialization
+- Communication managers call `getCommandHandlers()` on each manager to collect command handlers
+- Managers not in this array will have their handlers unregistered, resulting in unknown command errors
 ```
 
 ## Step 3: Export Manager from client-core
@@ -538,6 +558,26 @@ public async createMultiple[Features](
 3. Add console.log in handler to confirm it's being called
 4. Check for errors in browser console
 5. Verify Cesium viewer is initialized
+
+### Unknown Command Type Error
+
+**Problem**: `❌ Failed to add [feature]: Unknown command type: [feature]_action (0ms)`
+
+**Root Cause**: Manager exists but wasn't added to the `managers` array in `CesiumApp.initializeControllers()`
+
+**Solution**:
+1. Open `client-core/src/cesium-app.ts`
+2. Find `initializeControllers()` method
+3. Add your manager to the array:
+   ```typescript
+   this.managers = [
+     new CesiumCameraController(this.viewer),
+     new Cesium[Feature]Manager(this.viewer), // Add this line
+   ];
+   ```
+4. Rebuild client-core: `pnpm run build`
+
+**Why this happens**: The communication system collects command handlers by calling `getCommandHandlers()` on each manager in the `managers` array. If your manager isn't in the array, its handlers are never registered, resulting in "unknown command" errors.
 
 ### Build Errors
 

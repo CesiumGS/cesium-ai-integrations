@@ -7,6 +7,7 @@
 
 import type { CesiumViewer } from "./types/cesium-types.js";
 import CesiumCameraController from "./managers/camera-manager.js";
+import CesiumEntityManager from "./managers/entity-manager.js";
 import { BaseCommunicationManager } from "./communications/base-communication.js";
 import SSECommunicationManager from "./communications/sse-communication.js";
 import WebSocketCommunicationManager from "./communications/websocket-communication.js";
@@ -100,7 +101,10 @@ export class CesiumApp {
       return;
     }
 
-    this.managers = [new CesiumCameraController(this.viewer)];
+    this.managers = [
+      new CesiumCameraController(this.viewer),
+      new CesiumEntityManager(this.viewer),
+    ];
   }
 
   async initializeMCPCommunication(): Promise<void> {

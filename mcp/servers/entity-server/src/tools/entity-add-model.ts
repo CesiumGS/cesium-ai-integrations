@@ -4,15 +4,13 @@ import {
   EntityResponseSchema,
   type AddModelEntityInput,
 } from "../schemas/index.js";
-import { generateEntityId } from "../utils/utils.js";
 import {
-  executeWithTiming,
-  formatErrorMessage,
-  buildSuccessResponse,
-  buildErrorResponse,
-  ResponseEmoji,
-  ICommunicationServer,
-} from "@cesium-mcp/shared";
+  generateEntityId,
+  handleEntityAdd,
+  formatPositionMessage,
+} from "../utils/utils.js";
+import type { Entity } from "../utils/types.js";
+import { ResponseEmoji, type ICommunicationServer } from "@cesium-mcp/shared";
 
 /**
  * Register the add model entity tool
@@ -39,62 +37,33 @@ export function registerAddModelEntity(
       description,
       id,
     }: AddModelEntityInput) => {
-      try {
-        const entityId = id || generateEntityId("model");
-        const entityName = name || "3D Model";
+      const entityId = id || generateEntityId("model");
+      const entityName = name || "3D Model";
 
-        const entity = {
-          id: entityId,
-          name: entityName,
-          description,
-          position,
-          orientation,
-          model,
-        };
+      const entity: Entity = {
+        id: entityId,
+        name: entityName,
+        position,
+        model,
+      };
 
-        const command = {
-          type: "entity_add",
-          entity,
-        };
-
-        const { result, responseTime } = await executeWithTiming(
-          communicationServer,
-          command,
-        );
-
-        if (result.success) {
-          const output = {
-            success: true,
-            message: `3D Model entity "${entityName}" added at ${position.latitude}°, ${position.longitude}°`,
-            entityId,
-            entityName,
-            position,
-            stats: {
-              totalEntities: result.totalEntities || 0,
-              responseTime,
-            },
-          };
-
-          return buildSuccessResponse(
-            ResponseEmoji.Model,
-            responseTime,
-            output,
-          );
-        }
-
-        throw new Error(result.error || "Unknown error from Cesium");
-      } catch (error) {
-        const errorOutput = {
-          success: false,
-          message: `Failed to add 3D model entity: ${formatErrorMessage(error)}`,
-          entityId: id,
-          stats: {
-            responseTime: 0,
-          },
-        };
-
-        return buildErrorResponse(0, errorOutput);
+      if (description) {
+        entity.description = description;
       }
+
+      if (orientation) {
+        entity.orientation = orientation;
+      }
+
+      return handleEntityAdd(
+        communicationServer,
+        entity,
+        "3D model",
+        ResponseEmoji.Model,
+        () =>
+          `3D Model entity "${entityName}" added at ${formatPositionMessage(position)}`,
+        id,
+      );
     },
   );
 }

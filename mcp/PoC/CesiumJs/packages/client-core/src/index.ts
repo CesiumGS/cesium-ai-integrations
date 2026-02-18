@@ -41,12 +41,7 @@ export {
 } from "./shared/cesium-utils.js";
 
 // Utilities - Entity
-export {
-  addPointEntity,
-  addLabelEntity,
-  addPolylineEntity,
-  addPolygonEntity,
-} from "./shared/entity-utils.js";
+export { addPointEntity, addLabelEntity } from "./shared/entity-utils.js";
 
 // Utilities - Validation
 export {

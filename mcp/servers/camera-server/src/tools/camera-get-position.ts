@@ -6,7 +6,7 @@ import {
   buildSuccessResponse,
   buildErrorResponse,
   ResponseEmoji,
-  ICommunicationServer
+  ICommunicationServer,
 } from "@cesium-mcp/shared";
 import type { CameraPositionResult } from "../utils/index.js";
 

@@ -4,15 +4,13 @@ import {
   EntityResponseSchema,
   type AddPolygonEntityInput,
 } from "../schemas/index.js";
-import { generateEntityId } from "../utils/utils.js";
 import {
-  executeWithTiming,
-  formatErrorMessage,
-  buildSuccessResponse,
-  buildErrorResponse,
-  ResponseEmoji,
-  ICommunicationServer,
-} from "@cesium-mcp/shared";
+  generateEntityId,
+  handleEntityAdd,
+  calculateCenterPosition,
+} from "../utils/utils.js";
+import type { Entity } from "../utils/types.js";
+import { ResponseEmoji, type ICommunicationServer } from "@cesium-mcp/shared";
 
 /**
  * Register the add polygon entity tool
@@ -32,72 +30,30 @@ export function registerAddPolygonEntity(
       outputSchema: EntityResponseSchema.shape,
     },
     async ({ polygon, name, description, id }: AddPolygonEntityInput) => {
-      try {
-        const entityId = id || generateEntityId("polygon");
-        const entityName = name || "Polygon";
+      const entityId = id || generateEntityId("polygon");
+      const entityName = name || "Polygon";
 
-        const entity = {
-          id: entityId,
-          name: entityName,
-          description,
-          polygon,
-        };
+      const entity: Entity = {
+        id: entityId,
+        name: entityName,
+        polygon,
+      };
 
-        const command = {
-          type: "entity_add",
-          entity,
-        };
-
-        const { result, responseTime } = await executeWithTiming(
-          communicationServer,
-          command,
-        );
-
-        if (result.success) {
-          // Calculate center position for reporting
-          const centerLat =
-            polygon.hierarchy.reduce((sum, pos) => sum + pos.latitude, 0) /
-            polygon.hierarchy.length;
-          const centerLon =
-            polygon.hierarchy.reduce((sum, pos) => sum + pos.longitude, 0) /
-            polygon.hierarchy.length;
-
-          const output = {
-            success: true,
-            message: `Polygon entity "${entityName}" with ${polygon.hierarchy.length} vertices added (center: ${centerLat.toFixed(4)}°, ${centerLon.toFixed(4)}°)`,
-            entityId,
-            entityName,
-            position: {
-              latitude: centerLat,
-              longitude: centerLon,
-              height: polygon.height,
-            },
-            stats: {
-              totalEntities: result.totalEntities || 0,
-              responseTime,
-            },
-          };
-
-          return buildSuccessResponse(
-            ResponseEmoji.Polygon,
-            responseTime,
-            output,
-          );
-        }
-
-        throw new Error(result.error || "Unknown error from Cesium");
-      } catch (error) {
-        const errorOutput = {
-          success: false,
-          message: `Failed to add polygon entity: ${formatErrorMessage(error)}`,
-          entityId: id,
-          stats: {
-            responseTime: 0,
-          },
-        };
-
-        return buildErrorResponse(0, errorOutput);
+      if (description) {
+        entity.description = description;
       }
+
+      const centerPos = calculateCenterPosition(polygon.hierarchy);
+
+      return handleEntityAdd(
+        communicationServer,
+        entity,
+        "polygon",
+        ResponseEmoji.Polygon,
+        () =>
+          `Polygon entity "${entityName}" with ${polygon.hierarchy.length} vertices added (center: ${centerPos.latitude.toFixed(4)}°, ${centerPos.longitude.toFixed(4)}°)`,
+        id,
+      );
     },
   );
 }

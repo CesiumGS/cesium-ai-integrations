@@ -18,6 +18,7 @@ import type {
   Scene,
   Clock,
   Viewer,
+  Entity,
 } from "cesium";
 
 // Re-export Cesium types with consistent naming
@@ -70,25 +71,6 @@ export type CesiumCameraViewOptions = {
 
 export type CesiumLabelStyle = number;
 
-export type CesiumEntity = {
-  id?: string;
-  name?: string;
-  description?: string;
-  point?: object;
-  label?: object;
-  polygon?: object;
-  polyline?: object;
-  billboard?: object;
-  model?: object;
-  ellipse?: object;
-  rectangle?: object;
-  wall?: object;
-  cylinder?: object;
-  box?: object;
-  corridor?: object;
-  [key: string]: string | number | boolean | null | object | undefined;
-};
-
 export type CesiumEntityCollection = { values?: CesiumEntity[] };
 
 export type CesiumDataSource = { entities?: CesiumEntityCollection };
@@ -111,3 +93,4 @@ export type CesiumTimeline = {
 
 // CesiumViewer extends the native Cesium Viewer
 export type CesiumViewer = Viewer;
+export type CesiumEntity = Entity;

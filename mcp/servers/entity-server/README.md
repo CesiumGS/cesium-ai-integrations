@@ -10,6 +10,12 @@ MCP server for creating and managing 3D entities (points, billboards, labels, mo
 - **3D Models**: GLTF/GLB model placement with scale and orientation
 - **Polygons**: Area visualization with fill and outline styling
 - **Polylines**: Path/line rendering with width and color
+- **Box Entities**: 3D boxes for buildings, containers, or volumetric data
+- **Corridor Entities**: Paths with width for roads, pipelines, or routes
+- **Cylinder Entities**: Cylinders and cones for towers or pillars
+- **Ellipse Entities**: Circular areas for zones or coverage regions
+- **Rectangle Entities**: Geographic rectangles for regions or bounding boxes
+- **Wall Entities**: Vertical walls for barriers or fences
 - **Entity Management**: List and remove entities by ID
 
 ## 📦 Installation
@@ -26,7 +32,7 @@ pnpm run dev    # Development mode with auto-reload
 pnpm start      # Production mode
 ```
 
-The server will start on port 3004 with SSE transport.
+The server will start on port 3003 with WebSocket transport by default.
 
 ## 🛠️ Tools
 
@@ -310,7 +316,333 @@ await entity_add_polyline({
 
 ---
 
-### 7. `entity_list`
+### 7. `entity_add_box`
+
+**Add a 3D box entity**
+
+Creates a box entity with customizable dimensions, useful for representing buildings, containers, or volumetric data.
+
+**Capabilities:**
+
+- Custom dimensions (length, width, height)
+- Fill color and outline styling
+- Orientation control (heading, pitch, roll)
+- Height positioning
+- Optional extrusion
+
+**Input:**
+
+- `id` (optional): Unique identifier for the entity
+- `position`: Location (longitude, latitude, height)
+- `box`: Box properties
+  - `dimensions`: Box size (x, y, z in meters)
+  - `material` (optional): Fill color
+  - `outline` (optional): Show outline (default: false)
+  - `outlineColor` (optional): Outline color
+- `orientation` (optional): Heading, pitch, roll in degrees
+- `name` (optional): Display name
+- `description` (optional): Metadata text
+
+**Output:**
+
+- Entity ID
+- Position coordinates
+- Applied styling
+  14
+  **Example:**
+
+```javascript
+await entity_add_box({
+  position: { longitude: -122.4, latitude: 37.8, height: 0 },
+  box: {
+    dimensions: { x: 100, y: 50, z: 200 },
+    material: "#0000FF",
+    outline: true,
+    outlineColor: "#000000",
+  },
+  orientation: { heading: 45, pitch: 0, roll: 0 },
+  name: "Building",
+});
+```
+
+---
+
+### 8. `entity_add_corridor`
+
+**Add a corridor path entity**
+
+Creates a corridor along a path with specified width, useful for roads, pipelines, routes, or paths.
+
+**Capabilities:**
+
+- Multi-point path definition
+- Customizable width
+- Fill color and outline styling
+- Corner type control (rounded, mitered, beveled)
+- Height/altitude positioning
+- Extrusion for 3D volume
+
+**Input:**
+
+- `id` (optional): Unique identifier
+- `corridor`: Corridor properties
+  - `positions`: Array of path positions [{longitude, latitude, height}, ...]
+  - `width`: Corridor width in meters
+  - `material` (optional): Fill color
+  - `outline` (optional): Show outline
+  - `outlineColor` (optional): Outline color
+  - `cornerType` (optional): Corner style
+  - `height` (optional): Corridor altitude
+  - `extrudedHeight` (optional): Extrusion height
+- `name` (optional): Display name
+- `description` (optional): Metadata text
+
+**Output:**
+
+- Entity ID
+- Number of path positions
+- Center position
+
+**Example:**
+
+```javascript
+await entity_add_corridor({
+  corridor: {
+    positions: [
+      { longitude: -122.4, latitude: 37.8, height: 0 },
+      { longitude: -122.39, latitude: 37.79, height: 0 },
+      { longitude: -122.38, latitude: 37.78, height: 0 },
+    ],
+    width: 50,
+    material: "#FF6600",
+    outline: true,
+  },
+  name: "Highway Route",
+});
+```
+
+---
+
+### 9. `entity_add_cylinder`
+
+**Add a cylinder entity**
+
+Creates a cylinder or cone entity, useful for towers, pillars, or volumetric structures.
+
+**Capabilities:**
+
+- Customizable length (height)
+- Top and bottom radius (cone if different)
+- Fill color and outline styling
+- Orientation control
+- Height positioning
+
+**Input:**
+
+- `id` (optional): Unique identifier
+- `position`: Location (longitude, latitude, height)
+- `cylinder`: Cylinder properties
+  - `length`: Height of cylinder in meters
+  - `topRadius`: Radius at top in meters
+  - `bottomRadius`: Radius at bottom in meters
+  - `material` (optional): Fill color
+  - `outline` (optional): Show outline
+  - `outlineColor` (optional): Outline color
+- `orientation` (optional): Heading, pitch, roll in degrees
+- `name` (optional): Display name
+- `description` (optional): Metadata text
+
+**Output:**
+
+- Entity ID
+- Position coordinates
+- Applied styling
+
+**Example:**
+
+```javascript
+await entity_add_cylinder({
+  position: { longitude: 139.69, latitude: 35.65, height: 0 },
+  cylinder: {
+    length: 333,
+    topRadius: 10,
+    bottomRadius: 20,
+    material: "#FF0000",
+    outline: true,
+  },
+  name: "Tower",
+});
+```
+
+---
+
+### 10. `entity_add_ellipse`
+
+**Add an ellipse entity**
+
+Creates an ellipse for representing circular areas, zones, or coverage regions.
+
+**Capabilities:**
+
+- Semi-major and semi-minor axes
+- Rotation control
+- Fill color and outline styling
+- Height positioning
+- Extrusion for 3D volume
+- Number of vertices control
+
+**Input:**
+
+- `id` (optional): Unique identifier
+- `position`: Center location (longitude, latitude, height)
+- `ellipse`: Ellipse properties
+  - `semiMajorAxis`: Semi-major axis length in meters
+  - `semiMinorAxis`: Semi-minor axis length in meters
+  - `material` (optional): Fill color
+  - `outline` (optional): Show outline
+  - `outlineColor` (optional): Outline color
+  - `rotation` (optional): Rotation in radians
+  - `height` (optional): Ellipse altitude
+  - `extrudedHeight` (optional): Extrusion height
+- `name` (optional): Display name
+- `description` (optional): Metadata text
+
+**Output:**
+
+- Entity ID
+- Position coordinates
+- Applied styling
+
+**Example:**
+
+```javascript
+await entity_add_ellipse({
+  position: { longitude: -74.0, latitude: 40.7, height: 0 },
+  ellipse: {
+    semiMajorAxis: 500,
+    semiMinorAxis: 300,
+    material: "rgba(0, 255, 0, 0.3)",
+    outline: true,
+    rotation: 0.785398, // 45 degrees
+  },
+  name: "Coverage Zone",
+});
+```
+
+---
+
+### 11. `entity_add_rectangle`
+
+**Add a rectangle entity**
+
+Creates a rectangle defined by geographic bounds, useful for regions, bounding boxes, or areas of interest.
+
+**Capabilities:**
+
+- Geographic bounds (north, south, east, west)
+- Fill color and outline styling
+- Height positioning
+- Extrusion for 3D volume
+- Rotation control
+
+**Input:**
+
+- `id` (optional): Unique identifier
+- `rectangle`: Rectangle properties
+  - `coordinates`: Geographic bounds
+    - `north`: North latitude in degrees
+    - `south`: South latitude in degrees
+    - `east`: East longitude in degrees
+    - `west`: West longitude in degrees
+  - `material` (optional): Fill color
+  - `outline` (optional): Show outline
+  - `outlineColor` (optional): Outline color
+  - `height` (optional): Rectangle altitude
+  - `extrudedHeight` (optional): Extrusion height
+- `name` (optional): Display name
+- `description` (optional): Metadata text
+
+**Output:**
+
+- Entity ID
+- Center position
+- Applied styling
+
+**Example:**
+
+```javascript
+await entity_add_rectangle({
+  rectangle: {
+    coordinates: {
+      north: 37.9,
+      south: 37.7,
+      east: -122.3,
+      west: -122.5,
+    },
+    material: "rgba(255, 0, 0, 0.3)",
+    outline: true,
+    extrudedHeight: 100,
+  },
+  name: "Region of Interest",
+});
+```
+
+---
+
+### 12. `entity_add_wall`
+
+**Add a wall entity**
+
+Creates a vertical wall from a series of positions, useful for barriers, fences, or vertical structures.
+
+**Capabilities:**
+
+- Multi-point path definition
+- Variable heights along the wall
+- Fill color and outline styling
+- Minimum and maximum heights
+- Ground clamping options
+
+**Input:**
+
+- `id` (optional): Unique identifier
+- `wall`: Wall properties
+  - `positions`: Array of path positions [{longitude, latitude, height}, ...]
+  - `minimumHeights` (optional): Array of minimum heights for each position
+  - `maximumHeights`: Array of maximum heights for each position
+  - `material` (optional): Fill color
+  - `outline` (optional): Show outline
+  - `outlineColor` (optional): Outline color
+- `name` (optional): Display name
+- `description` (optional): Metadata text
+
+**Output:**
+
+- Entity ID
+- Number of positions
+- Center position
+
+**Example:**
+
+```javascript
+await entity_add_wall({
+  wall: {
+    positions: [
+      { longitude: -122.4, latitude: 37.8, height: 0 },
+      { longitude: -122.39, latitude: 37.79, height: 0 },
+      { longitude: -122.38, latitude: 37.78, height: 0 },
+    ],
+    maximumHeights: [10, 15, 10],
+    material: "#8B4513",
+    outline: true,
+  },
+  name: "Barrier Wall",
+});
+```
+
+---
+
+### 13. `entity_list`
 
 **List all entities**
 
@@ -426,65 +758,64 @@ Open http://localhost:8080 to view the 3D globe. The status panel will show the 
 
 Open Cline in VS Code and use natural language commands (see example queries below). The entity server tools will be available automatically.
 
-## 🧪 Example Test Queries
+## 🧪 Example Queries
 
-Try these natural language queries with your AI client:
+Try these simple commands with your AI client:
 
-### Basic Markers
-
-```
-"Add a red point marker at the Statue of Liberty"
-"Place a yellow point at Mount Fuji with size 15 pixels"
-```
-
-### Labels and Text
+### Getting Started
 
 ```
-"Add a label showing 'Tokyo Tower' at coordinates 139.69, 35.65, height 333 meters"
-"Create a white text label at the Eiffel Tower"
+"Add a red point"
+"Add a label that says Hello"
+"Show me all entities"
+"Remove the point"
 ```
 
-### 3D Models
+### Points and Labels
 
 ```
-"Load a 3D model at Times Square from /models/building.glb with scale 2.0"
-"Place a GLB model at the Sydney Opera House with heading 45 degrees"
+"Add a yellow point at the Eiffel Tower"
+"Create a blue point at Mount Fuji with size 20"
+"Add a label saying Big Ben at the Big Ben location"
 ```
 
-### Areas and Polygons
+### Lines and Areas
 
 ```
-"Draw a semi-transparent blue polygon around Central Park"
-"Create a green extruded polygon showing a building footprint in downtown San Francisco"
+"Draw a red line from New York to London"
+"Create a green polygon around the Colosseum"
+"Add a yellow polyline connecting Tokyo, Sydney, and Los Angeles"
 ```
 
-### Routes and Paths
+### 3D Shapes
 
 ```
-"Draw a red polyline showing a flight path from New York to London"
-"Create a 5-pixel wide yellow line connecting these coordinates: [list of coordinates]"
+"Add a blue box at the Empire State Building"
+"Create a red cylinder at the CN Tower"
+"Draw a green circle around the Golden Gate Bridge"
 ```
 
-### Entity Management
+### Corridors and Walls
 
 ```
-"Show me all current entities on the globe"
-"Remove the entity with ID 'marker1'"
-"List all entities and their types"
+"Create a corridor along Route 66 with 50 meter width"
+"Add an orange corridor for a pipeline from point A to point B"
+"Draw a wall along the Great Wall of China"
 ```
 
-### Complex Visualizations
+### Managing Entities
 
 ```
-"Create a visualization of the Golden Gate Bridge with a point marker, label, and polygon showing the bridge area"
-"Add multiple billboards along a route showing waypoints"
+"List all entities"
+"Remove entity with ID point1"
+"Show what's on the globe"
 ```
 
 ## 🏗️ Architecture
 
-- **Server**: Registers MCP tools, exposes SSE endpoint on port 3004
+- **Server**: Registers MCP tools, exposes WebSocket/SSE endpoint on port 3003
 - **Browser Manager**: Creates and manages Cesium Entity objects
-- **Entity Types**: Supports all major Cesium entity graphics types (Point, Billboard, Label, Model, Polygon, Polyline)
+- **Entity Types**: Supports all major Cesium entity graphics types (Point, Billboard, Label, Model, Polygon, Polyline, Box, Corridor, Cylinder, Ellipse, Rectangle, Wall)
 - **Color Parsing**: Handles CSS colors, hex codes, and rgba strings
 - **Coordinate System**: Uses WGS84 cartographic coordinates (longitude, latitude, height)
 
@@ -497,14 +828,14 @@ Add to your `.env` file in `PoC/CesiumJs/web-app`:
 ```bash
 CESIUM_ACCESS_TOKEN=your_token_here
 MCP_PROTOCOL=websocket
-MCP_ENTITY_PORT=3004
+MCP_ENTITY_PORT=3003
 ```
 
 ### Server Configuration
 
 Environment variables for the entity server:
 
-- `PORT` or `ENTITY_SERVER_PORT`: Override default server port (default: 3004)
+- `PORT` or `ENTITY_SERVER_PORT`: Override default server port (default: 3003)
 - `COMMUNICATION_PROTOCOL`: Choose 'sse' or 'websocket' (default: 'websocket')
 - `MAX_RETRIES`: Maximum retry attempts for port binding (default: 10)
 - `STRICT_PORT`: If 'true', fail if exact port unavailable (default: false)

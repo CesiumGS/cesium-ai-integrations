@@ -10,7 +10,7 @@ import {
   buildSuccessResponse,
   buildErrorResponse,
   ResponseEmoji,
-  ICommunicationServer
+  ICommunicationServer,
 } from "@cesium-mcp/shared";
 
 export function registerCameraSetView(

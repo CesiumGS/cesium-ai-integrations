@@ -72,7 +72,8 @@ Use this skill to:
 1. **Create Server**: Follow [Creating a New MCP Server](./creating-mcp-server.md) - covers setup, schemas, tools, and testing
 2. **Add Tools**: Use patterns from [Tool and Schema Patterns](./tool-and-schema-patterns.md) for defining schemas and implementing tools  
 3. **Integrate**: Follow [Integrating with PoC Samples](./integrating-poc-samples.md) - includes manager creation, configuration, and testing
-   - Note: Remember to add your server to `mcpServers` array in `web-app/src/app.ts` (Step 4)
+   - Add your manager to the `managers` array in `cesium-app.ts` `initializeControllers()` method
+   - Add your server to `mcpServers` array in `web-app/src/app.ts` (Step 4)
 
 Each guide contains complete checklists and step-by-step instructions.
 

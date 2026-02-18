@@ -4,15 +4,13 @@ import {
   EntityResponseSchema,
   type AddPolylineEntityInput,
 } from "../schemas/index.js";
-import { generateEntityId } from "../utils/utils.js";
 import {
-  executeWithTiming,
-  formatErrorMessage,
-  buildSuccessResponse,
-  buildErrorResponse,
-  ResponseEmoji,
-  ICommunicationServer
-} from "@cesium-mcp/shared";
+  generateEntityId,
+  handleEntityAdd,
+  formatMultiplePositions,
+} from "../utils/utils.js";
+import type { Entity } from "../utils/types.js";
+import { ResponseEmoji, type ICommunicationServer } from "@cesium-mcp/shared";
 
 /**
  * Register the add polyline entity tool
@@ -32,63 +30,30 @@ export function registerAddPolylineEntity(
       outputSchema: EntityResponseSchema.shape,
     },
     async ({ polyline, name, description, id }: AddPolylineEntityInput) => {
-      try {
-        const entityId = id || generateEntityId("polyline");
-        const entityName = name || "Polyline";
+      const entityId = id || generateEntityId("polyline");
+      const entityName = name || "Polyline";
 
-        const entity = {
-          id: entityId,
-          name: entityName,
-          description,
-          polyline,
-        };
+      const entity: Entity = {
+        id: entityId,
+        name: entityName,
+        polyline,
+      };
 
-        const command = {
-          type: "entity_add",
-          entity,
-        };
-
-        const { result, responseTime } = await executeWithTiming(
-          communicationServer,
-          command,
-        );
-
-        if (result.success) {
-          const startPos = polyline.positions[0];
-          const endPos = polyline.positions[polyline.positions.length - 1];
-
-          const output = {
-            success: true,
-            message: `Polyline entity "${entityName}" with ${polyline.positions.length} points added from ${startPos.latitude.toFixed(4)}°, ${startPos.longitude.toFixed(4)}° to ${endPos.latitude.toFixed(4)}°, ${endPos.longitude.toFixed(4)}°`,
-            entityId,
-            entityName,
-            position: startPos,
-            stats: {
-              totalEntities: result.totalEntities || 0,
-              responseTime,
-            },
-          };
-
-          return buildSuccessResponse(
-            ResponseEmoji.Polyline,
-            responseTime,
-            output,
-          );
-        }
-
-        throw new Error(result.error || "Unknown error from Cesium");
-      } catch (error) {
-        const errorOutput = {
-          success: false,
-          message: `Failed to add polyline entity: ${formatErrorMessage(error)}`,
-          entityId: id,
-          stats: {
-            responseTime: 0,
-          },
-        };
-
-        return buildErrorResponse(0, errorOutput);
+      if (description) {
+        entity.description = description;
       }
+
+      const positionsText = formatMultiplePositions(polyline.positions, 2);
+
+      return handleEntityAdd(
+        communicationServer,
+        entity,
+        "polyline",
+        ResponseEmoji.Polyline,
+        () =>
+          `Polyline entity "${entityName}" with ${polyline.positions.length} points added from ${positionsText}`,
+        id,
+      );
     },
   );
 }

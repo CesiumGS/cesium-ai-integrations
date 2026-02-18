@@ -32,6 +32,7 @@ export const ServerDefaults = {
 /**
  * Response emoji types for formatting tool results
  */
+/* eslint-disable no-unused-vars */
 export enum ResponseEmoji {
   Success = "success",
   Error = "error",
@@ -41,6 +42,12 @@ export enum ResponseEmoji {
   Model = "model",
   Polygon = "polygon",
   Polyline = "polyline",
+  Box = "box",
+  Corridor = "corridor",
+  Cylinder = "cylinder",
+  Ellipse = "ellipse",
+  Rectangle = "rectangle",
+  Wall = "wall",
   List = "list",
   Remove = "remove",
   Position = "position",
@@ -48,6 +55,7 @@ export enum ResponseEmoji {
   Stop = "stop",
   Settings = "settings",
 }
+/* eslint-enable no-unused-vars */
 
 export const RESPONSE_EMOJIS = {
   [ResponseEmoji.Success]: "✅",
@@ -58,6 +66,12 @@ export const RESPONSE_EMOJIS = {
   [ResponseEmoji.Model]: "🎭",
   [ResponseEmoji.Polygon]: "▲",
   [ResponseEmoji.Polyline]: "📏",
+  [ResponseEmoji.Box]: "📦",
+  [ResponseEmoji.Corridor]: "🛣️",
+  [ResponseEmoji.Cylinder]: "🏛️",
+  [ResponseEmoji.Ellipse]: "⭕",
+  [ResponseEmoji.Rectangle]: "▭",
+  [ResponseEmoji.Wall]: "🧱",
   [ResponseEmoji.List]: "📋",
   [ResponseEmoji.Remove]: "🗑️",
   [ResponseEmoji.Position]: "📍",

@@ -3,14 +3,14 @@ import {
   OrbitOptionsSchema,
   CameraOrbitResponseSchema,
 } from "../schemas/index.js";
-import { DEFAULT_ORBIT_SPEED  } from "../utils/constants.js";
+import { DEFAULT_ORBIT_SPEED } from "../utils/constants.js";
 import {
   executeWithTiming,
   formatErrorMessage,
   buildSuccessResponse,
   buildErrorResponse,
   ResponseEmoji,
-  ICommunicationServer
+  ICommunicationServer,
 } from "@cesium-mcp/shared";
 
 export function registerCameraStartOrbit(

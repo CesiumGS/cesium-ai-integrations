@@ -6,6 +6,12 @@ import { registerAddLabelEntity } from "./entity-add-label.js";
 import { registerAddModelEntity } from "./entity-add-model.js";
 import { registerAddPolygonEntity } from "./entity-add-polygon.js";
 import { registerAddPolylineEntity } from "./entity-add-polyline.js";
+import { registerAddEllipseEntity } from "./entity-add-ellipse.js";
+import { registerAddRectangleEntity } from "./entity-add-rectangle.js";
+import { registerAddWallEntity } from "./entity-add-wall.js";
+import { registerAddCylinderEntity } from "./entity-add-cylinder.js";
+import { registerAddBoxEntity } from "./entity-add-box.js";
+import { registerAddCorridorEntity } from "./entity-add-corridor.js";
 import { registerListEntities } from "./entity-list.js";
 import { registerRemoveEntity } from "./entity-remove.js";
 
@@ -29,8 +35,14 @@ export function registerEntityTools(
   registerAddModelEntity(server, communicationServer);
   registerAddPolygonEntity(server, communicationServer);
   registerAddPolylineEntity(server, communicationServer);
+  registerAddEllipseEntity(server, communicationServer);
+  registerAddRectangleEntity(server, communicationServer);
+  registerAddWallEntity(server, communicationServer);
+  registerAddCylinderEntity(server, communicationServer);
+  registerAddBoxEntity(server, communicationServer);
+  registerAddCorridorEntity(server, communicationServer);
   registerListEntities(server, communicationServer);
   registerRemoveEntity(server, communicationServer);
 
-  console.error("✅ Registered 8 entity tools");
+  console.error("✅ Registered 14 entity tools");
 }

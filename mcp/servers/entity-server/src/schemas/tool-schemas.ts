@@ -7,6 +7,12 @@ import {
   ModelGraphicsSchema,
   PolygonGraphicsSchema,
   PolylineGraphicsSchema,
+  EllipseGraphicsSchema,
+  RectangleGraphicsSchema,
+  WallGraphicsSchema,
+  CylinderGraphicsSchema,
+  BoxGraphicsSchema,
+  CorridorGraphicsSchema,
 } from "./graphics-schemas.js";
 
 /**
@@ -106,6 +112,105 @@ export const AddPolylineEntityInputSchema = z.object({
 });
 
 /**
+ * Add ellipse entity input
+ */
+export const AddEllipseEntityInputSchema = z.object({
+  position: PositionSchema.describe("Center position of the ellipse"),
+  ellipse: EllipseGraphicsSchema.describe("Ellipse appearance properties"),
+  name: z.string().optional().describe("Display name for the entity"),
+  description: z.string().optional().describe("HTML description for InfoBox"),
+  id: z
+    .string()
+    .optional()
+    .describe("Unique identifier (auto-generated if omitted)"),
+});
+
+/**
+ * Add rectangle entity input
+ */
+export const AddRectangleEntityInputSchema = z.object({
+  rectangle: RectangleGraphicsSchema.describe(
+    "Rectangle appearance properties",
+  ),
+  name: z.string().optional().describe("Display name for the entity"),
+  description: z.string().optional().describe("HTML description for InfoBox"),
+  id: z
+    .string()
+    .optional()
+    .describe("Unique identifier (auto-generated if omitted)"),
+});
+
+/**
+ * Add wall entity input
+ */
+export const AddWallEntityInputSchema = z.object({
+  wall: WallGraphicsSchema.describe("Wall appearance properties"),
+  name: z.string().optional().describe("Display name for the entity"),
+  description: z.string().optional().describe("HTML description for InfoBox"),
+  id: z
+    .string()
+    .optional()
+    .describe("Unique identifier (auto-generated if omitted)"),
+});
+
+/**
+ * Add cylinder entity input
+ */
+export const AddCylinderEntityInputSchema = z.object({
+  position: PositionSchema.describe("Center position of the cylinder"),
+  cylinder: CylinderGraphicsSchema.describe("Cylinder appearance properties"),
+  orientation: z
+    .object({
+      heading: z.number().describe("Heading in radians"),
+      pitch: z.number().describe("Pitch in radians"),
+      roll: z.number().describe("Roll in radians"),
+    })
+    .optional()
+    .describe("Cylinder orientation"),
+  name: z.string().optional().describe("Display name for the entity"),
+  description: z.string().optional().describe("HTML description for InfoBox"),
+  id: z
+    .string()
+    .optional()
+    .describe("Unique identifier (auto-generated if omitted)"),
+});
+
+/**
+ * Add box entity input
+ */
+export const AddBoxEntityInputSchema = z.object({
+  position: PositionSchema.describe("Center position of the box"),
+  box: BoxGraphicsSchema.describe("Box appearance properties"),
+  orientation: z
+    .object({
+      heading: z.number().describe("Heading in radians"),
+      pitch: z.number().describe("Pitch in radians"),
+      roll: z.number().describe("Roll in radians"),
+    })
+    .optional()
+    .describe("Box orientation"),
+  name: z.string().optional().describe("Display name for the entity"),
+  description: z.string().optional().describe("HTML description for InfoBox"),
+  id: z
+    .string()
+    .optional()
+    .describe("Unique identifier (auto-generated if omitted)"),
+});
+
+/**
+ * Add corridor entity input
+ */
+export const AddCorridorEntityInputSchema = z.object({
+  corridor: CorridorGraphicsSchema.describe("Corridor appearance properties"),
+  name: z.string().optional().describe("Display name for the entity"),
+  description: z.string().optional().describe("HTML description for InfoBox"),
+  id: z
+    .string()
+    .optional()
+    .describe("Unique identifier (auto-generated if omitted)"),
+});
+
+/**
  * List entities input
  */
 export const ListEntitiesInputSchema = z.object({
@@ -116,7 +221,20 @@ export const ListEntitiesInputSchema = z.object({
       "Include detailed entity information (position, properties, etc.)",
     ),
   filterByType: z
-    .enum(["point", "label", "polygon", "polyline", "model", "billboard"])
+    .enum([
+      "point",
+      "label",
+      "polygon",
+      "polyline",
+      "model",
+      "billboard",
+      "ellipse",
+      "rectangle",
+      "wall",
+      "cylinder",
+      "box",
+      "corridor",
+    ])
     .optional()
     .describe("Filter entities by specific type"),
 });
@@ -153,6 +271,18 @@ export type AddModelEntityInput = z.infer<typeof AddModelEntityInputSchema>;
 export type AddPolygonEntityInput = z.infer<typeof AddPolygonEntityInputSchema>;
 export type AddPolylineEntityInput = z.infer<
   typeof AddPolylineEntityInputSchema
+>;
+export type AddEllipseEntityInput = z.infer<typeof AddEllipseEntityInputSchema>;
+export type AddRectangleEntityInput = z.infer<
+  typeof AddRectangleEntityInputSchema
+>;
+export type AddWallEntityInput = z.infer<typeof AddWallEntityInputSchema>;
+export type AddCylinderEntityInput = z.infer<
+  typeof AddCylinderEntityInputSchema
+>;
+export type AddBoxEntityInput = z.infer<typeof AddBoxEntityInputSchema>;
+export type AddCorridorEntityInput = z.infer<
+  typeof AddCorridorEntityInputSchema
 >;
 export type ListEntitiesInput = z.infer<typeof ListEntitiesInputSchema>;
 export type RemoveEntityInput = z.infer<typeof RemoveEntityInputSchema>;

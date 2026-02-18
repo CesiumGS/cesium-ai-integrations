@@ -10,7 +10,7 @@ import {
   buildSuccessResponse,
   buildErrorResponse,
   ICommunicationServer,
-  ResponseEmoji
+  ResponseEmoji,
 } from "@cesium-mcp/shared";
 
 export function registerCameraLookAtTransform(

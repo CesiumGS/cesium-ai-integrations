@@ -1,8 +1,5 @@
 import { ICommunicationServer } from "../communications/communication-server.js";
-import {
-  CommandInput,
-  CommandResult,
-} from "../types/types.js";
+import { CommandInput, CommandResult } from "../types/types.js";
 import { RESPONSE_EMOJIS, ResponseEmoji } from "./constants.js";
 
 /**
@@ -59,11 +56,7 @@ export function buildSuccessResponse<T extends { message: string }>(
   responseTime: number,
   structuredContent: T,
 ) {
-  return buildResponse(
-    RESPONSE_EMOJIS[emoji],
-    responseTime,
-    structuredContent,
-  );
+  return buildResponse(RESPONSE_EMOJIS[emoji], responseTime, structuredContent);
 }
 
 /**
