@@ -290,6 +290,7 @@ export const ModelGraphicsSchema = z
       .describe("Model animation configurations"),
     nodeTransformations: z
       .record(
+        z.string(),
         z.object({
           translation: z
             .object({ x: z.number(), y: z.number(), z: z.number() })

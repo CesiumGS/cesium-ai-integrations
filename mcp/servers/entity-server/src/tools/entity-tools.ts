@@ -609,7 +609,7 @@ export function registerEntityTools(
         const responseTime = Date.now() - startTime;
 
         if (result.success) {
-          const entities = result.entities || [];
+          const entities = (result.entities as EntitySummary[]) || [];
           const filteredCount = filterByType
             ? entities.filter((e: EntitySummary) => e.type === filterByType)
                 .length
