@@ -1,0 +1,39 @@
+{
+  "name": "@cesium-mcp/clock-server",
+  "version": "1.0.0",
+  "description": "MCP server for Cesium clock and animation control",
+  "type": "module",
+  "main": "./build/index.js",
+  "bin": {
+    "cesium-clock-mcp": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf build",
+    "dev": "tsx src/index.ts",
+    "start": "node build/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "cesium",
+    "clock",
+    "3d"
+  ],
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./build/index.js",
+    "./tools/clock-tools": "./build/tools/clock-tools.js"
+  },
+  "dependencies": {
+    "@cesium-mcp/shared": "workspace:*",
+    "@cesium-mcp/entity-server": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "dotenv": "^16.4.7",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
