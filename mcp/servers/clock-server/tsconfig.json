@@ -5,7 +5,6 @@
     "moduleResolution": "NodeNext",
     "lib": ["ES2020"],
     "outDir": "./build",
-    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -17,6 +16,7 @@
     "baseUrl": ".",
     "paths": {
       "@cesium-mcp/shared": ["../shared/src"],
+      "@cesium-mcp/entity-server/schemas": ["../entity-server/src/schemas.ts"],
       "@cesium-mcp/entity-server/*": ["../entity-server/src/*"]
     }
   },
