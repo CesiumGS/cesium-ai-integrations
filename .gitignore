@@ -1,0 +1,14 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor
+.idea/
+*.swp
+*.swo
+*~
+
+# VS Code - ignore all except shared configs
+.vscode/*
+!.vscode/mcp.json
+!.vscode/extensions.json

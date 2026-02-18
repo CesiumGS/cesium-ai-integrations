@@ -1,10 +1,2 @@
 # Local configuration with secrets
 config.local.js
-
-# Environment files
-.env
-.env.local
-.env.*.local
-
-# Node modules (if added later)
-node_modules/
