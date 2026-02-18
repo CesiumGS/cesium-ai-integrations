@@ -338,8 +338,8 @@ export function registerGeolocationTools(
                 type: "text",
                 text:
                   `✅ User location acquired\n` +
-                  `📍 Lat: ${result.location.latitude.toFixed(6)}, Lon: ${result.location.longitude.toFixed(6)}\n` +
-                  `🎯 Accuracy: ${result.accuracy ? `±${result.accuracy.toFixed(0)}m` : "Unknown"}`,
+                  `📍 Lat: ${(result.location as { latitude: number; longitude: number }).latitude.toFixed(6)}, Lon: ${(result.location as { latitude: number; longitude: number }).longitude.toFixed(6)}\n` +
+                  `🎯 Accuracy: ${result.accuracy ? `±${(result.accuracy as number).toFixed(0)}m` : "Unknown"}`,
               },
             ],
             structuredContent: {
