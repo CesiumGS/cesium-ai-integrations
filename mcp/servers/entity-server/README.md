@@ -31,17 +31,20 @@ The server will start on port 3004 with SSE transport.
 ## Tools
 
 ### 1. `entity_add_point`
+
 **Add a point marker entity**
 
 Creates a colored point entity at the specified location.
 
 **Capabilities:**
+
 - Custom color (CSS color names or hex codes)
 - Configurable point size in pixels
 - Height/altitude positioning
 - Optional description metadata
 
 **Input:**
+
 - `id`: Unique identifier for the entity
 - `position`: Location (longitude, latitude, height)
 - `color` (optional): Point color (default: 'yellow')
@@ -49,28 +52,32 @@ Creates a colored point entity at the specified location.
 - `description` (optional): Metadata text
 
 **Output:**
+
 - Entity ID
 - Position coordinates
 - Applied styling
 
 **Example:**
+
 ```javascript
 await entity_add_point({
-  id: 'marker1',
+  id: "marker1",
   position: { longitude: -122.4, latitude: 37.8, height: 0 },
-  color: '#FF6B6B',
-  pixelSize: 15
+  color: "#FF6B6B",
+  pixelSize: 15,
 });
 ```
 
 ---
 
 ### 2. `entity_add_billboard`
+
 **Add an image/icon billboard**
 
 Places a 2D image that always faces the camera (billboard behavior).
 
 **Capabilities:**
+
 - Custom image URL support
 - Pixel offset for precise positioning
 - Width/height control
@@ -78,6 +85,7 @@ Places a 2D image that always faces the camera (billboard behavior).
 - Always faces camera
 
 **Input:**
+
 - `id`: Unique identifier
 - `position`: Location (longitude, latitude, height)
 - `image`: Image URL (can be data URI or external URL)
@@ -87,29 +95,33 @@ Places a 2D image that always faces the camera (billboard behavior).
 - `description` (optional): Metadata text
 
 **Output:**
+
 - Entity ID
 - Image URL
 - Position and offset
 
 **Example:**
+
 ```javascript
 await entity_add_billboard({
-  id: 'icon1',
+  id: "icon1",
   position: { longitude: 2.35, latitude: 48.86, height: 100 },
-  image: 'https://example.com/marker.png',
+  image: "https://example.com/marker.png",
   width: 32,
-  height: 32
+  height: 32,
 });
 ```
 
 ---
 
 ### 3. `entity_add_label`
+
 **Add a text label**
 
 Creates 3D text label that can face the camera or have fixed orientation.
 
 **Capabilities:**
+
 - Custom text content
 - Font family and size control
 - Fill and outline colors
@@ -118,6 +130,7 @@ Creates 3D text label that can face the camera or have fixed orientation.
 - Auto-scaling and rotation
 
 **Input:**
+
 - `id`: Unique identifier
 - `position`: Location (longitude, latitude, height)
 - `text`: Label text content
@@ -129,31 +142,35 @@ Creates 3D text label that can face the camera or have fixed orientation.
 - `description` (optional): Metadata text
 
 **Output:**
+
 - Entity ID
 - Label text
 - Applied styling
 
 **Example:**
+
 ```javascript
 await entity_add_label({
-  id: 'label1',
+  id: "label1",
   position: { longitude: -74.0, latitude: 40.7, height: 500 },
-  text: 'New York City',
-  font: '32px Helvetica',
-  fillColor: '#FFFFFF',
-  outlineColor: '#000000',
-  outlineWidth: 3
+  text: "New York City",
+  font: "32px Helvetica",
+  fillColor: "#FFFFFF",
+  outlineColor: "#000000",
+  outlineWidth: 3,
 });
 ```
 
 ---
 
 ### 4. `entity_add_model`
+
 **Add a 3D model (GLTF/GLB)**
 
 Places a 3D model on the globe with position, scale, and orientation control.
 
 **Capabilities:**
+
 - GLTF/GLB format support
 - Scale multiplier (uniform scaling)
 - Full 3D orientation (heading, pitch, roll)
@@ -162,6 +179,7 @@ Places a 3D model on the globe with position, scale, and orientation control.
 - Height clamping options
 
 **Input:**
+
 - `id`: Unique identifier
 - `position`: Location (longitude, latitude, height)
 - `uri`: Model file URL (.gltf or .glb)
@@ -173,30 +191,34 @@ Places a 3D model on the globe with position, scale, and orientation control.
 - `description` (optional): Metadata text
 
 **Output:**
+
 - Entity ID
 - Model URI
 - Position and orientation
 
 **Example:**
+
 ```javascript
 await entity_add_model({
-  id: 'building1',
+  id: "building1",
   position: { longitude: 139.69, latitude: 35.65, height: 0 },
-  uri: '/models/tokyo-tower.glb',
+  uri: "/models/tokyo-tower.glb",
   scale: 2.0,
   heading: 45,
-  minimumPixelSize: 128
+  minimumPixelSize: 128,
 });
 ```
 
 ---
 
 ### 5. `entity_add_polygon`
+
 **Add a polygon area**
 
 Creates a filled polygon with optional outline, useful for boundaries, zones, or regions.
 
 **Capabilities:**
+
 - Multi-point polygon definition
 - Fill color and opacity
 - Outline color and width
@@ -205,6 +227,7 @@ Creates a filled polygon with optional outline, useful for boundaries, zones, or
 - Ground clamping
 
 **Input:**
+
 - `id`: Unique identifier
 - `positions`: Array of corner positions [{longitude, latitude, height}, ...]
 - `material` (optional): Fill color (default: 'rgba(255, 255, 0, 0.5)')
@@ -215,34 +238,38 @@ Creates a filled polygon with optional outline, useful for boundaries, zones, or
 - `description` (optional): Metadata text
 
 **Output:**
+
 - Entity ID
 - Number of vertices
 - Applied styling
 
 **Example:**
+
 ```javascript
 await entity_add_polygon({
-  id: 'zone1',
+  id: "zone1",
   positions: [
     { longitude: -122.4, latitude: 37.8, height: 0 },
     { longitude: -122.3, latitude: 37.8, height: 0 },
     { longitude: -122.3, latitude: 37.7, height: 0 },
-    { longitude: -122.4, latitude: 37.7, height: 0 }
+    { longitude: -122.4, latitude: 37.7, height: 0 },
   ],
-  material: 'rgba(0, 255, 0, 0.3)',
-  outlineColor: '#00FF00',
-  extrudedHeight: 500
+  material: "rgba(0, 255, 0, 0.3)",
+  outlineColor: "#00FF00",
+  extrudedHeight: 500,
 });
 ```
 
 ---
 
 ### 6. `entity_add_polyline`
+
 **Add a polyline path**
 
 Creates a line connecting multiple points, useful for routes, boundaries, or paths.
 
 **Capabilities:**
+
 - Multi-point path definition
 - Line width control
 - Color customization
@@ -251,6 +278,7 @@ Creates a line connecting multiple points, useful for routes, boundaries, or pat
 - Arrow/directional indicators
 
 **Input:**
+
 - `id`: Unique identifier
 - `positions`: Array of path positions [{longitude, latitude, height}, ...]
 - `width` (optional): Line width in pixels (default: 3)
@@ -259,33 +287,37 @@ Creates a line connecting multiple points, useful for routes, boundaries, or pat
 - `description` (optional): Metadata text
 
 **Output:**
+
 - Entity ID
 - Number of path points
 - Applied styling
 
 **Example:**
+
 ```javascript
 await entity_add_polyline({
-  id: 'route1',
+  id: "route1",
   positions: [
     { longitude: -122.4, latitude: 37.8, height: 100 },
     { longitude: -122.3, latitude: 37.75, height: 150 },
-    { longitude: -122.2, latitude: 37.7, height: 100 }
+    { longitude: -122.2, latitude: 37.7, height: 100 },
   ],
   width: 5,
-  material: '#FF0000',
-  clampToGround: false
+  material: "#FF0000",
+  clampToGround: false,
 });
 ```
 
 ---
 
 ### 7. `entity_list`
+
 **List all entities**
 
 Retrieves information about all entities currently in the Cesium viewer.
 
 **Capabilities:**
+
 - Complete entity inventory
 - Type identification (point, billboard, label, model, polygon, polyline)
 - Position data for each entity
@@ -294,6 +326,7 @@ Retrieves information about all entities currently in the Cesium viewer.
 **Input:** None
 
 **Output:**
+
 - `entities`: Array of entity objects with:
   - `id`: Entity identifier
   - `type`: Entity type
@@ -301,6 +334,7 @@ Retrieves information about all entities currently in the Cesium viewer.
 - `count`: Total number of entities
 
 **Example:**
+
 ```javascript
 const result = await entity_list();
 // Returns: { entities: [{id: 'marker1', type: 'point', position: {...}}, ...], count: 5 }
@@ -309,26 +343,31 @@ const result = await entity_list();
 ---
 
 ### 8. `entity_remove`
+
 **Remove an entity by ID**
 
 Deletes a specific entity from the viewer.
 
 **Capabilities:**
+
 - Remove by unique ID
 - Automatic cleanup of all entity graphics
 - Returns removed entity details for confirmation
 
 **Input:**
+
 - `id`: Entity identifier to remove
 
 **Output:**
+
 - `success`: Boolean indicating removal status
 - `id`: Removed entity ID
 - `message`: Confirmation or error message
 
 **Example:**
+
 ```javascript
-await entity_remove({ id: 'marker1' });
+await entity_remove({ id: "marker1" });
 // Returns: { success: true, id: 'marker1', message: 'Entity removed successfully' }
 ```
 
@@ -337,58 +376,62 @@ await entity_remove({ id: 'marker1' });
 ## Integration Examples
 
 ### Visualize Multiple Locations
+
 ```javascript
 // Add points of interest
 await entity_add_point({
-  id: 'poi1',
+  id: "poi1",
   position: { longitude: -122.4, latitude: 37.8, height: 0 },
-  color: '#FF6B6B',
-  pixelSize: 12
+  color: "#FF6B6B",
+  pixelSize: 12,
 });
 
 await entity_add_label({
-  id: 'label1',
+  id: "label1",
   position: { longitude: -122.4, latitude: 37.8, height: 100 },
-  text: 'Golden Gate Bridge',
-  font: '24px sans-serif'
+  text: "Golden Gate Bridge",
+  font: "24px sans-serif",
 });
 ```
 
 ### Display 3D Building
+
 ```javascript
 await entity_add_model({
-  id: 'building1',
+  id: "building1",
   position: { longitude: -73.9, latitude: 40.7, height: 0 },
-  uri: '/models/skyscraper.glb',
+  uri: "/models/skyscraper.glb",
   scale: 1.5,
   heading: 0,
-  minimumPixelSize: 100
+  minimumPixelSize: 100,
 });
 ```
 
 ### Show Geographic Boundary
+
 ```javascript
 await entity_add_polygon({
-  id: 'district1',
+  id: "district1",
   positions: [
     { longitude: -122.5, latitude: 37.9, height: 0 },
     { longitude: -122.3, latitude: 37.9, height: 0 },
     { longitude: -122.3, latitude: 37.7, height: 0 },
-    { longitude: -122.5, latitude: 37.7, height: 0 }
+    { longitude: -122.5, latitude: 37.7, height: 0 },
   ],
-  material: 'rgba(100, 150, 255, 0.4)',
-  outlineColor: '#0066FF',
-  outlineWidth: 3
+  material: "rgba(100, 150, 255, 0.4)",
+  outlineColor: "#0066FF",
+  outlineWidth: 3,
 });
 ```
 
 ### Draw Route Path
+
 ```javascript
 await entity_add_polyline({
-  id: 'flight_path',
-  positions: routeCoordinates,  // Array of {longitude, latitude, height}
+  id: "flight_path",
+  positions: routeCoordinates, // Array of {longitude, latitude, height}
   width: 4,
-  material: '#00FFFF'
+  material: "#00FFFF",
 });
 ```
 
@@ -405,8 +448,12 @@ Add to your `config.local.js`:
 
 ```javascript
 MCP_SERVERS: [
-  { name: 'Entity Server', port: 3004, capabilities: ['entity-management', '3d-objects'] }
-]
+  {
+    name: "Entity Server",
+    port: 3004,
+    capabilities: ["entity-management", "3d-objects"],
+  },
+];
 ```
 
 ## Environment Variables

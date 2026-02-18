@@ -20,8 +20,12 @@ async function main() {
   try {
     // Check API key
     if (!process.env.GOOGLE_MAPS_API_KEY) {
-      console.error("⚠️  GOOGLE_MAPS_API_KEY not set. Geolocation features will be limited.");
-      console.error("   Set the environment variable to enable full functionality.");
+      console.error(
+        "⚠️  GOOGLE_MAPS_API_KEY not set. Geolocation features will be limited.",
+      );
+      console.error(
+        "   Set the environment variable to enable full functionality.",
+      );
     }
 
     // Create communication server based on protocol

@@ -41,15 +41,19 @@ The server runs on port 3005 by default for SSE connections.
 ## API Tools
 
 ### `geolocation_search`
+
 Search for places by name or type.
 
 ### `geolocation_nearby`
+
 Find places within a radius of a location.
 
 ### `geolocation_route`
+
 Compute optimal routes between locations.
 
 ### `geolocation_get_user_location`
+
 Request browser geolocation (requires user permission).
 
 ## Environment Variables
@@ -60,6 +64,7 @@ Request browser geolocation (requires user permission).
 ## Cost Considerations
 
 Google Maps Platform pricing:
+
 - Places API: $17/1K requests (Text Search), $32/1K requests (Nearby Search)
 - Routes API: $5/1K requests (basic), $10/1K requests (advanced with traffic)
 - Free tier: $200/month credit (~10K-40K requests depending on API mix)
