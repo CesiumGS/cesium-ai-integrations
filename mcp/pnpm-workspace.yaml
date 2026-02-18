@@ -1,6 +1,10 @@
 packages:
   - "servers/shared"
   - "servers/camera-server"
+  - "servers/animation-server"
+  - "servers/clock-server"
+  - "servers/entity-server"
+  - "servers/geolocation-server"
   - "PoC/CesiumJs"
   - "PoC/CesiumJs/packages/*"
   - "PoC/CesiumJs/web-app"
