@@ -2,6 +2,8 @@
 
 MCP server for creating and managing 3D entities (points, billboards, labels, models, polygons, polylines) on the CesiumJS globe.
 
+<video src="https://github.com/user-attachments/assets/1b72b095-4b74-49b4-b959-a83f8136ace0" controls></video>
+
 ## ✨ Features
 
 - **Point Entities**: Colored point markers with size control
