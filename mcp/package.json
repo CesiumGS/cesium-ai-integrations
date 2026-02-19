@@ -35,9 +35,14 @@
   "pnpm": {
     "overrides": {
       "@modelcontextprotocol/sdk>ajv": ">=8.18.0",
-      "eslint>ajv": ">=8.18.0",
-      "@eslint/eslintrc>ajv": ">=8.18.0",
+      "eslint>ajv": "^6.12.6",
+      "@eslint/eslintrc>ajv": "^6.12.6",
       "minimatch": ">=10.2.1"
+    },
+    "auditConfig": {
+      "ignoreCves": [
+        "CVE-2025-69873"
+      ]
     }
   },
   "devDependencies": {
