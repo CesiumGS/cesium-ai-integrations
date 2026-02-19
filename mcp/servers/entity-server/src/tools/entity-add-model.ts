@@ -24,8 +24,10 @@ export function registerAddModelEntity(
     {
       title: "Add 3D Model Entity",
       description:
-        "Create a 3D model entity (glTF) at a specific location with orientation. " +
-        "Models are useful for buildings, vehicles, and complex 3D objects.",
+        "Create a 3D model entity (glTF/GLB) at a specific location with orientation. " +
+        "Models are useful for buildings, vehicles, and complex 3D objects. " +
+        "IMPORTANT: Always ask the user for a model URL before calling this tool, unless they already provided one. " +
+        "Do NOT invent or guess model URLs.",
       inputSchema: AddModelEntityInputSchema.shape,
       outputSchema: EntityResponseSchema.shape,
     },

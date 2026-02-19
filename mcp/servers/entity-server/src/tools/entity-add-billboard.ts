@@ -25,7 +25,9 @@ export function registerAddBillboardEntity(
       title: "Add Billboard Entity",
       description:
         "Create a billboard (image marker) entity at a specific location. " +
-        "Billboards are always screen-oriented and useful for icons and image markers.",
+        "Billboards are always screen-oriented and useful for icons and image markers. " +
+        "IMPORTANT: Always ask the user for an image URL before calling this tool, unless they already provided one. " +
+        "Do NOT invent or guess image URLs.",
       inputSchema: AddBillboardEntityInputSchema.shape,
       outputSchema: EntityResponseSchema.shape,
     },

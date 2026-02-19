@@ -6,6 +6,7 @@ import type {
   HeadingPitchRoll,
   Matrix4,
   Rectangle,
+  RectangleGraphics,
   Color,
   Quaternion,
   JulianDate,
@@ -28,6 +29,9 @@ export type CesiumHeadingPitchRange = HeadingPitchRange;
 export type CesiumHeadingPitchRoll = HeadingPitchRoll;
 export type CesiumMatrix4 = Matrix4;
 export type CesiumRectangle = Rectangle;
+export type CesiumRectangleGraphics = RectangleGraphics;
+export type CesiumRectangleGraphicsOptions =
+  RectangleGraphics.ConstructorOptions;
 export type CesiumColor = Color;
 export type CesiumQuaternion = Quaternion;
 export type CesiumJulianDate = JulianDate;

@@ -5,7 +5,11 @@
 
 import type { Position, ColorRGBA } from "../types/mcp.js";
 import { parseColor, positionToCartesian3 } from "./cesium-utils.js";
-import type { CesiumViewer, CesiumEntity } from "../types/cesium-types.js";
+import type {
+  CesiumViewer,
+  CesiumEntity,
+  CesiumRectangleGraphicsOptions,
+} from "../types/cesium-types.js";
 
 /**
  * Add a point entity to the viewer
@@ -377,25 +381,39 @@ export function addRectangleEntity(
     }
   }
 
+  const rectangleGraphics: CesiumRectangleGraphicsOptions = {
+    coordinates: Cesium.Rectangle.fromDegrees(
+      coordinates.west,
+      coordinates.south,
+      coordinates.east,
+      coordinates.north,
+    ),
+    material,
+    outline: options.outline !== undefined ? options.outline : true,
+    outlineColor: parseColor(options.outlineColor) || Cesium.Color.BLACK,
+    rotation: options.rotation,
+  };
+
+  // Only add height if specified
+  if (options.height !== undefined) {
+    rectangleGraphics.height = options.height;
+  }
+
+  // Only add extrudedHeight if specified
+  if (options.extrudedHeight !== undefined) {
+    rectangleGraphics.extrudedHeight = options.extrudedHeight;
+  }
+
+  // Only use heightReference if height is not specified
+  if (options.height === undefined && options.extrudedHeight === undefined) {
+    rectangleGraphics.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
+  }
+
   return viewer.entities.add({
     id: options.id || `rectangle_${Date.now()}`,
     name: options.name || "Rectangle",
     description: options.description,
-    rectangle: {
-      coordinates: Cesium.Rectangle.fromDegrees(
-        coordinates.west,
-        coordinates.south,
-        coordinates.east,
-        coordinates.north,
-      ),
-      material,
-      outline: options.outline !== undefined ? options.outline : true,
-      outlineColor: parseColor(options.outlineColor) || Cesium.Color.BLACK,
-      height: options.height,
-      extrudedHeight: options.extrudedHeight,
-      rotation: options.rotation,
-      heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-    },
+    rectangle: rectangleGraphics,
   });
 }
 

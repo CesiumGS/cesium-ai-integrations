@@ -28,8 +28,6 @@ This directory contains Cesium ecosystem agent skills:
 
 - **[cesium-context7](./cesium-context7/)**: Comprehensive knowledge of the Cesium platform, including CesiumJS APIs, Cesium ion workflows, 3D Tiles optimization, and best practices for building 3D geospatial applications. Use this skill to prevent hallucinations and ensure accurate Cesium-specific guidance.
 
-- **[cesium-mcp-server-creation](./cesium-mcp-server-creation/)**: Complete guide for creating new Model Context Protocol (MCP) servers for Cesium applications. Covers server architecture, tool registration, schema validation with Zod, communication protocols (SSE/WebSocket), client integration patterns, and PoC sample integration. Essential for extending the Cesium MCP ecosystem with new features like entities, animations, imagery, terrain, or custom CesiumJS capabilities.
-
 ## 🚀 Using These Skills
 
 If you're using an AI assistant that supports Agent Skills (like GitHub Copilot in VS Code), these skills will be automatically discovered and used when working on Cesium-related tasks in this workspace.

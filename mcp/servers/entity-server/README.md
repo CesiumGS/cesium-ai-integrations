@@ -188,7 +188,7 @@ Places a 3D model on the globe with position, scale, and orientation control.
 
 - `id`: Unique identifier
 - `position`: Location (longitude, latitude, height)
-- `uri`: Model file URL (.gltf or .glb)
+- `uri`: Model file URL (.gltf or .glb) - **MUST be a valid URL; ask the user for their model URL or use publicly available models**
 - `scale` (optional): Size multiplier (default: 1.0)
 - `heading` (optional): Rotation around Z-axis in degrees
 - `pitch` (optional): Rotation around Y-axis in degrees
@@ -205,15 +205,42 @@ Places a 3D model on the globe with position, scale, and orientation control.
 **Example:**
 
 ```javascript
+// Using a publicly available Cesium sample model
 await entity_add_model({
-  id: "building1",
+  id: "cesium-air",
+  position: { longitude: -122.4, latitude: 37.8, height: 1000 },
+  model: {
+    uri: "https://raw.githubusercontent.com/CesiumGS/cesium/main/Apps/SampleData/models/CesiumAir/Cesium_Air.glb",
+    scale: 2.0,
+    minimumPixelSize: 128,
+  },
+  name: "Cesium Air Plane",
+});
+
+// Using Cesium Man character model
+await entity_add_model({
+  id: "character",
   position: { longitude: 139.69, latitude: 35.65, height: 0 },
-  uri: "/models/tokyo-tower.glb",
-  scale: 2.0,
-  heading: 45,
-  minimumPixelSize: 128,
+  model: {
+    uri: "https://raw.githubusercontent.com/CesiumGS/cesium/main/Apps/SampleData/models/CesiumMan/Cesium_Man.glb",
+  },
+  orientation: {
+    heading: 0.785, // 45 degrees in radians
+    pitch: 0,
+    roll: 0,
+  },
+  name: "Walking Character",
 });
 ```
+
+**Available Public Models:**
+
+- Cesium Air: `https://raw.githubusercontent.com/CesiumGS/cesium/main/Apps/SampleData/models/CesiumAir/Cesium_Air.glb`
+- Cesium Man: `https://raw.githubusercontent.com/CesiumGS/cesium/main/Apps/SampleData/models/CesiumMan/Cesium_Man.glb`
+- Cesium Milk Truck: `https://raw.githubusercontent.com/CesiumGS/cesium/main/Apps/SampleData/models/CesiumMilkTruck/CesiumMilkTruck.glb`
+- Ground Vehicle: `https://raw.githubusercontent.com/CesiumGS/cesium/main/Apps/SampleData/models/GroundVehicle/GroundVehicle.glb`
+
+**Important:** Always use a valid model URL. If you don't have a model URL, ask the user to provide one or use one of the public models listed above.
 
 ---
 
@@ -777,6 +804,16 @@ Try these simple commands with your AI client:
 "Add a yellow point at the Eiffel Tower"
 "Create a blue point at Mount Fuji with size 20"
 "Add a label saying Big Ben at the Big Ben location"
+"Add a white label that says Tokyo Tower above the Tokyo Tower with a black outline"
+```
+
+### Billboards and Models
+
+```
+"Add a billboard with Cesium logo https://raw.githubusercontent.com/CesiumGS/cesium/main/Apps/Sandcastle/images/cesium-logomark-192.png at the Statue of Liberty"
+"Place a facility marker https://raw.githubusercontent.com/CesiumGS/cesium/main/Apps/Sandcastle/images/facility.gif at the Sydney Opera House"
+"Add the Cesium Air plane model https://raw.githubusercontent.com/CesiumGS/cesium/main/Apps/SampleData/models/CesiumAir/Cesium_Air.glb at the Space Needle in Seattle"
+"Load the Cesium Man model from https://raw.githubusercontent.com/CesiumGS/cesium/main/Apps/SampleData/models/CesiumMan/Cesium_Man.glb at Times Square and scale it to 2x"
 ```
 
 ### Lines and Areas
@@ -785,6 +822,10 @@ Try these simple commands with your AI client:
 "Draw a red line from New York to London"
 "Create a green polygon around the Colosseum"
 "Add a yellow polyline connecting Tokyo, Sydney, and Los Angeles"
+"Draw a blue rectangle around Central Park"
+"Create a purple rectangular region over Manhattan"
+"Draw a green circle around the Golden Gate Bridge"
+"Add a yellow ellipse at the White House with 1000m by 500m size"
 ```
 
 ### 3D Shapes
@@ -792,15 +833,15 @@ Try these simple commands with your AI client:
 ```
 "Add a blue box at the Empire State Building"
 "Create a red cylinder at the CN Tower"
-"Draw a green circle around the Golden Gate Bridge"
 ```
 
 ### Corridors and Walls
 
 ```
-"Create a corridor along Route 66 with 50 meter width"
-"Add an orange corridor for a pipeline from point A to point B"
-"Draw a wall along the Great Wall of China"
+"Create a corridor from San Francisco to Los Angeles with 50 meter width"
+"Add an orange corridor for a pipeline from Dubai to Abu Dhabi"
+"Create a 200-meter tall red wall from Times Square to the Empire State Building"
+"Draw a 500-meter wall barrier around the Pentagon"
 ```
 
 ### Managing Entities

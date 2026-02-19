@@ -29,22 +29,23 @@ export async function executeWithTiming<
 }
 
 /**
- * Builds an error response structure (raw version with string emoji)
+ * Builds a response structure (raw version with string emoji)
  */
 function buildResponse<T extends { message: string }>(
-  errorEmoji: string,
+  emoji: string,
   responseTime: number,
   structuredContent: T,
+  isError: boolean,
 ) {
   return {
     content: [
       {
         type: "text" as const,
-        text: `${errorEmoji} ${structuredContent.message} (${responseTime}ms)`,
+        text: `${emoji} ${structuredContent.message} (${responseTime}ms)`,
       },
     ],
     structuredContent,
-    isError: true,
+    isError,
   };
 }
 
@@ -56,7 +57,12 @@ export function buildSuccessResponse<T extends { message: string }>(
   responseTime: number,
   structuredContent: T,
 ) {
-  return buildResponse(RESPONSE_EMOJIS[emoji], responseTime, structuredContent);
+  return buildResponse(
+    RESPONSE_EMOJIS[emoji],
+    responseTime,
+    structuredContent,
+    false,
+  );
 }
 
 /**
@@ -70,5 +76,6 @@ export function buildErrorResponse<T extends { message: string }>(
     RESPONSE_EMOJIS[ResponseEmoji.Error],
     responseTime,
     structuredContent,
+    true,
   );
 }

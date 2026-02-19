@@ -42,7 +42,38 @@ export const PointGraphicsSchema = z
 export const BillboardGraphicsSchema = z
   .object({
     show: z.boolean().optional().default(true),
-    image: z.string().describe("URL to image file"),
+    image: z
+      .string()
+      .min(1, "Image URL is required and cannot be empty")
+      .refine(
+        (url) => {
+          // Check if it's a data URI
+          if (url.startsWith("data:")) {
+            return /^data:image\/(png|jpe?g|gif|svg\+xml|webp|bmp);base64,/.test(
+              url,
+            );
+          }
+          // Check if it's a valid URL with http/https
+          try {
+            void new URL(url);
+            return true;
+          } catch {
+            // Check for valid relative/absolute paths (must start with ./, ../, /, or drive letter on Windows)
+            const isValidPath =
+              /^(\.\.?\/|\/|[a-zA-Z]:\\).*\.(png|jpe?g|gif|svg|webp|bmp)(\?.*)?$/i.test(
+                url,
+              );
+            return isValidPath;
+          }
+        },
+        {
+          message:
+            "Invalid image URL. Must be a valid HTTP/HTTPS URL, data URI (data:image/...), or valid path starting with ./, ../, or / followed by an image extension (.png, .jpg, .jpeg, .gif, .svg, .webp, .bmp)",
+        },
+      )
+      .describe(
+        "URL to image file (required) - can be external URL or data URI. IMPORTANT: Always ask the user for an image URL unless they provide one.",
+      ),
     width: z.number().min(1).optional(),
     height: z.number().min(1).optional(),
     scale: z.number().min(0).optional().default(1),
@@ -121,7 +152,30 @@ export const LabelGraphicsSchema = z
 export const ModelGraphicsSchema = z
   .object({
     show: z.boolean().optional().default(true),
-    uri: z.string().describe("URI to glTF model file"),
+    uri: z
+      .string()
+      .min(1, "Model URI is required and cannot be empty")
+      .refine(
+        (uri) => {
+          // Check if it's a valid URL with http/https
+          try {
+            void new URL(uri);
+            return /\.(gltf|glb)(\?.*)?$/i.test(uri);
+          } catch {
+            // Check for valid relative/absolute paths (must start with ./, ../, /, or drive letter on Windows)
+            const isValidPath =
+              /^(\.\.?\/|\/|[a-zA-Z]:\\).*\.(gltf|glb)(\?.*)?$/i.test(uri);
+            return isValidPath;
+          }
+        },
+        {
+          message:
+            "Invalid model URI. Must be a valid URL or valid path starting with ./, ../, or / followed by .gltf or .glb extension",
+        },
+      )
+      .describe(
+        "URI to glTF/GLB model file (required). IMPORTANT: Always ask the user for a model URL unless they provide one.",
+      ),
     scale: z.number().min(0).optional().default(1),
     minimumPixelSize: z.number().min(0).optional().default(0),
     maximumScale: z.number().min(0).optional(),
