@@ -12,6 +12,7 @@ export interface MCPCommandResult {
   success: boolean;
   message?: string | null;
   error?: string | null;
+  [key: string]: unknown; // Allow additional properties
 }
 
 export interface SSEMessage {
@@ -142,6 +143,17 @@ export interface CameraControllerOptions {
   enableLook?: boolean;
 }
 
+// Clock configuration types
+export interface ClockConfig {
+  startTime: string | JulianDate;
+  stopTime: string | JulianDate;
+  currentTime: string | JulianDate;
+  clockRange: string;
+  clockStep?: string;
+  multiplier?: number;
+  shouldAnimate?: boolean;
+}
+
 // Server configuration types
 export type Protocol = "sse" | "websocket";
 
@@ -149,4 +161,17 @@ export interface ServerConfig {
   name: string;
   port: number;
   protocol?: Protocol;
+}
+
+// Animation types
+export interface PositionSample extends Position {
+  time: string | JulianDate;
+}
+
+export interface AnimationState {
+  entityId: string;
+  startTime: string | JulianDate;
+  stopTime: string | JulianDate;
+  modelPreset: string;
+  entity: any; // Cesium.Entity is not typed in this module
 }
