@@ -18,6 +18,7 @@ import type {
   Scene,
   Clock,
   Viewer,
+  Timeline,
 } from "cesium";
 
 // Re-export Cesium types with consistent naming
@@ -103,11 +104,7 @@ export type CesiumZoomTarget =
 export type CesiumCamera = Camera;
 export type CesiumScene = Scene;
 export type CesiumClock = Clock;
-
-export type CesiumTimeline = {
-  updateFromClock: () => void;
-  zoomTo: (start: JulianDate, stop: JulianDate) => void;
-};
+export type CesiumTimeline = Timeline;
 
 // CesiumViewer extends the native Cesium Viewer
 export type CesiumViewer = Viewer;

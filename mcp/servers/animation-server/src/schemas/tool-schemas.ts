@@ -1,10 +1,13 @@
 import { z } from "zod";
 import {
-  PositionSchema,
   ColorSchema,
   PositionSampleSchema,
   JulianDateSchema,
   PolylineMaterialSchema,
+  ModelPresetSchema,
+  LoopModeSchema,
+  InterpolationAlgorithmSchema,
+  ClockSchema,
 } from "./core-schemas.js";
 
 /**
@@ -25,13 +28,6 @@ export const PathGraphicsSchema = z
       .describe("Sample resolution in seconds"),
   })
   .describe("Path visualization configuration");
-
-/**
- * Model preset types with default URIs
- */
-export const ModelPresetSchema = z
-  .enum(["cesium_man", "car", "bike", "airplane", "custom"])
-  .describe("Predefined model types");
 
 /**
  * Model configuration with preset or custom URI
@@ -60,7 +56,6 @@ export const ModelConfigSchema = z
  */
 export const AnimationConfigSchema = z
   .object({
-    entityId: z.string().optional().describe("Entity ID (auto-generated if not provided)"),
     name: z.string().optional().describe("Human-readable name"),
     positionSamples: z
       .array(PositionSampleSchema)
@@ -74,8 +69,7 @@ export const AnimationConfigSchema = z
       .string()
       .optional()
       .describe("Animation stop time (ISO 8601, defaults to last sample time)"),
-    interpolationAlgorithm: z
-      .enum(["LINEAR", "LAGRANGE", "HERMITE"])
+    interpolationAlgorithm: InterpolationAlgorithmSchema
       .optional()
       .default("LAGRANGE")
       .describe("Position interpolation method"),
@@ -92,8 +86,7 @@ export const AnimationConfigSchema = z
     pathConfig: PathGraphicsSchema.optional().describe("Path visualization settings"),
     model: ModelConfigSchema.optional().describe("3D model configuration"),
     clampToGround: z.boolean().optional().default(false).describe("Clamp entity to terrain"),
-    loopMode: z
-      .enum(["none", "loop", "pingpong"])
+    loopMode: LoopModeSchema
       .optional()
       .default("none")
       .describe("Animation loop behavior"),
@@ -101,85 +94,12 @@ export const AnimationConfigSchema = z
   .describe("Complete animation configuration");
 
 /**
- * Simplified route-based animation configuration
- * Accepts route structure from geolocation_route tool
- */
-export const RouteAnimationConfigSchema = z
-  .object({
-    entityId: z.string().optional().describe("Entity ID (auto-generated if not provided)"),
-    name: z.string().optional().describe("Human-readable name"),
-    // Support flexible route formats - unified schema accepts all route formats
-    route: z
-      .object({
-        summary: z.string().optional().describe("Route summary"),
-        distance: z.number().optional().describe("Total distance in meters"),
-        duration: z.number().optional().describe("Estimated duration in seconds"),
-        polyline: z
-          .union([
-            z.string().describe("Encoded polyline geometry"),
-            z
-              .array(
-                z.union([
-                  PositionSchema,
-                  z
-                    .tuple([z.number(), z.number(), z.number().optional()])
-                    .describe("[longitude, latitude, height]"),
-                ]),
-              )
-              .describe("Array of decoded coordinates"),
-          ])
-          .optional()
-          .describe("Route geometry - encoded string or decoded coordinates"),
-        legs: z
-          .array(
-            z.object({
-              distance: z.number().optional(),
-              duration: z.number().optional(),
-              startLocation: PositionSchema.optional(),
-              endLocation: PositionSchema.optional(),
-              steps: z
-                .array(
-                  z.object({
-                    instruction: z.string().optional().describe("Turn-by-turn instruction"),
-                    distance: z.number().optional().describe("Step distance in meters"),
-                    duration: z.number().optional().describe("Step duration in seconds"),
-                    startLocation: PositionSchema.optional(),
-                    endLocation: PositionSchema.optional(),
-                  }),
-                )
-                .optional(),
-            }),
-          )
-          .optional(),
-        startLocation: PositionSchema.optional().describe("Starting point (for simple routes)"),
-        endLocation: PositionSchema.optional().describe("Ending point (for simple routes)"),
-        waypoints: z.array(PositionSchema).optional().describe("Intermediate waypoints"),
-        travelMode: z.enum(["walking", "driving", "cycling", "transit"]).optional(),
-      })
-      .describe("Route from geolocation_route tool - supports polyline array, legs, or simple start/end"),
-    speedMultiplier: z
-      .number()
-      .min(0.1)
-      .max(100)
-      .optional()
-      .default(10)
-      .describe("Speed multiplier for playback"),
-    modelPreset: z
-      .enum(["cesium_man", "car", "bike", "airplane", "auto"])
-      .optional()
-      .default("auto")
-      .describe("Model preset (auto selects based on travel mode)"),
-    showPath: z.boolean().optional().default(true).describe("Show animated path trail"),
-  })
-  .describe("Configuration for creating animation from geolocation route");
-
-/**
  * Animation state tracking
  */
 export const AnimationStateSchema = z
   .object({
-    entityId: z.string().describe("Animated entity ID"),
-    name: z.string().optional().describe("Entity name"),
+    animationId: z.string().describe("Animation ID"),
+    name: z.string().optional().describe("Animation name"),
     isAnimating: z.boolean().describe("Whether animation is currently playing"),
     currentTime: z.string().describe("Current animation time (ISO 8601)"),
     startTime: z.string().describe("Animation start time (ISO 8601)"),
@@ -188,7 +108,7 @@ export const AnimationStateSchema = z
     elapsedSeconds: z.number().min(0).describe("Seconds elapsed since start"),
     remainingSeconds: z.number().min(0).describe("Seconds remaining until stop"),
     clockMultiplier: z.number().describe("Current clock speed multiplier"),
-    loopMode: z.enum(["none", "loop", "pingpong"]).describe("Loop behavior"),
+    loopMode: LoopModeSchema.describe("Loop behavior"),
     hasModel: z.boolean().describe("Whether entity has 3D model"),
     hasPath: z.boolean().describe("Whether entity has path visualization"),
   })
@@ -239,7 +159,7 @@ export const PathUpdateConfigSchema = z
  */
 export const CZMLExportOptionsSchema = z
   .object({
-    entityIds: z.array(z.string()).optional().describe("Entity IDs to export (all if omitted)"),
+    animationIds: z.array(z.string()).optional().describe("Animation IDs to export (all if omitted)"),
     includeClock: z
       .boolean()
       .optional()
@@ -269,19 +189,20 @@ export const AnimationPauseInputSchema = z.object({
 });
 
 /**
+ * Animation control input
+ */
+export const AnimationControlInputSchema = z.object({
+  animationId: z.string().describe("Animation ID to control"),
+  action: z
+    .enum(["play", "pause"])
+    .describe("Action to perform: 'play' to start/resume, 'pause' to pause"),
+});
+
+/**
  * Animation remove input
  */
 export const AnimationRemoveInputSchema = z.object({
   animationId: z.string().describe("Animation ID to remove"),
-  entityId: z.string().optional().describe("Entity ID (derived from animation if not provided)"),
-});
-
-/**
- * Animation update speed input
- */
-export const AnimationUpdateSpeedInputSchema = z.object({
-  animationId: z.string().optional().describe("Specific animation ID (optional)"),
-  multiplier: z.number().min(0.1).max(100).describe("Speed multiplier (1 = real-time)"),
 });
 
 /**
@@ -293,7 +214,7 @@ export const AnimationListActiveInputSchema = z.object({});
  * Animation track entity input
  */
 export const AnimationTrackEntityInputSchema = z.object({
-  entityId: z.string().describe("Entity ID to track"),
+  animationId: z.string().describe("Animation ID to track"),
   range: z.number().optional().default(1000).describe("Camera distance in meters"),
   pitch: z.number().optional().default(-45).describe("Camera pitch in degrees"),
   heading: z.number().optional().default(0).describe("Camera heading offset in degrees"),
@@ -303,6 +224,17 @@ export const AnimationTrackEntityInputSchema = z.object({
  * Animation untrack camera input
  */
 export const AnimationUntrackCameraInputSchema = z.object({});
+
+/**
+ * Animation camera tracking input (unified track/untrack)
+ */
+export const AnimationCameraTrackingInputSchema = z.object({
+  track: z.boolean().describe("true to track entity, false to stop tracking"),
+  animationId: z.string().describe("Animation ID to track or untrack"),
+  range: z.number().optional().describe("Distance from entity in meters (default: 1000)"),
+  pitch: z.number().optional().describe("Camera pitch angle in degrees (default: -45)"),
+  heading: z.number().optional().describe("Camera heading angle in degrees (default: 0)"),
+});
 
 /**
  * Clock configure input
@@ -334,11 +266,34 @@ export const ClockSetMultiplierInputSchema = z.object({
 });
 
 /**
+ * Clock control input (unified)
+ */
+export const ClockControlInputSchema = z.object({
+  action: z
+    .enum(["configure", "setTime", "setMultiplier"])
+    .describe(
+      "Action to perform: 'configure' for full clock setup, 'setTime' to change current time, 'setMultiplier' to change time rate",
+    ),
+  clock: ClockSchema
+    .optional()
+    .describe("Full clock configuration (required for 'configure' action)"),
+  currentTime: JulianDateSchema
+    .optional()
+    .describe("Current time to set (required for 'setTime' action)"),
+  multiplier: z
+    .number()
+    .optional()
+    .describe(
+      "Time rate multiplier (required for 'setMultiplier' action, e.g., 1000 for 1000x real time)",
+    ),
+});
+
+/**
  * Timeline zoom to range input
  */
 export const TimelineZoomToRangeInputSchema = z.object({
-  startTime: z.string().describe("Range start time (ISO 8601)"),
-  stopTime: z.string().describe("Range stop time (ISO 8601)"),
+  startTime: JulianDateSchema.describe("Range start time"),
+  stopTime: JulianDateSchema.describe("Range stop time"),
 });
 
 /**
@@ -352,10 +307,8 @@ export const GlobeSetLightingInputSchema = z.object({
 
 // Export inferred types
 export type PathGraphics = z.infer<typeof PathGraphicsSchema>;
-export type ModelPreset = z.infer<typeof ModelPresetSchema>;
 export type ModelConfig = z.infer<typeof ModelConfigSchema>;
 export type AnimationConfig = z.infer<typeof AnimationConfigSchema>;
-export type RouteAnimationConfig = z.infer<typeof RouteAnimationConfigSchema>;
 export type AnimationState = z.infer<typeof AnimationStateSchema>;
 export type CameraTrackingConfig = z.infer<typeof CameraTrackingConfigSchema>;
 export type ClockControl = z.infer<typeof ClockControlSchema>;
@@ -363,13 +316,36 @@ export type PathUpdateConfig = z.infer<typeof PathUpdateConfigSchema>;
 export type CZMLExportOptions = z.infer<typeof CZMLExportOptionsSchema>;
 export type AnimationPlayInput = z.infer<typeof AnimationPlayInputSchema>;
 export type AnimationPauseInput = z.infer<typeof AnimationPauseInputSchema>;
+export type AnimationControlInput = z.infer<typeof AnimationControlInputSchema>;
 export type AnimationRemoveInput = z.infer<typeof AnimationRemoveInputSchema>;
-export type AnimationUpdateSpeedInput = z.infer<typeof AnimationUpdateSpeedInputSchema>;
 export type AnimationListActiveInput = z.infer<typeof AnimationListActiveInputSchema>;
 export type AnimationTrackEntityInput = z.infer<typeof AnimationTrackEntityInputSchema>;
 export type AnimationUntrackCameraInput = z.infer<typeof AnimationUntrackCameraInputSchema>;
+export type AnimationCameraTrackingInput = z.infer<typeof AnimationCameraTrackingInputSchema>;
 export type ClockConfigureInput = z.infer<typeof ClockConfigureInputSchema>;
 export type ClockSetTimeInput = z.infer<typeof ClockSetTimeInputSchema>;
 export type ClockSetMultiplierInput = z.infer<typeof ClockSetMultiplierInputSchema>;
+export type ClockControlInput = z.infer<typeof ClockControlInputSchema>;
 export type TimelineZoomToRangeInput = z.infer<typeof TimelineZoomToRangeInputSchema>;
 export type GlobeSetLightingInput = z.infer<typeof GlobeSetLightingInputSchema>;
+
+/**
+ * Animation update speed input (legacy - for compatibility)
+ */
+export const AnimationUpdateSpeedInputSchema = z.object({
+  animationId: z.string().optional().describe("Animation ID (if omitted, affects all animations)"),
+  multiplier: z.number().describe("Speed multiplier"),
+});
+export type AnimationUpdateSpeedInput = z.infer<typeof AnimationUpdateSpeedInputSchema>;
+
+/**
+ * Route animation config (legacy - for compatibility)
+ */
+export const RouteAnimationConfigSchema = z.object({
+  route: z.any().describe("Route data from geolocation_route"),
+  modelPreset: z.string().optional().describe("Model preset to use"),
+  speedMultiplier: z.number().optional().describe("Speed multiplier"),
+  showPath: z.boolean().optional().describe("Show path visualization"),
+  name: z.string().optional().describe("Animation name"),
+});
+export type RouteAnimationConfig = z.infer<typeof RouteAnimationConfigSchema>;

@@ -21,7 +21,6 @@ export const AnimationCreateResponseSchema = z
     success: z.boolean().describe("Operation success status"),
     message: z.string().describe("Human-readable result message"),
     animationId: z.string().describe("Generated animation ID"),
-    entityId: z.string().describe("Created entity ID"),
     startTime: z.string().describe("Animation start time (ISO 8601)"),
     stopTime: z.string().describe("Animation stop time (ISO 8601)"),
     modelPreset: z.string().optional().describe("Model preset used"),
@@ -48,8 +47,8 @@ export const AnimationStateResponseSchema = z
  */
 export const AnimationInfoSchema = z
   .object({
-    entityId: z.string().describe("Animated entity ID"),
-    name: z.string().optional().describe("Entity name"),
+    animationId: z.string().describe("Animation ID"),
+    name: z.string().optional().describe("Animation name"),
     isAnimating: z.boolean().describe("Whether animation is currently playing"),
     startTime: z.string().describe("Animation start time (ISO 8601)"),
     stopTime: z.string().describe("Animation stop time (ISO 8601)"),
@@ -97,7 +96,7 @@ export const CameraTrackingResponseSchema = z
     success: z.boolean().describe("Operation success status"),
     message: z.string().describe("Result message"),
     isTracking: z.boolean().describe("Whether tracking is active"),
-    trackedEntityId: z.string().optional().describe("ID of tracked entity"),
+    trackedAnimationId: z.string().optional().describe("ID of tracked animation"),
     stats: z.object({
       responseTime: z.number(),
     }),
@@ -128,7 +127,6 @@ export const GenericAnimationResponseSchema = z
     success: z.boolean().describe("Operation success status"),
     message: z.string().describe("Result message"),
     animationId: z.string().optional().describe("Affected animation ID"),
-    entityId: z.string().optional().describe("Affected entity ID"),
     stats: z.object({
       responseTime: z.number(),
     }),

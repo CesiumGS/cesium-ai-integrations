@@ -8,7 +8,7 @@ import {
   ResponseEmoji,
 } from "@cesium-mcp/shared";
 import {
-  JulianDateSchema,
+  TimelineZoomToRangeInputSchema,
   ClockResponseSchema,
 } from "../schemas/index.js";
 import {
@@ -27,10 +27,7 @@ export function registerTimelineZoomToRange(
     {
       title: "Zoom Timeline to Range",
       description: "Zoom the timeline to display a specific time range",
-      inputSchema: {
-        startTime: JulianDateSchema,
-        stopTime: JulianDateSchema,
-      },
+      inputSchema: TimelineZoomToRangeInputSchema.shape,
       outputSchema: ClockResponseSchema.shape,
     },
     async ({ startTime, stopTime }) => {

@@ -12,6 +12,7 @@ import type {
   CesiumFixedFrameTransform,
   CesiumEasingFunction,
   CesiumJulianDate,
+  CesiumViewer,
 } from "../types/cesium-types.js";
 
 /**
@@ -356,11 +357,8 @@ export function configureClockTimes(
 /**
  * Update timeline to match clock settings
  */
-export function updateTimeline(viewer: any, startTime?: CesiumJulianDate, stopTime?: CesiumJulianDate): void {
-  if (viewer.timeline) {
-    viewer.timeline.updateFromClock();
-    if (startTime && stopTime) {
-      viewer.timeline.zoomTo(startTime, stopTime);
-    }
+export function updateTimeline(viewer: CesiumViewer, startTime?: CesiumJulianDate, stopTime?: CesiumJulianDate): void {
+  if (viewer.timeline && startTime && stopTime) {
+    viewer.timeline.zoomTo(startTime, stopTime);
   }
 }

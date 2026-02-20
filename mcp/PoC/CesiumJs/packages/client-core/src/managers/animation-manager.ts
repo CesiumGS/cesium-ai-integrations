@@ -37,18 +37,10 @@ import { resetCameraTransform } from '../shared/camera-utils.js';
 class CesiumAnimationManager implements ManagerInterface {
   viewer: CesiumViewer;
   private animations: Map<string, AnimationState>;
-  private modelBasePath: string;
-  private readonly MODEL_FILES: Record<string, string> = {
-    cesium_man: 'cesium_man.glb',
-    car: 'car.glb',
-    bike: 'Curiosity.glb',
-    airplane: 'airplane.glb'
-  };
 
-  constructor(viewer: CesiumViewer, modelBasePath: string = './public/models') {
+  constructor(viewer: CesiumViewer) {
     this.viewer = viewer;
     this.animations = new Map();
-    this.modelBasePath = modelBasePath.endsWith('/') ? modelBasePath.slice(0, -1) : modelBasePath;
   }
 
   /**
@@ -88,14 +80,6 @@ class CesiumAnimationManager implements ManagerInterface {
       return defaultValue;
     }
     return value as T;
-  }
-
-  private getModelUri(modelName: string): string {
-    const fileName = this.MODEL_FILES[modelName];
-    if (!fileName) {
-      throw new Error(`Unknown model: ${modelName}`);
-    }
-    return `${this.modelBasePath}/${fileName}`;
   }
 
   /**
@@ -224,11 +208,11 @@ class CesiumAnimationManager implements ManagerInterface {
   createAnimationFromRoute(cmd: MCPCommand): MCPCommandResult {
     return this.wrapOperation(() => {
       const animationId = this.getParam<string>(cmd, 'animationId');
-      const entityId = this.getParam<string>(cmd, 'entityId');
+      // Use animationId as the entity ID (single ID for both)
       const positionSamples = this.getParam<PositionSample[]>(cmd, 'positionSamples');
       const startTime = this.getParam<string | JulianDate>(cmd, 'startTime');
       const stopTime = this.getParam<string | JulianDate>(cmd, 'stopTime');
-      const modelPreset = this.getParam<string>(cmd, 'modelPreset');
+      const modelUri = this.getParam<string>(cmd, 'modelUri');
       const showPath = this.getParam<boolean>(cmd, 'showPath');
       const speedMultiplier = this.getParam<number>(cmd, 'speedMultiplier', 10);
       const autoPlay = this.getParam<boolean>(cmd, 'autoPlay');
@@ -256,16 +240,19 @@ class CesiumAnimationManager implements ManagerInterface {
         interpolationAlgorithm: Cesium.LagrangePolynomialApproximation
       });
 
-      // Get model URI from preset
-      const modelUri = this.getModelUri(modelPreset);
+      // Use the modelUri directly as provided by the server
+      // The server (animation-create tool) has already resolved the model URI from preset or custom input
+      if (!modelUri) {
+        throw new Error('Model URI is required but was not provided by the server');
+      }
 
-      // Create animated model entity using shared utility
+      // Create animated model entity using shared utility (use animationId as entity ID)
       const entity = addAnimatedModelEntity(
         this.viewer,
         positionProperty,
         modelUri,
         {
-          id: entityId,
+          id: animationId,
           showPath: showPath,
           minimumPixelSize: 128,
           scale: 1.0
@@ -290,12 +277,11 @@ class CesiumAnimationManager implements ManagerInterface {
         this.viewer.trackedEntity = entity;
       }
 
-      // Store animation state
+      // Store animation state (animationId is the entity ID)
       this.animations.set(animationId, {
-        entityId,
+        entityId: animationId,
         startTime,
         stopTime,
-        modelPreset,
         entity
       });
 
@@ -305,8 +291,7 @@ class CesiumAnimationManager implements ManagerInterface {
       return {
         success: true,
         message: `Animation created with ${decimatedSamples.length} samples`,
-        animationId,
-        entityId
+        animationId
       };
     });
   }
@@ -340,47 +325,30 @@ class CesiumAnimationManager implements ManagerInterface {
   /**
    * Update animation speed
    */
-  updateAnimationSpeed(cmd: MCPCommand): MCPCommandResult {
-    return this.wrapOperation(() => {
-      // Get multiplier from cmd.multiplier (not speedMultiplier)
-      const multiplier = this.getParam<number>(cmd, 'multiplier') ?? this.getParam<number>(cmd, 'speedMultiplier');
-      
-      if (multiplier === undefined || multiplier === null) {
-        throw new Error('Speed multiplier is required');
-      }
-      
-      setClockMultiplier(this.viewer, multiplier);
-      return {
-        success: true,
-        message: `Speed set to ${multiplier}x`
-      };
-    });
-  }
-
   /**
    * Remove animation
    */
   removeAnimation(cmd: MCPCommand): MCPCommandResult {
     return this.wrapOperation(() => {
       const animationId = this.getParam<string>(cmd, 'animationId');
-      const entityId = this.getParam<string>(cmd, 'entityId');
+      // animationId is also the entity ID
       
       try {
         // Check if entity exists in viewer before trying to remove
-        const entity = this.getEntity(entityId);
+        const entity = this.getEntity(animationId);
         
         if (entity) {
           // Use shared utility for entity removal
-          removeEntityById(this.viewer, entityId);
+          removeEntityById(this.viewer, animationId);
         } else {
-          console.warn(`[Animation] Entity ${entityId} not found in viewer, cleaning up state only`);
+          console.warn(`[Animation] Entity ${animationId} not found in viewer, cleaning up state only`);
         }
         
         // Always clean up our local state
         this.animations.delete(animationId);
         
         // Untrack if this was the tracked entity
-        if (this.viewer.trackedEntity && this.viewer.trackedEntity.id === entityId) {
+        if (this.viewer.trackedEntity && this.viewer.trackedEntity.id === animationId) {
           this.viewer.trackedEntity = undefined;
         }
         
@@ -407,15 +375,10 @@ class CesiumAnimationManager implements ManagerInterface {
       const width = this.getParam<number | undefined>(cmd, 'width');
       const color = this.getParam<string | ColorRGBA | undefined>(cmd, 'color');
       
-      const anim = this.getAnimationState(animationId);
-      
-      if (!anim) {
-        return { success: false, error: 'Animation not found' };
-      }
-      
-      const entity = this.getEntity(anim.entityId);
+      // animationId is also the entity ID
+      const entity = this.getEntity(animationId);
       if (!entity) {
-        return { success: false, error: 'Entity not found' };
+        return { success: false, error: 'Animation not found' };
       }
       
       if (entity.path) {
@@ -453,14 +416,15 @@ class CesiumAnimationManager implements ManagerInterface {
    */
   trackAnimationEntity(cmd: MCPCommand): MCPCommandResult {
     return this.wrapOperation(() => {
-      const entityId = this.getParam<string>(cmd, 'entityId');
+      const animationId = this.getParam<string>(cmd, 'animationId');
       const range = this.getParam<number | undefined>(cmd, 'range');
       const pitch = this.getParam<number | undefined>(cmd, 'pitch');
       const heading = this.getParam<number | undefined>(cmd, 'heading');
       
-      const entity = this.getEntity(entityId);
+      // animationId is also the entity ID
+      const entity = this.getEntity(animationId);
       if (!entity) {
-        return { success: false, error: 'Entity not found' };
+        return { success: false, error: 'Animation not found' };
       }
       
       this.viewer.trackedEntity = entity;
@@ -482,7 +446,7 @@ class CesiumAnimationManager implements ManagerInterface {
       
       return {
         success: true,
-        message: `Tracking entity ${entityId}`
+        message: `Tracking animation ${animationId}`
       };
     });
   }
@@ -508,15 +472,15 @@ class CesiumAnimationManager implements ManagerInterface {
   listActiveAnimations(): MCPCommandResult {
     return this.wrapOperation(() => {
       const activeAnimations = Array.from(this.animations.entries()).map(([animationId, anim]) => {
-        const entity = this.getEntity(anim.entityId);
-        const isTracked = this.viewer.trackedEntity && this.viewer.trackedEntity.id === anim.entityId;
+        // animationId is also the entity ID
+        const entity = this.getEntity(animationId);
+        const isTracked = this.viewer.trackedEntity && this.viewer.trackedEntity.id === animationId;
         
         return {
-          animationId,
-          entityId: anim.entityId,
+          id: animationId,
+          entityId: animationId, // Keep for backwards compatibility
           startTime: anim.startTime,
           stopTime: anim.stopTime,
-          modelPreset: anim.modelPreset,
           exists: !!entity,
           isTracked,
           hasPath: entity ? !!entity.path : false
@@ -579,63 +543,67 @@ class CesiumAnimationManager implements ManagerInterface {
   getCommandHandlers(): Map<string, CommandHandler> {
     const handlers = new Map<string, CommandHandler>();
 
-    // Clock commands
-    handlers.set('clock_configure', (cmd: MCPCommand) => {
-      return this.configure(cmd.clock as ClockConfig);
-    });
-
-    handlers.set('clock_set_time', (cmd: MCPCommand) => {
-      return this.setTime(cmd.currentTime as string | JulianDate);
-    });
-
-    handlers.set('clock_multiplier', (cmd: MCPCommand) => {
-      return this.setMultiplier(cmd.multiplier as number);
-    });
-
-    // Timeline commands
-    handlers.set('timeline_zoom_to_range', (cmd: MCPCommand) => {
-      return this.zoomTimeline(cmd.startTime as string | JulianDate, cmd.stopTime as string | JulianDate);
+    // Merged clock control handler
+    handlers.set('clock_control', (cmd: MCPCommand) => {
+      const action = this.getParam<string>(cmd, 'action');
+      
+      switch (action) {
+        case 'configure':
+          return this.configure(cmd.clock as ClockConfig);
+        case 'setTime':
+          return this.setTime(cmd.currentTime as string | JulianDate);
+        case 'setMultiplier':
+          return this.setMultiplier(cmd.multiplier as number);
+        default:
+          return {
+            success: false,
+            error: `Unknown clock action: ${action}`
+          };
+      }
     });
 
     handlers.set('timeline_zoom', (cmd: MCPCommand) => {
       return this.zoomTimeline(cmd.startTime as string | JulianDate, cmd.stopTime as string | JulianDate);
     });
 
-    // Animation commands (matching tool names from animation-server)
-    handlers.set('animation_create_from_route', (cmd: MCPCommand) => {
+    handlers.set('animation_create', (cmd: MCPCommand) => {
       return this.createAnimationFromRoute(cmd);
     });
 
-    handlers.set('animation_create_custom_path', (cmd: MCPCommand) => {
-      return this.createAnimationFromRoute(cmd);
-    });
-
-    handlers.set('animation_play', () => {
-      return this.playAnimation();
-    });
-
-    handlers.set('animation_pause', () => {
-      return this.pauseAnimation();
-    });
-
-    handlers.set('animation_update_speed', (cmd: MCPCommand) => {
-      return this.updateAnimationSpeed(cmd);
+    // Merged animation control handler
+    handlers.set('animation_control', (cmd: MCPCommand) => {
+      const action = this.getParam<string>(cmd, 'action');
+      
+      switch (action) {
+        case 'play':
+          return this.playAnimation();
+        case 'pause':
+          return this.pauseAnimation();
+        default:
+          return {
+            success: false,
+            error: `Unknown animation action: ${action}`
+          };
+      }
     });
 
     handlers.set('animation_remove', (cmd: MCPCommand) => {
       return this.removeAnimation(cmd);
     });
 
-    handlers.set('animation_configure_path', (cmd: MCPCommand) => {
+    handlers.set('animation_update_path', (cmd: MCPCommand) => {
       return this.configureAnimationPath(cmd);
     });
 
-    handlers.set('animation_track_entity', (cmd: MCPCommand) => {
+    // Merged camera tracking handler
+    handlers.set('animation_camera_tracking', (cmd: MCPCommand) => {
+      const track = this.getParam<boolean>(cmd, 'track');
+      
+      if (!track) {
+        return this.untrackCamera();
+      }
+      
       return this.trackAnimationEntity(cmd);
-    });
-
-    handlers.set('animation_untrack_camera', () => {
-      return this.untrackCamera();
     });
 
     handlers.set('animation_list_active', () => {

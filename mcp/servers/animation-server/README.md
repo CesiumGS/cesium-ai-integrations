@@ -121,15 +121,7 @@ Pauses the global clock, freezing all animations at their current positions.
 
 ---
 
-### 5. `animation_update_speed`
-
-**Change animation playback speed**
-
-Adjusts the clock multiplier to speed up or slow down all animations.
-
----
-
-### 6. `animation_remove`
+### 5. `animation_remove`
 
 **Remove animated entity**
 
@@ -137,7 +129,7 @@ Deletes an animated entity from the scene and removes it from the animation trac
 
 ---
 
-### 7. `animation_list_active`
+### 6. `animation_list_active`
 
 **List all active animations with their current states**
 
@@ -145,7 +137,7 @@ Retrieves information about all registered animations including their playback s
 
 ---
 
-### 8. `animation_configure_path`
+### 7. `animation_configure_path`
 
 **Update path graphics appearance for an animated entity**
 
@@ -153,7 +145,7 @@ Modifies the visual appearance of an animation's path trail without recreating t
 
 ---
 
-### 9. `animation_track_entity`
+### 8. `animation_track_entity`
 
 **Set camera to track animated entity**
 
@@ -161,7 +153,7 @@ Locks the camera to follow a specific animated entity, maintaining a fixed dista
 
 ---
 
-### 10. `animation_untrack_camera`
+### 9. `animation_untrack_camera`
 
 **Stop camera tracking and restore free camera control**
 
@@ -169,7 +161,7 @@ Releases the camera from tracking mode, allowing manual control.
 
 ---
 
-### 11. `clock_configure`
+### 10. `clock_configure`
 
 **Configure Animation Clock**
 
@@ -194,7 +186,7 @@ Set up the global animation clock with start time, stop time, and animation sett
 
 ---
 
-### 12. `clock_set_time`
+### 11. `clock_set_time`
 
 **Set Clock Time**
 
@@ -212,7 +204,7 @@ Set the current time of the animation clock.
 
 ---
 
-### 13. `timeline_zoom_to_range`
+### 12. `timeline_zoom_to_range`
 
 **Zoom Timeline to Range**
 
@@ -231,7 +223,7 @@ Zoom the timeline to display a specific time range.
 
 ---
 
-### 14. `globe_set_lighting`
+### 13. `globe_set_lighting`
 
 **Control Globe Lighting**
 
@@ -251,7 +243,7 @@ Enable or disable realistic globe lighting effects for day/night cycles.
 
 ---
 
-### 15. `clock_set_multiplier`
+### 14. `clock_set_multiplier`
 
 **Set Clock Multiplier**
 
@@ -336,6 +328,180 @@ Environment variables:
 
 ## 📚 Related Resources
 
-- [Cesium MCP Server Creation Skill](../../.github/skills/cesium-mcp-server-creation/SKILL.md)
 - [Camera Server](../camera-server/README.md) - Reference implementation
 - [Shared Package](../shared/README.md) - Base classes and utilities
+
+## � Example Test Queries
+
+### Basic Route Animation
+
+**Create walking animation from a route:**
+```
+Create a walking animation from Vilnius Old Town to Gediminas Tower with camera tracking
+```
+
+**Create driving animation with custom speed:**
+```
+Animate a car driving from Times Square to Central Park at 20x speed with a path trail
+```
+
+**Create cycling animation:**
+```
+Show a bike route from Golden Gate Bridge to Fisherman's Wharf and animate it at 15x speed
+```
+
+### Custom Path Animations
+
+**Simple custom path with specific points:**
+```
+Create a custom animation path from coordinates [40.7589, -73.9851] to [40.7614, -73.9776] to [40.7580, -73.9855] 
+over 2 minutes using HERMITE interpolation with the airplane model
+```
+
+**Looping animation:**
+```
+Create a looping circular flight path around the Eiffel Tower at 100 meters altitude
+```
+
+**Ping-pong animation:**
+```
+Create a ping-pong animation of Cesium Man walking back and forth between two points
+```
+
+### Animation Playback Control
+
+**Control playback:**
+```
+Pause all animations
+```
+```
+Resume animations at 5x speed
+```
+```
+Set animation speed to 50x
+```
+
+**List and monitor:**
+```
+Show me all active animations and their current states
+```
+```
+What animations are currently playing?
+```
+
+### Camera Tracking
+
+**Track specific entities:**
+```
+Track the car animation with the camera
+```
+```
+Follow the animated airplane
+```
+```
+Stop camera tracking and give me manual control
+```
+
+### Clock and Timeline Management
+
+**Configure animation clock:**
+```
+Set up the animation clock to run from 8 AM to 6 PM local time at 1000x speed
+```
+```
+Configure the clock for a 24-hour day/night cycle starting now
+```
+
+**Timeline control:**
+```
+Zoom the timeline to show the next hour
+```
+```
+Set the current animation time to noon
+```
+
+### Visual Effects
+
+**Globe lighting:**
+```
+Enable realistic globe lighting with day/night cycles
+```
+```
+Turn off sun lighting but keep dynamic atmosphere
+```
+
+**Path appearance:**
+```
+Change the animation path color to red with 80% opacity
+```
+```
+Make the path trail thicker and show 200 meters behind the entity
+```
+```
+Update the path to show both leading and trailing lines
+```
+
+### Advanced Use Cases
+
+**Multi-step workflow:**
+```
+1. Get a driving route from San Francisco Airport to Silicon Valley
+2. Create a car animation along that route at 25x speed
+3. Enable camera tracking
+4. Turn on globe lighting for realistic effects
+```
+
+**Synchronized animations:**
+```
+Create three different animations: a walker, a cyclist, and a driver all starting from different 
+points in Paris but all heading to the Eiffel Tower. Start them all at the same time.
+```
+
+**Route comparison:**
+```
+Show me two different routes from Boston to Harvard - one driving and one walking. 
+Animate both simultaneously so I can compare travel times.
+```
+
+### Cleanup and Management
+
+**Remove animations:**
+```
+Remove the walking animation
+```
+```
+Delete all car animations
+```
+```
+Clear all active animations
+```
+
+**Check status:**
+```
+How many animations are currently active?
+```
+```
+Are any animations currently playing?
+```
+
+### Troubleshooting Queries
+
+**Check animation state:**
+```
+Why isn't my animation moving?
+```
+```
+Is the clock running?
+```
+```
+What's the current animation speed multiplier?
+```
+
+## �🤝 Contributing
+
+Interested in contributing? Please read [CONTRIBUTING.md](CONTRIBUTING.md). We also ask that you follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## License
+
+Apache 2.0. See [LICENSE](LICENSE).
+

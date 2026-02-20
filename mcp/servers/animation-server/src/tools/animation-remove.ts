@@ -11,7 +11,6 @@ import {
   AnimationRemoveInputSchema,
   GenericAnimationResponseSchema,
 } from "../schemas/index.js";
-import { animations, getTrackedEntityId, setTrackedEntityId } from "../utils/shared-state.js";
 import {
   DEFAULT_TIMEOUT_MS,
 } from "../utils/constants.js";
@@ -33,22 +32,10 @@ export function registerAnimationRemove(
     },
     async ({ animationId }) => {
       try {
-        const animState = animations.get(animationId);
-        if (!animState) {
-          throw new Error(`Animation ${animationId} not found`);
-        }
-
-        const entityId = animState.entityId;
-        animations.delete(animationId);
-
-        if (getTrackedEntityId() === entityId) {
-          setTrackedEntityId(null);
-        }
-
+        // Pass command directly to client - it will validate and remove
         const command = {
           type: "animation_remove",
           animationId,
-          entityId,
         };
 
         const { result, responseTime } = await executeWithTiming(
@@ -60,9 +47,8 @@ export function registerAnimationRemove(
         if (result.success) {
           const output = {
             success: true,
-            message: `Animation ${animationId} removed (${animations.size} remaining)`,
+            message: `Animation ${animationId} removed`,
             animationId,
-            entityId,
             stats: { responseTime },
           };
 

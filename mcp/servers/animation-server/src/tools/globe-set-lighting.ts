@@ -1,5 +1,4 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
 import {
   ICommunicationServer,
   executeWithTiming,
@@ -8,7 +7,10 @@ import {
   buildErrorResponse,
   ResponseEmoji,
 } from "@cesium-mcp/shared";
-import { ClockResponseSchema } from "../schemas/index.js";
+import {
+  ClockResponseSchema,
+  GlobeSetLightingInputSchema,
+} from "../schemas/index.js";
 import {
   DEFAULT_TIMEOUT_MS,
 } from "../utils/constants.js";
@@ -26,21 +28,7 @@ export function registerGlobeSetLighting(
       title: "Control Globe Lighting",
       description:
         "Enable or disable realistic globe lighting effects for day/night cycles",
-      inputSchema: {
-        enableLighting: z
-          .boolean()
-          .describe("Enable realistic lighting effects"),
-        enableDynamicAtmosphere: z
-          .boolean()
-          .optional()
-          .default(true)
-          .describe("Enable dynamic atmosphere lighting"),
-        enableSunLighting: z
-          .boolean()
-          .optional()
-          .default(true)
-          .describe("Enable lighting from sun position"),
-      },
+      inputSchema: GlobeSetLightingInputSchema.shape,
       outputSchema: ClockResponseSchema.shape,
     },
     async ({ enableLighting, enableDynamicAtmosphere, enableSunLighting }) => {

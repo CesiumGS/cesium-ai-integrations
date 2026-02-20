@@ -13,7 +13,6 @@ import {
   AnimationState,
   Clock,
 } from "../schemas/index.js";
-import { animations } from "../utils/shared-state.js";
 import {
   DEFAULT_TIMEOUT_MS,
 } from "../utils/constants.js";
@@ -47,6 +46,7 @@ export function registerAnimationListActive(
         );
 
         if (result.success) {
+          // Client is the source of truth - use its data directly
           const clientAnimations: AnimationState[] = (result.animations as AnimationState[]) || [];
           const clientClockState: Clock = (result.clockState as Clock) || {
             startTime: { dayNumber: 0, secondsOfDay: 0 },
@@ -57,25 +57,28 @@ export function registerAnimationListActive(
             shouldAnimate: false,
           };
 
-          // Simple list with essential info only
-          const animationsList = clientAnimations.map((clientAnim) => {
-            const serverAnim = Array.from(animations.values()).find(
-              (a) => a.entityId === clientAnim.entityId,
-            );
+          // Return client data as-is
+          const animationsList = clientAnimations.map((clientAnim) => ({
+            animationId: clientAnim.animationId,
+            name: clientAnim.name || undefined,
+            isAnimating: clientClockState.shouldAnimate || false,
+            startTime: clientAnim.startTime,
+            stopTime: clientAnim.stopTime,
+            clockMultiplier: clientClockState.multiplier || 1.0,
+          }));
 
-            return {
-              entityId: clientAnim.entityId,
-              name: clientAnim.name || undefined,
-              isAnimating: serverAnim ? serverAnim.isPlaying : clientClockState.shouldAnimate || false,
-              startTime: clientAnim.startTime,
-              stopTime: clientAnim.stopTime,
-              clockMultiplier: serverAnim?.currentSpeed || clientClockState.multiplier || 1.0,
-            };
-          });
+          // Create detailed message with animation IDs
+          let message = `Found ${animationsList.length} active animation(s)`;
+          if (animationsList.length > 0) {
+            const animationDetails = animationsList.map(anim => 
+              `\n  - ${anim.name || 'Unnamed'} (ID: ${anim.animationId})`
+            ).join('');
+            message += `:${animationDetails}`;
+          }
 
           const output = {
             success: true,
-            message: (result.message as string) || `Found ${animationsList.length} active animation(s)`,
+            message,
             animations: animationsList,
             stats: {
               totalAnimations: animationsList.length,

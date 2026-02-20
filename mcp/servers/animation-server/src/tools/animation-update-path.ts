@@ -8,42 +8,40 @@ import {
   ResponseEmoji,
 } from "@cesium-mcp/shared";
 import {
-  AnimationPlayInputSchema,
+  PathUpdateConfigSchema,
   GenericAnimationResponseSchema,
 } from "../schemas/index.js";
-import { animations } from "../utils/shared-state.js";
 import {
   DEFAULT_TIMEOUT_MS,
 } from "../utils/constants.js";
 
 /**
- * Register animation_play tool
+ * Register animation_update_path tool
  */
-export function registerAnimationPlay(
+export function registerAnimationUpdatePath(
   server: McpServer,
   communicationServer: ICommunicationServer,
 ): void {
   server.registerTool(
-    "animation_play",
+    'animation_update_path',
     {
-      title: "Play Animation",
-      description:
-        "Start or resume animation playback using the shared Cesium clock",
-      inputSchema: AnimationPlayInputSchema.shape,
+      title: 'Update Animation Path Visualization',
+      description: 'Update the visual appearance of an existing animation path trail (lead/trail time, width, color)',
+      inputSchema: PathUpdateConfigSchema.shape,
       outputSchema: GenericAnimationResponseSchema.shape,
     },
-    async ({ animationId }) => {
+    async (args) => {
       try {
-        const animState = animations.get(animationId);
-        if (!animState) {
-          throw new Error(`Animation ${animationId} not found`);
-        }
-
-        animState.isPlaying = true;
-
+        const validatedArgs = PathUpdateConfigSchema.parse(args);
+        
+        // Pass command directly to client - it will validate if animation exists
         const command = {
-          type: "animation_play",
-          animationId,
+          type: 'animation_update_path',
+          animationId: validatedArgs.animationId,
+          leadTime: validatedArgs.leadTime,
+          trailTime: validatedArgs.trailTime,
+          width: validatedArgs.width,
+          color: validatedArgs.color
         };
 
         const { result, responseTime } = await executeWithTiming(
@@ -55,31 +53,29 @@ export function registerAnimationPlay(
         if (result.success) {
           const output = {
             success: true,
-            message: `Animation playback started for ${animationId}`,
-            animationId,
-            entityId: animState.entityId,
-            stats: { responseTime },
+            animationId: validatedArgs.animationId,
+            message: 'Path visualization updated',
+            stats: { responseTime }
           };
 
           return buildSuccessResponse(
-            ResponseEmoji.Play,
+            ResponseEmoji.Settings,
             responseTime,
             output,
           );
         }
 
-        throw new Error(result.error || "Unknown error from client");
+        throw new Error(result.error || 'Unknown error from client');
       } catch (error) {
         return buildErrorResponse(
           0,
           {
             success: false,
-            message: `Failed to play animation: ${formatErrorMessage(error)}`,
-            animationId,
+            message: `Failed to update path: ${formatErrorMessage(error)}`,
             stats: { responseTime: 0 },
           },
         );
       }
-    },
+    }
   );
 }

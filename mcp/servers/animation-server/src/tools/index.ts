@@ -1,18 +1,12 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { ICommunicationServer } from "@cesium-mcp/shared";
-import { registerAnimationCreateFromRoute } from "./animation-create-from-route.js";
-import { registerAnimationCreateCustomPath } from "./animation-create-custom-path.js";
-import { registerAnimationPlay } from "./animation-play.js";
-import { registerAnimationPause } from "./animation-pause.js";
-import { registerAnimationUpdateSpeed } from "./animation-update-speed.js";
+import { registerAnimationCreate } from "./animation-create.js";
+import { registerAnimationControl } from "./animation-control.js";
 import { registerAnimationRemove } from "./animation-remove.js";
 import { registerAnimationListActive } from "./animation-list-active.js";
-import { registerAnimationConfigurePath } from "./animation-configure-path.js";
-import { registerAnimationTrackEntity } from "./animation-track-entity.js";
-import { registerAnimationUntrackCamera } from "./animation-untrack-camera.js";
-import { registerClockConfigure } from "./clock-configure.js";
-import { registerClockSetTime } from "./clock-set-time.js";
-import { registerClockSetMultiplier } from "./clock-set-multiplier.js";
+import { registerAnimationUpdatePath } from "./animation-update-path.js";
+import { registerAnimationCameraTracking } from "./animation-camera-tracking.js";
+import { registerClockControl } from "./clock-control.js";
 import { registerTimelineZoomToRange } from "./timeline-zoom-to-range.js";
 import { registerGlobeSetLighting } from "./globe-set-lighting.js";
 
@@ -32,23 +26,17 @@ export function registerAllAnimationTools(
   }
 
   // Register all animation tools
-  registerAnimationCreateFromRoute(server, communicationServer);
-  registerAnimationCreateCustomPath(server, communicationServer);
-  registerAnimationPlay(server, communicationServer);
-  registerAnimationPause(server, communicationServer);
-  registerAnimationUpdateSpeed(server, communicationServer);
+  registerAnimationCreate(server, communicationServer);
+  registerAnimationControl(server, communicationServer);
   registerAnimationRemove(server, communicationServer);
   registerAnimationListActive(server, communicationServer);
-  registerAnimationConfigurePath(server, communicationServer);
-  registerAnimationTrackEntity(server, communicationServer);
-  registerAnimationUntrackCamera(server, communicationServer);
+  registerAnimationUpdatePath(server, communicationServer);
+  registerAnimationCameraTracking(server, communicationServer);
 
-  // Register clock control tools
-  registerClockConfigure(server, communicationServer);
-  registerClockSetTime(server, communicationServer);
-  registerClockSetMultiplier(server, communicationServer);
+  // Register clock and scene control tools
+  registerClockControl(server, communicationServer);
   registerTimelineZoomToRange(server, communicationServer);
   registerGlobeSetLighting(server, communicationServer);
   
-  console.error("✅ Registered 15 animation and clock control tools");
+  console.error("✅ Registered 9 animation and clock control tools (including unified animation_create)");
 }

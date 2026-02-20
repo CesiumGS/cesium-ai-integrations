@@ -119,6 +119,34 @@ export const PolylineMaterialSchema = z
   ])
   .describe("Polyline-specific material definition");
 
+/**
+ * Base model preset types (predefined 3D models)
+ */
+export const ModelPresetSchema = z
+  .enum(["cesium_man", "cesium_air", "ground_vehicle", "cesium_drone", "custom"])
+  .describe("Predefined 3D model types");
+
+/**
+ * Travel mode types for route-based animations
+ */
+export const TravelModeSchema = z
+  .enum(["walking", "driving", "cycling", "bicycling", "transit", "flying"])
+  .describe("Travel mode for route-based animations");
+
+/**
+ * Animation loop behavior
+ */
+export const LoopModeSchema = z
+  .enum(["none", "loop", "pingpong"])
+  .describe("Animation loop behavior");
+
+/**
+ * Interpolation algorithm for position smoothing
+ */
+export const InterpolationAlgorithmSchema = z
+  .enum(["LINEAR", "LAGRANGE", "HERMITE"])
+  .describe("Position interpolation algorithm");
+
 // Export inferred types
 export type Position = z.infer<typeof PositionSchema>;
 export type Color = z.infer<typeof ColorSchema>;
@@ -127,3 +155,7 @@ export type TimeInterval = z.infer<typeof TimeIntervalSchema>;
 export type PositionSample = z.infer<typeof PositionSampleSchema>;
 export type Clock = z.infer<typeof ClockSchema>;
 export type PolylineMaterial = z.infer<typeof PolylineMaterialSchema>;
+export type ModelPreset = z.infer<typeof ModelPresetSchema>;
+export type TravelMode = z.infer<typeof TravelModeSchema>;
+export type LoopMode = z.infer<typeof LoopModeSchema>;
+export type InterpolationAlgorithm = z.infer<typeof InterpolationAlgorithmSchema>;

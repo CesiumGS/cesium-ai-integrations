@@ -1,4 +1,5 @@
-import { MAX_POSITION_SAMPLES } from "./constants.js";
+import { MAX_POSITION_SAMPLES, TRAVEL_MODE_TO_MODEL } from "./constants.js";
+import { ModelPresetType } from "./types.js";
 
 /**
  * Parse duration string to milliseconds
@@ -39,4 +40,16 @@ export function decimateArray<T>(arr: T[], maxSize: number = MAX_POSITION_SAMPLE
 
   result.push(arr[arr.length - 1]); // Always include last
   return result;
+}
+
+/**
+ * Get model preset from travel mode using the travel mode mapping
+ * @param travelMode - The travel mode string (e.g., 'walking', 'driving', 'flying')
+ * @returns The corresponding model preset or undefined if no mapping exists
+ */
+export function getModelPresetFromTravelMode(travelMode?: string): ModelPresetType | undefined {
+  if (!travelMode) return undefined;
+  
+  const mapped = TRAVEL_MODE_TO_MODEL[travelMode];
+  return mapped ? (mapped as ModelPresetType) : undefined;
 }

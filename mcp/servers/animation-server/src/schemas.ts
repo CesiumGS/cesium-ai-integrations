@@ -78,9 +78,10 @@ export const PathGraphicsSchema = z.object({
 }).describe('Path visualization configuration');
 
 /**
- * Model preset types with default URIs
+ * Model preset types with default URIs from CesiumGS repository
+ * Available presets: cesium_man, cesium_air, ground_vehicle, cesium_drone, custom
  */
-export const ModelPresetSchema = z.enum(['cesium_man', 'car', 'bike', 'airplane', 'custom']).describe('Predefined model types');
+export const ModelPresetSchema = z.enum(['cesium_man', 'cesium_air', 'ground_vehicle', 'cesium_drone', 'custom']).describe('Predefined model types');
 
 /**
  * Model configuration with preset or custom URI
@@ -97,7 +98,6 @@ export const ModelConfigSchema = z.object({
  * Animation configuration for creating animated entities
  */
 export const AnimationConfigSchema = z.object({
-  entityId: z.string().optional().describe('Entity ID (auto-generated if not provided)'),
   name: z.string().optional().describe('Human-readable name'),
   positionSamples: z.array(PositionSampleSchema).min(2).describe('Array of position samples with timing'),
   startTime: z.string().optional().describe('Animation start time (ISO 8601, defaults to first sample time)'),
@@ -108,7 +108,7 @@ export const AnimationConfigSchema = z.object({
   pathConfig: PathGraphicsSchema.optional().describe('Path visualization settings'),
   model: ModelConfigSchema.optional().describe('3D model configuration'),
   clampToGround: z.boolean().optional().default(false).describe('Clamp entity to terrain'),
-  loopMode: z.enum(['none', 'loop', 'pingpong']).optional().default('none').describe('Animation loop behavior')
+  loopMode: z.enum(['none', 'loop', 'pingpong']).optional().default('none').describe('Animation loop behavior: none, loop, or pingpong')
 }).describe('Complete animation configuration');
 
 /**
@@ -116,7 +116,6 @@ export const AnimationConfigSchema = z.object({
  * Accepts route structure from geolocation_route tool
  */
 export const RouteAnimationConfigSchema = z.object({
-  entityId: z.string().optional().describe('Entity ID (auto-generated if not provided)'),
   name: z.string().optional().describe('Human-readable name'),
   // Support flexible route formats - unified schema accepts all route formats
   route: z.object({
@@ -146,10 +145,11 @@ export const RouteAnimationConfigSchema = z.object({
     startLocation: PositionSchema.optional().describe('Starting point (for simple routes)'),
     endLocation: PositionSchema.optional().describe('Ending point (for simple routes)'),
     waypoints: z.array(PositionSchema).optional().describe('Intermediate waypoints'),
-    travelMode: z.enum(['walking', 'driving', 'cycling', 'transit']).optional()
+    travelMode: z.enum(['walking', 'driving', 'cycling', 'bicycling', 'transit', 'flying']).optional().describe('Travel mode: walking, driving, cycling, bicycling, transit, or flying')
   }).describe('Route from geolocation_route tool - supports polyline array, legs, or simple start/end'),
   speedMultiplier: z.number().min(0.1).max(100).optional().default(10).describe('Speed multiplier for playback'),
-  modelPreset: z.enum(['cesium_man', 'car', 'bike', 'airplane', 'auto']).optional().default('auto').describe('Model preset (auto selects based on travel mode)'),
+  modelPreset: z.enum(['cesium_man', 'cesium_air', 'ground_vehicle', 'cesium_drone', 'auto']).optional().default('auto').describe('Model preset (auto selects based on travel mode): cesium_man, cesium_air, ground_vehicle, cesium_drone, or auto'),
+  modelUri: z.string().optional().describe('Custom model URI (overrides preset)'),
   showPath: z.boolean().optional().default(true).describe('Show animated path trail')
 }).describe('Configuration for creating animation from geolocation route');
 
@@ -157,8 +157,8 @@ export const RouteAnimationConfigSchema = z.object({
  * Animation state tracking
  */
 export const AnimationStateSchema = z.object({
-  entityId: z.string().describe('Animated entity ID'),
-  name: z.string().optional().describe('Entity name'),
+  animationId: z.string().describe('Animation ID'),
+  name: z.string().optional().describe('Animation name'),
   isAnimating: z.boolean().describe('Whether animation is currently playing'),
   currentTime: z.string().describe('Current animation time (ISO 8601)'),
   startTime: z.string().describe('Animation start time (ISO 8601)'),
@@ -207,7 +207,7 @@ export const PathUpdateConfigSchema = z.object({
  * CZML export options
  */
 export const CZMLExportOptionsSchema = z.object({
-  entityIds: z.array(z.string()).optional().describe('Entity IDs to export (all if omitted)'),
+  animationIds: z.array(z.string()).optional().describe('Animation IDs to export (all if omitted)'),
   includeClock: z.boolean().optional().default(true).describe('Include clock configuration'),
   includeStyles: z.boolean().optional().default(true).describe('Include path/model styles'),
   compressed: z.boolean().optional().default(false).describe('Minimize CZML output')
@@ -219,7 +219,6 @@ export const AnimationCreateResponseSchema = z.object({
   success: z.boolean(),
   message: z.string(),
   animationId: z.string().describe('Generated animation ID'),
-  entityId: z.string().describe('Created entity ID'),
   startTime: z.string().describe('Animation start time'),
   stopTime: z.string().describe('Animation stop time'),
   modelPreset: z.string().optional().describe('Model preset used')
@@ -250,7 +249,7 @@ export const CameraTrackingResponseSchema = z.object({
   success: z.boolean(),
   message: z.string(),
   isTracking: z.boolean(),
-  trackedEntityId: z.string().optional(),
+  trackedAnimationId: z.string().optional(),
   stats: z.object({
     responseTime: z.number()
   })
@@ -270,7 +269,7 @@ export const CZMLExportResponseSchema = z.object({
 export const GenericAnimationResponseSchema = z.object({
   success: z.boolean(),
   message: z.string(),
-  entityId: z.string().optional(),
+  animationId: z.string().optional(),
   stats: z.object({
     responseTime: z.number()
   })

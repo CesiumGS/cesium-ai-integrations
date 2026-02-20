@@ -5,43 +5,34 @@ import {
   formatErrorMessage,
   buildSuccessResponse,
   buildErrorResponse,
-  ResponseEmoji
+  ResponseEmoji,
 } from "@cesium-mcp/shared";
 import {
-  AnimationPauseInputSchema,
   GenericAnimationResponseSchema,
+  AnimationControlInputSchema,
 } from "../schemas/index.js";
-import { animations } from "../utils/shared-state.js";
-import {
-  DEFAULT_TIMEOUT_MS,
-} from "../utils/constants.js";
+import { DEFAULT_TIMEOUT_MS } from "../utils/constants.js";
 
 /**
- * Register animation_pause tool
+ * Register animation_control tool
  */
-export function registerAnimationPause(
+export function registerAnimationControl(
   server: McpServer,
   communicationServer: ICommunicationServer,
 ): void {
   server.registerTool(
-    "animation_pause",
+    "animation_control",
     {
-      title: "Pause Animation",
-      description: "Pause animation playback",
-      inputSchema: AnimationPauseInputSchema.shape,
+      title: "Control Animation Playback",
+      description: "Start, pause, or resume animation playback",
+      inputSchema: AnimationControlInputSchema.shape,
       outputSchema: GenericAnimationResponseSchema.shape,
     },
-    async ({ animationId }) => {
+    async ({ animationId, action }) => {
       try {
-        const animState = animations.get(animationId);
-        if (!animState) {
-          throw new Error(`Animation ${animationId} not found`);
-        }
-
-        animState.isPlaying = false;
-
+        // Pass command directly to client - it will validate if animation exists
         const command = {
-          type: "animation_pause",
+          type: action === "play" ? "animation_play" : "animation_pause",
           animationId,
         };
 
@@ -54,14 +45,13 @@ export function registerAnimationPause(
         if (result.success) {
           const output = {
             success: true,
-            message: `Animation paused for ${animationId}`,
+            message: `Animation ${action === "play" ? "playback started" : "paused"} for ${animationId}`,
             animationId,
-            entityId: animState.entityId,
             stats: { responseTime },
           };
 
           return buildSuccessResponse(
-            ResponseEmoji.Pause,
+            action === "play" ? ResponseEmoji.Play : ResponseEmoji.Pause,
             responseTime,
             output,
           );
@@ -73,7 +63,7 @@ export function registerAnimationPause(
           0,
           {
             success: false,
-            message: `Failed to pause animation: ${formatErrorMessage(error)}`,
+            message: `Failed to ${action} animation: ${formatErrorMessage(error)}`,
             animationId,
             stats: { responseTime: 0 },
           },
