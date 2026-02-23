@@ -37,7 +37,8 @@
       "@modelcontextprotocol/sdk>ajv": ">=8.18.0",
       "eslint>ajv": "^6.12.6",
       "@eslint/eslintrc>ajv": "^6.12.6",
-      "minimatch": ">=10.2.1"
+      "minimatch": ">=10.2.1",
+      "hono": ">=4.11.10"
     },
     "auditConfig": {
       "ignoreCves": [
