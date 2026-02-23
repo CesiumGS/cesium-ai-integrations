@@ -1,12 +1,6 @@
-import {
-  ICommunicationServer,
-  executeWithTiming,
-} from "@cesium-mcp/shared";
+import { ICommunicationServer, executeWithTiming } from "@cesium-mcp/shared";
 import { LONG_TIMEOUT_MS } from "./constants.js";
-import type {
-  CreateAnimationConfig,
-  CreateAnimationResult,
-} from "./types.js";
+import type { CreateAnimationConfig, CreateAnimationResult } from "./types.js";
 
 /**
  * Shared logic for creating animations from position samples
@@ -20,12 +14,12 @@ export async function createAnimation(
     positionSamples,
     startTime,
     stopTime,
-    interpolationAlgorithm = 'LAGRANGE',
-    modelPreset = 'cesium_man',
+    interpolationAlgorithm = "LAGRANGE",
+    modelPreset = "cesium_man",
     modelUri,
     modelScale,
     showPath = true,
-    loopMode = 'none',
+    loopMode = "none",
     clampToGround = false,
     speedMultiplier = 1.0,
     autoPlay = true,
@@ -47,11 +41,12 @@ export async function createAnimation(
 
   // Determine animation time range
   const animStartTime = startTime || positionSamples[0].time;
-  const animStopTime = stopTime || positionSamples[positionSamples.length - 1].time;
+  const animStopTime =
+    stopTime || positionSamples[positionSamples.length - 1].time;
 
   // Build command for client (no server state needed - client is source of truth)
   const command = {
-    type: 'animation_create',
+    type: "animation_create",
     animationId,
     name,
     positionSamples,
@@ -69,32 +64,28 @@ export async function createAnimation(
     trackCamera,
   };
 
-  try {
-    // Send command through communication server
-    const { result, responseTime } = await executeWithTiming(
-      communicationServer,
-      command,
-      LONG_TIMEOUT_MS,
-    );
+  // Send command through communication server
+  const { result, responseTime } = await executeWithTiming(
+    communicationServer,
+    command,
+    LONG_TIMEOUT_MS,
+  );
 
-    if (result.success) {
-      return {
-        success: true,
-        animationId,
-        startTime: animStartTime,
-        stopTime: animStopTime,
-        modelPreset,
-        message: `Animation created with ${positionSamples.length} position samples`,
-        responseTime,
-      };
-    }
-
+  if (result.success) {
     return {
-      success: false,
-      error: result.error || 'Unknown error from client',
+      success: true,
+      animationId,
+      startTime: animStartTime,
+      stopTime: animStopTime,
+      modelPreset,
+      message: `Animation created with ${positionSamples.length} position samples`,
       responseTime,
     };
-  } catch (error) {
-    throw error;
   }
+
+  return {
+    success: false,
+    error: result.error || "Unknown error from client",
+    responseTime,
+  };
 }

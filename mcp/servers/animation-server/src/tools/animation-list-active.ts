@@ -13,9 +13,7 @@ import {
   AnimationState,
   Clock,
 } from "../schemas/index.js";
-import {
-  DEFAULT_TIMEOUT_MS,
-} from "../utils/constants.js";
+import { DEFAULT_TIMEOUT_MS } from "../utils/constants.js";
 
 /**
  * Register animation_list_active tool
@@ -47,20 +45,12 @@ export function registerAnimationListActive(
 
         if (result.success) {
           // Client is the source of truth - use its data directly
-          const clientAnimations: AnimationState[] = (result.animations as AnimationState[]) || [];
-          const clientClockState: Clock = (result.clockState as Clock) || {
-            startTime: { dayNumber: 0, secondsOfDay: 0 },
-            stopTime: { dayNumber: 0, secondsOfDay: 0 },
-            currentTime: { dayNumber: 0, secondsOfDay: 0 },
-            clockRange: "UNBOUNDED" as const,
-            multiplier: 1,
-            shouldAnimate: false,
-          };
-
+          const clientAnimations: AnimationState[] =
+            (result.animations as AnimationState[]) || [];
+          const clientClockState: Clock = result.clockState as Clock;
           // Return client data as-is
           const animationsList = clientAnimations.map((clientAnim) => ({
             animationId: clientAnim.animationId,
-            name: clientAnim.name || undefined,
             isAnimating: clientClockState.shouldAnimate || false,
             startTime: clientAnim.startTime,
             stopTime: clientAnim.stopTime,
@@ -70,9 +60,9 @@ export function registerAnimationListActive(
           // Create detailed message with animation IDs
           let message = `Found ${animationsList.length} active animation(s)`;
           if (animationsList.length > 0) {
-            const animationDetails = animationsList.map(anim => 
-              `\n  - ${anim.name || 'Unnamed'} (ID: ${anim.animationId})`
-            ).join('');
+            const animationDetails = animationsList
+              .map((anim) => `\n  - ID: ${anim.animationId}`)
+              .join("");
             message += `:${animationDetails}`;
           }
 
@@ -86,23 +76,16 @@ export function registerAnimationListActive(
             },
           };
 
-          return buildSuccessResponse(
-            ResponseEmoji.Info,
-            responseTime,
-            output,
-          );
+          return buildSuccessResponse(ResponseEmoji.Info, responseTime, output);
         }
 
         throw new Error(result.error || "Unknown error from client");
       } catch (error) {
-        return buildErrorResponse(
-          0,
-          {
-            success: false,
-            message: `Failed to list animations: ${formatErrorMessage(error)}`,
-            stats: { responseTime: 0 },
-          },
-        );
+        return buildErrorResponse(0, {
+          success: false,
+          message: `Failed to list animations: ${formatErrorMessage(error)}`,
+          stats: { responseTime: 0 },
+        });
       }
     },
   );

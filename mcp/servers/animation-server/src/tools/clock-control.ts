@@ -6,6 +6,7 @@ import {
   buildSuccessResponse,
   buildErrorResponse,
   ResponseEmoji,
+  CommandInput,
 } from "@cesium-mcp/shared";
 import {
   ClockControlInputSchema,
@@ -31,23 +32,31 @@ export function registerClockControl(
       inputSchema: ClockControlInputSchema.shape,
       outputSchema: ClockResponseSchema.shape,
     },
-    async ({ action, clock, currentTime, multiplier }: {
+    async ({
+      action,
+      clock,
+      currentTime,
+      multiplier,
+    }: {
       action: "configure" | "setTime" | "setMultiplier";
       clock?: Clock;
       currentTime?: JulianDate;
       multiplier?: number;
     }) => {
       try {
-        let command: any;
+        let command: CommandInput;
         let message: string;
 
         switch (action) {
           case "configure":
             if (!clock) {
-              throw new Error("'clock' parameter is required for 'configure' action");
+              throw new Error(
+                "'clock' parameter is required for 'configure' action",
+              );
             }
             command = {
-              type: "clock_configure",
+              type: "clock_control",
+              action: "configure",
               clock,
             };
             message = `Clock configured from ${clock.startTime.dayNumber}:${clock.startTime.secondsOfDay} to ${clock.stopTime.dayNumber}:${clock.stopTime.secondsOfDay}`;
@@ -55,10 +64,13 @@ export function registerClockControl(
 
           case "setTime":
             if (!currentTime) {
-              throw new Error("'currentTime' parameter is required for 'setTime' action");
+              throw new Error(
+                "'currentTime' parameter is required for 'setTime' action",
+              );
             }
             command = {
-              type: "clock_set_time",
+              type: "clock_control",
+              action: "setTime",
               currentTime,
             };
             message = `Clock time set to ${currentTime.dayNumber}:${currentTime.secondsOfDay}`;
@@ -66,10 +78,13 @@ export function registerClockControl(
 
           case "setMultiplier":
             if (multiplier === undefined) {
-              throw new Error("'multiplier' parameter is required for 'setMultiplier' action");
+              throw new Error(
+                "'multiplier' parameter is required for 'setMultiplier' action",
+              );
             }
             command = {
-              type: "clock_multiplier",
+              type: "clock_control",
+              action: "setMultiplier",
               multiplier,
             };
             message = `Clock multiplier set to ${multiplier}x real time`;
@@ -96,7 +111,9 @@ export function registerClockControl(
           };
 
           return buildSuccessResponse(
-            action === "setMultiplier" ? ResponseEmoji.Speed : ResponseEmoji.Settings,
+            action === "setMultiplier"
+              ? ResponseEmoji.Speed
+              : ResponseEmoji.Settings,
             responseTime,
             output,
           );
@@ -104,16 +121,13 @@ export function registerClockControl(
 
         throw new Error(result.error || "Unknown error from client");
       } catch (error) {
-        return buildErrorResponse(
-          0,
-          {
-            success: false,
-            message: `Failed to control clock: ${formatErrorMessage(error)}`,
-            stats: {
-              responseTime: 0,
-            },
+        return buildErrorResponse(0, {
+          success: false,
+          message: `Failed to control clock: ${formatErrorMessage(error)}`,
+          stats: {
+            responseTime: 0,
           },
-        );
+        });
       }
     },
   );

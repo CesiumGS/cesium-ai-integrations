@@ -11,9 +11,7 @@ import {
   ClockResponseSchema,
   GlobeSetLightingInputSchema,
 } from "../schemas/index.js";
-import {
-  DEFAULT_TIMEOUT_MS,
-} from "../utils/constants.js";
+import { DEFAULT_TIMEOUT_MS } from "../utils/constants.js";
 
 /**
  * Register globe_set_lighting tool
@@ -64,16 +62,13 @@ export function registerGlobeSetLighting(
 
         throw new Error(result.error || "Unknown error from client");
       } catch (error) {
-        return buildErrorResponse(
-          0,
-          {
-            success: false,
-            message: `Failed to set globe lighting: ${formatErrorMessage(error)}`,
-            stats: {
-              responseTime: 0,
-            },
+        return buildErrorResponse(0, {
+          success: false,
+          message: `Failed to set globe lighting: ${formatErrorMessage(error)}`,
+          stats: {
+            responseTime: 0,
           },
-        );
+        });
       }
     },
   );

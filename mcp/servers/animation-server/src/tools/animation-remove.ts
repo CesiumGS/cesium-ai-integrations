@@ -11,9 +11,7 @@ import {
   AnimationRemoveInputSchema,
   GenericAnimationResponseSchema,
 } from "../schemas/index.js";
-import {
-  DEFAULT_TIMEOUT_MS,
-} from "../utils/constants.js";
+import { DEFAULT_TIMEOUT_MS } from "../utils/constants.js";
 
 /**
  * Register animation_remove tool
@@ -61,15 +59,12 @@ export function registerAnimationRemove(
 
         throw new Error(result.error || "Unknown error from client");
       } catch (error) {
-        return buildErrorResponse(
-          0,
-          {
-            success: false,
-            message: `Failed to remove animation: ${formatErrorMessage(error)}`,
-            animationId,
-            stats: { responseTime: 0 },
-          },
-        );
+        return buildErrorResponse(0, {
+          success: false,
+          message: `Failed to remove animation: ${formatErrorMessage(error)}`,
+          animationId,
+          stats: { responseTime: 0 },
+        });
       }
     },
   );

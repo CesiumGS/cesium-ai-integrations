@@ -27,18 +27,21 @@ export function getModelUri(preset: ModelPresetType): string {
  * @returns Resolved model URI
  * @throws Error if neither preset nor customUri is provided, or if preset is invalid
  */
-export function resolveModelUri(preset?: ModelPresetType, customUri?: string): string {
+export function resolveModelUri(
+  preset?: ModelPresetType,
+  customUri?: string,
+): string {
   // Custom URI takes precedence
   if (customUri) {
     return customUri;
   }
-  
+
   // Use preset if provided
   if (preset) {
     return getModelUri(preset);
   }
-  
-  throw new Error('Must provide either modelPreset or modelUri');
+
+  throw new Error("Must provide either modelPreset or modelUri");
 }
 
 /**

@@ -32,7 +32,8 @@ export function registerAnimationControl(
       try {
         // Pass command directly to client - it will validate if animation exists
         const command = {
-          type: action === "play" ? "animation_play" : "animation_pause",
+          type: "animation_control",
+          action: action === "play" ? "play" : "pause",
           animationId,
         };
 
@@ -59,15 +60,12 @@ export function registerAnimationControl(
 
         throw new Error(result.error || "Unknown error from client");
       } catch (error) {
-        return buildErrorResponse(
-          0,
-          {
-            success: false,
-            message: `Failed to ${action} animation: ${formatErrorMessage(error)}`,
-            animationId,
-            stats: { responseTime: 0 },
-          },
-        );
+        return buildErrorResponse(0, {
+          success: false,
+          message: `Failed to ${action} animation: ${formatErrorMessage(error)}`,
+          animationId,
+          stats: { responseTime: 0 },
+        });
       }
     },
   );

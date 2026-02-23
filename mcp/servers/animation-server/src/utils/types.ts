@@ -37,7 +37,7 @@ export interface CreateAnimationConfig {
   positionSamples: PositionSample[];
   startTime?: string;
   stopTime?: string;
-  interpolationAlgorithm?: 'LINEAR' | 'LAGRANGE' | 'HERMITE';
+  interpolationAlgorithm?: "LINEAR" | "LAGRANGE" | "HERMITE";
   modelPreset?: ModelPresetType;
   modelUri?: string;
   modelScale?: number;
@@ -68,13 +68,18 @@ export interface CreateAnimationResult {
  * Available model presets
  * Base presets: cesium_man, cesium_air, ground_vehicle, cesium_drone, custom
  */
-export type ModelPresetType = 'cesium_man' | 'cesium_air' | 'ground_vehicle' | 'cesium_drone' | 'custom';
+export type ModelPresetType =
+  | "cesium_man"
+  | "cesium_air"
+  | "ground_vehicle"
+  | "cesium_drone"
+  | "custom";
 
 /**
  * Animation loop behavior modes
  * NOTE: Keep in sync with LoopModeSchema in core-schemas.ts
  */
-export type LoopModeType = 'none' | 'loop' | 'pingpong';
+export type LoopModeType = "none" | "loop" | "pingpong";
 
 /**
  * Model configuration entry

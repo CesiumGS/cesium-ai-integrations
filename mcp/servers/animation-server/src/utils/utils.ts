@@ -6,7 +6,9 @@ import { ModelPresetType } from "./types.js";
  */
 export function parseDuration(durationStr: string): number {
   const matches = durationStr.match(/(\d+)\s*(min|sec|hour)/i);
-  if (!matches) return 60000; // Default 1 minute
+  if (!matches) {
+    return 60000; // Default 1 minute
+  }
 
   const value = parseInt(matches[1]);
   const unit = matches[2].toLowerCase();
@@ -27,8 +29,13 @@ export function parseDuration(durationStr: string): number {
  * Decimate array to max size while preserving start/end
  * Prevents memory issues from too many position samples
  */
-export function decimateArray<T>(arr: T[], maxSize: number = MAX_POSITION_SAMPLES): T[] {
-  if (arr.length <= maxSize) return arr;
+export function decimateArray<T>(
+  arr: T[],
+  maxSize: number = MAX_POSITION_SAMPLES,
+): T[] {
+  if (arr.length <= maxSize) {
+    return arr;
+  }
 
   const result: T[] = [arr[0]]; // Always include first
   const step = (arr.length - 1) / (maxSize - 1);
@@ -47,9 +54,13 @@ export function decimateArray<T>(arr: T[], maxSize: number = MAX_POSITION_SAMPLE
  * @param travelMode - The travel mode string (e.g., 'walking', 'driving', 'flying')
  * @returns The corresponding model preset or undefined if no mapping exists
  */
-export function getModelPresetFromTravelMode(travelMode?: string): ModelPresetType | undefined {
-  if (!travelMode) return undefined;
-  
+export function getModelPresetFromTravelMode(
+  travelMode?: string,
+): ModelPresetType | undefined {
+  if (!travelMode) {
+    return undefined;
+  }
+
   const mapped = TRAVEL_MODE_TO_MODEL[travelMode];
   return mapped ? (mapped as ModelPresetType) : undefined;
 }

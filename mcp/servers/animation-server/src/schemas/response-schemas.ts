@@ -8,7 +8,10 @@ import { ClockSchema } from "./core-schemas.js";
 export const ResponseStatsSchema = z.object({
   responseTime: z.number().describe("Operation time in milliseconds"),
   totalAnimations: z.number().optional().describe("Total number of animations"),
-  activeAnimations: z.number().optional().describe("Number of active animations"),
+  activeAnimations: z
+    .number()
+    .optional()
+    .describe("Number of active animations"),
   entityCount: z.number().optional().describe("Number of entities"),
   documentSize: z.number().optional().describe("Document size in bytes"),
 });
@@ -96,7 +99,10 @@ export const CameraTrackingResponseSchema = z
     success: z.boolean().describe("Operation success status"),
     message: z.string().describe("Result message"),
     isTracking: z.boolean().describe("Whether tracking is active"),
-    trackedAnimationId: z.string().optional().describe("ID of tracked animation"),
+    trackedAnimationId: z
+      .string()
+      .optional()
+      .describe("ID of tracked animation"),
     stats: z.object({
       responseTime: z.number(),
     }),
@@ -149,12 +155,22 @@ export const ClockResponseSchema = z
 
 // Export inferred types
 export type ResponseStats = z.infer<typeof ResponseStatsSchema>;
-export type AnimationCreateResponse = z.infer<typeof AnimationCreateResponseSchema>;
-export type AnimationStateResponse = z.infer<typeof AnimationStateResponseSchema>;
+export type AnimationCreateResponse = z.infer<
+  typeof AnimationCreateResponseSchema
+>;
+export type AnimationStateResponse = z.infer<
+  typeof AnimationStateResponseSchema
+>;
 export type AnimationInfo = z.infer<typeof AnimationInfoSchema>;
 export type AnimationListResponse = z.infer<typeof AnimationListResponseSchema>;
-export type AnimationListActiveResponse = z.infer<typeof AnimationListActiveResponseSchema>;
-export type CameraTrackingResponse = z.infer<typeof CameraTrackingResponseSchema>;
+export type AnimationListActiveResponse = z.infer<
+  typeof AnimationListActiveResponseSchema
+>;
+export type CameraTrackingResponse = z.infer<
+  typeof CameraTrackingResponseSchema
+>;
 export type CZMLExportResponse = z.infer<typeof CZMLExportResponseSchema>;
-export type GenericAnimationResponse = z.infer<typeof GenericAnimationResponseSchema>;
+export type GenericAnimationResponse = z.infer<
+  typeof GenericAnimationResponseSchema
+>;
 export type ClockResponse = z.infer<typeof ClockResponseSchema>;

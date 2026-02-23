@@ -50,28 +50,27 @@ export const TRAVEL_MODE_TO_MODEL: Record<string, string> = {
  */
 export const DEFAULT_MODEL_REGISTRY: Record<ModelPresetType, ModelEntry> = {
   cesium_man: {
-    uri: 'https://raw.githubusercontent.com/CesiumGS/cesium/main/Apps/SampleData/models/CesiumMan/Cesium_Man.glb',
-    description: 'Walking person model',
-    recommendedFor: ['walking', 'hiking', 'pedestrian']
+    uri: "https://raw.githubusercontent.com/CesiumGS/cesium/main/Apps/SampleData/models/CesiumMan/Cesium_Man.glb",
+    description: "Walking person model",
+    recommendedFor: ["walking", "hiking", "pedestrian"],
   },
   cesium_air: {
-    uri: 'https://raw.githubusercontent.com/CesiumGS/cesium/main/Apps/SampleData/models/CesiumAir/Cesium_Air.glb',
-    description: 'Aircraft model',
-    recommendedFor: ['flying', 'flight', 'aircraft']
+    uri: "https://raw.githubusercontent.com/CesiumGS/cesium/main/Apps/SampleData/models/CesiumAir/Cesium_Air.glb",
+    description: "Aircraft model",
+    recommendedFor: ["flying", "flight", "aircraft"],
   },
   ground_vehicle: {
-    uri: 'https://raw.githubusercontent.com/CesiumGS/cesium/main/Apps/SampleData/models/GroundVehicle/GroundVehicle.glb',
-    description: 'Car/vehicle model',
-    recommendedFor: ['driving', 'cycling', 'bicycling', 'car', 'vehicle']
+    uri: "https://raw.githubusercontent.com/CesiumGS/cesium/main/Apps/SampleData/models/GroundVehicle/GroundVehicle.glb",
+    description: "Car/vehicle model",
+    recommendedFor: ["driving", "cycling", "bicycling", "car", "vehicle"],
   },
   cesium_drone: {
-    uri: 'https://raw.githubusercontent.com/CesiumGS/cesium/main/Apps/SampleData/models/CesiumDrone/CesiumDrone.glb',
-    description: 'Drone model',
-    recommendedFor: ['drone', 'quad-copter', 'aerial']
+    uri: "https://raw.githubusercontent.com/CesiumGS/cesium/main/Apps/SampleData/models/CesiumDrone/CesiumDrone.glb",
+    description: "Drone model",
+    recommendedFor: ["drone", "quad-copter", "aerial"],
   },
   custom: {
-    uri: '',
-    description: 'Custom model URI (must be provided by user)',
-  }
+    uri: "",
+    description: "Custom model URI (must be provided by user)",
+  },
 };
-

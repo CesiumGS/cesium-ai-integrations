@@ -169,8 +169,6 @@ export interface PositionSample extends Position {
 }
 
 export interface AnimationState {
-  entityId: string;
   startTime: string | JulianDate;
   stopTime: string | JulianDate;
-  entity: any; // Cesium.Entity is not typed in this module
 }

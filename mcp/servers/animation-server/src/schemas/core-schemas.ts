@@ -14,10 +14,7 @@ export const PositionSchema = z.object({
     .min(-90)
     .max(90)
     .describe("Latitude in degrees (-90 to 90)"),
-  height: z
-    .number()
-    .optional()
-    .describe("Height above ellipsoid in meters"),
+  height: z.number().optional().describe("Height above ellipsoid in meters"),
 });
 
 /**
@@ -91,7 +88,11 @@ export const ClockSchema = z
       .enum(["TICK_DEPENDENT", "SYSTEM_CLOCK_MULTIPLIER", "SYSTEM_CLOCK"])
       .optional()
       .default("SYSTEM_CLOCK_MULTIPLIER"),
-    multiplier: z.number().optional().default(1).describe("Time rate multiplier"),
+    multiplier: z
+      .number()
+      .optional()
+      .default(1)
+      .describe("Time rate multiplier"),
     shouldAnimate: z.boolean().optional().default(true),
   })
   .describe("Clock configuration for animation timing");
@@ -123,7 +124,13 @@ export const PolylineMaterialSchema = z
  * Base model preset types (predefined 3D models)
  */
 export const ModelPresetSchema = z
-  .enum(["cesium_man", "cesium_air", "ground_vehicle", "cesium_drone", "custom"])
+  .enum([
+    "cesium_man",
+    "cesium_air",
+    "ground_vehicle",
+    "cesium_drone",
+    "custom",
+  ])
   .describe("Predefined 3D model types");
 
 /**
@@ -158,4 +165,6 @@ export type PolylineMaterial = z.infer<typeof PolylineMaterialSchema>;
 export type ModelPreset = z.infer<typeof ModelPresetSchema>;
 export type TravelMode = z.infer<typeof TravelModeSchema>;
 export type LoopMode = z.infer<typeof LoopModeSchema>;
-export type InterpolationAlgorithm = z.infer<typeof InterpolationAlgorithmSchema>;
+export type InterpolationAlgorithm = z.infer<
+  typeof InterpolationAlgorithmSchema
+>;

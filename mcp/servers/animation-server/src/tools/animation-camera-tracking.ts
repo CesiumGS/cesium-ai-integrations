@@ -49,7 +49,7 @@ export function registerAnimationCameraTracking(
           : {
               type: "animation_camera_tracking" as const,
               track: false,
-              animationId: animationId
+              animationId: animationId,
             };
 
         // Execute command
@@ -85,15 +85,12 @@ export function registerAnimationCameraTracking(
           output,
         );
       } catch (error) {
-        return buildErrorResponse(
-          0,
-          {
-            success: false,
-            message: `Failed to control camera tracking: ${formatErrorMessage(error)}`,
-            isTracking: false,
-            stats: { responseTime: 0 },
-          },
-        );
+        return buildErrorResponse(0, {
+          success: false,
+          message: `Failed to control camera tracking: ${formatErrorMessage(error)}`,
+          isTracking: false,
+          stats: { responseTime: 0 },
+        });
       }
     },
   );

@@ -7,7 +7,6 @@ import { registerAnimationListActive } from "./animation-list-active.js";
 import { registerAnimationUpdatePath } from "./animation-update-path.js";
 import { registerAnimationCameraTracking } from "./animation-camera-tracking.js";
 import { registerClockControl } from "./clock-control.js";
-import { registerTimelineZoomToRange } from "./timeline-zoom-to-range.js";
 import { registerGlobeSetLighting } from "./globe-set-lighting.js";
 
 /**
@@ -35,8 +34,9 @@ export function registerAllAnimationTools(
 
   // Register clock and scene control tools
   registerClockControl(server, communicationServer);
-  registerTimelineZoomToRange(server, communicationServer);
   registerGlobeSetLighting(server, communicationServer);
-  
-  console.error("✅ Registered 9 animation and clock control tools (including unified animation_create)");
+
+  console.error(
+    "✅ Registered 8 animation and clock control tools (including unified animation_create)",
+  );
 }

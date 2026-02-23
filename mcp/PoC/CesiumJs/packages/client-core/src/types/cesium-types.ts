@@ -19,6 +19,10 @@ import type {
   Clock,
   Viewer,
   Timeline,
+  PositionProperty,
+  Entity,
+  EntityCollection,
+  DataSource,
 } from "cesium";
 
 // Re-export Cesium types with consistent naming
@@ -36,6 +40,7 @@ export type CesiumClockRange = ClockRange;
 export type CesiumClockStep = ClockStep;
 export type CesiumEllipsoid = Ellipsoid;
 export type CesiumCameraOrientation = HeadingPitchRoll;
+export type CesiumPositionProperty = PositionProperty;
 
 export type CesiumFixedFrameTransform =
   typeof Transforms.eastNorthUpToFixedFrame;
@@ -71,28 +76,12 @@ export type CesiumCameraViewOptions = {
 
 export type CesiumLabelStyle = number;
 
-export type CesiumEntity = {
-  id?: string;
-  name?: string;
-  description?: string;
-  point?: object;
-  label?: object;
-  polygon?: object;
-  polyline?: object;
-  billboard?: object;
-  model?: object;
-  ellipse?: object;
-  rectangle?: object;
-  wall?: object;
-  cylinder?: object;
-  box?: object;
-  corridor?: object;
-  [key: string]: string | number | boolean | null | object | undefined;
-};
+export type CesiumEntity = Entity;
+export type CesiumEntityOptions = Entity.ConstructorOptions;
 
-export type CesiumEntityCollection = { values?: CesiumEntity[] };
+export type CesiumEntityCollection = EntityCollection;
 
-export type CesiumDataSource = { entities?: CesiumEntityCollection };
+export type CesiumDataSource = DataSource;
 
 export type CesiumZoomTarget =
   | CesiumEntity
