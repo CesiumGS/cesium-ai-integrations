@@ -1,6 +1,8 @@
 import { z } from "zod";
-import { AnimationStateSchema } from "./tool-schemas.js";
-import { ClockSchema } from "./core-schemas.js";
+import {
+  AnimationStateSchema,
+  ClockConfigureInputSchema,
+} from "./tool-schemas.js";
 
 /**
  * Standard statistics included in all responses
@@ -67,7 +69,7 @@ export const AnimationListResponseSchema = z
     success: z.boolean().describe("Query success status"),
     message: z.string().describe("Result message"),
     animations: z.array(AnimationStateSchema),
-    clockState: ClockSchema,
+    clockState: ClockConfigureInputSchema,
     stats: z.object({
       totalAnimations: z.number(),
       activeAnimations: z.number(),
@@ -146,7 +148,9 @@ export const ClockResponseSchema = z
   .object({
     success: z.boolean().describe("Operation success status"),
     message: z.string().describe("Result message"),
-    clockState: ClockSchema.optional().describe("Current clock state"),
+    clockState: ClockConfigureInputSchema.optional().describe(
+      "Current clock state",
+    ),
     stats: z.object({
       responseTime: z.number(),
     }),

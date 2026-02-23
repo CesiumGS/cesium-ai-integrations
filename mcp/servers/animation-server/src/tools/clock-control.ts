@@ -11,8 +11,7 @@ import {
 import {
   ClockControlInputSchema,
   ClockResponseSchema,
-  Clock,
-  JulianDate,
+  ClockConfigureInput,
 } from "../schemas/index.js";
 import { DEFAULT_TIMEOUT_MS } from "../utils/constants.js";
 
@@ -39,8 +38,8 @@ export function registerClockControl(
       multiplier,
     }: {
       action: "configure" | "setTime" | "setMultiplier";
-      clock?: Clock;
-      currentTime?: JulianDate;
+      clock?: ClockConfigureInput;
+      currentTime?: string;
       multiplier?: number;
     }) => {
       try {
@@ -59,7 +58,30 @@ export function registerClockControl(
               action: "configure",
               clock,
             };
-            message = `Clock configured from ${clock.startTime.dayNumber}:${clock.startTime.secondsOfDay} to ${clock.stopTime.dayNumber}:${clock.stopTime.secondsOfDay}`;
+            {
+              const parts: string[] = [];
+              if (
+                clock.startTime !== undefined ||
+                clock.stopTime !== undefined
+              ) {
+                parts.push(
+                  `from ${clock.startTime ?? "current"} to ${clock.stopTime ?? "current"}`,
+                );
+              }
+              if (clock.multiplier !== undefined) {
+                parts.push(`multiplier ${clock.multiplier}x`);
+              }
+              if (clock.currentTime !== undefined) {
+                parts.push(`current time ${clock.currentTime}`);
+              }
+              if (clock.clockRange !== undefined) {
+                parts.push(`range ${clock.clockRange}`);
+              }
+              if (clock.shouldAnimate !== undefined) {
+                parts.push(`shouldAnimate ${clock.shouldAnimate}`);
+              }
+              message = `Clock configured${parts.length > 0 ? ` (${parts.join(", ")})` : ""}`;
+            }
             break;
 
           case "setTime":
@@ -73,7 +95,7 @@ export function registerClockControl(
               action: "setTime",
               currentTime,
             };
-            message = `Clock time set to ${currentTime.dayNumber}:${currentTime.secondsOfDay}`;
+            message = `Clock time set to ${currentTime}`;
             break;
 
           case "setMultiplier":

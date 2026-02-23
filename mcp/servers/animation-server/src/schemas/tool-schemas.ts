@@ -7,7 +7,6 @@ import {
   ModelPresetSchema,
   LoopModeSchema,
   InterpolationAlgorithmSchema,
-  ClockSchema,
 } from "./core-schemas.js";
 
 /**
@@ -339,12 +338,15 @@ export const ClockControlInputSchema = z.object({
     .describe(
       "Action to perform: 'configure' for full clock setup, 'setTime' to change current time, 'setMultiplier' to change time rate",
     ),
-  clock: ClockSchema.optional().describe(
-    "Full clock configuration (required for 'configure' action)",
+  clock: ClockConfigureInputSchema.optional().describe(
+    "Full clock configuration (required for 'configure' action). All times as ISO 8601 strings.",
   ),
-  currentTime: JulianDateSchema.optional().describe(
-    "Current time to set (required for 'setTime' action)",
-  ),
+  currentTime: z
+    .string()
+    .optional()
+    .describe(
+      "Current time to set as ISO 8601 string (required for 'setTime' action, e.g., '2026-02-23T12:00:00Z')",
+    ),
   multiplier: z
     .number()
     .optional()

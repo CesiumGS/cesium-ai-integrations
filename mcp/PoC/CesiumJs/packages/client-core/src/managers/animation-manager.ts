@@ -493,7 +493,9 @@ class CesiumAnimationManager implements ManagerInterface {
     return this.wrapOperation(() => {
       const scene = this.viewer.scene;
 
+      // Ground/terrain lighting
       scene.globe.enableLighting = enableLighting;
+      scene.globe.showGroundAtmosphere = enableLighting;
 
       if (enableLighting) {
         scene.globe.dynamicAtmosphereLighting = enableDynamicAtmosphere;
@@ -501,6 +503,21 @@ class CesiumAnimationManager implements ManagerInterface {
       } else {
         scene.globe.dynamicAtmosphereLighting = false;
         scene.globe.dynamicAtmosphereLightingFromSun = false;
+      }
+
+      // Sky atmosphere dynamic lighting (CesiumJS 1.107+ API)
+      // This controls the sky glow / day-night color changes
+      if (scene.atmosphere) {
+        if (!enableLighting || !enableDynamicAtmosphere) {
+          scene.atmosphere.dynamicLighting =
+            Cesium.DynamicAtmosphereLightingType.NONE;
+        } else if (enableSunLighting) {
+          scene.atmosphere.dynamicLighting =
+            Cesium.DynamicAtmosphereLightingType.SUNLIGHT;
+        } else {
+          scene.atmosphere.dynamicLighting =
+            Cesium.DynamicAtmosphereLightingType.SCENE_LIGHT;
+        }
       }
 
       const message = enableLighting

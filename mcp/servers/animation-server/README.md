@@ -175,13 +175,13 @@ Unified clock control tool. Use `action` to select the operation:
 
 - `action` _(required)_: `'configure'` | `'setTime'` | `'setMultiplier'`
 - `clock` (required for `'configure'`): Clock configuration object
-  - `startTime`: Julian date (`{ dayNumber, secondsOfDay }`) for clock start
-  - `stopTime`: Julian date for clock stop
-  - `currentTime` (optional): Julian date for initial time
-  - `clockRange`: `'UNBOUNDED'`, `'CLAMPED'`, or `'LOOP_STOP'`
+  - `startTime` (optional): Clock start time as ISO 8601 string (e.g., `"2026-02-23T08:00:00Z"`)
+  - `stopTime` (optional): Clock stop time as ISO 8601 string (e.g., `"2026-02-23T18:00:00Z"`)
+  - `currentTime` (optional): Initial clock time as ISO 8601 string
+  - `clockRange` (optional): `'UNBOUNDED'`, `'CLAMPED'`, or `'LOOP_STOP'`
   - `multiplier` (optional): Time rate multiplier (default: `1`)
   - `shouldAnimate` (optional): Whether clock should animate (default: `true`)
-- `currentTime` (required for `'setTime'`): Julian date to jump to
+- `currentTime` (required for `'setTime'`): ISO 8601 string to jump to (e.g., `"2026-02-23T12:00:00Z"`)
 - `multiplier` (required for `'setMultiplier'`): Time rate multiplier (e.g., `1000` for 1000× real time)
 
 **Output**:
@@ -341,11 +341,11 @@ Create a ping-pong animation of Cesium Man walking back and forth between two po
 **Control playback:**
 
 ```
-Pause the animation with ID abc-123
+Pause the animation
 ```
 
 ```
-Resume animation abc-123
+Resume animation
 ```
 
 **Change speed:**
@@ -357,7 +357,7 @@ Set animation speed to 50x
 **List and monitor:**
 
 ```
-Show me all active animations and their current states
+Show me all active animations
 ```
 
 ```
@@ -369,7 +369,7 @@ What animations are currently playing?
 **Track a specific entity:**
 
 ```
-Track the animation abc-123 with the camera
+Track the animation with the camera
 ```
 
 ```
@@ -391,7 +391,7 @@ Configure the clock for a 24-hour day/night cycle starting now
 **Set time or speed:**
 
 ```
-Set the current animation time to noon (Julian date)
+Set the current animation time to noon
 ```
 
 ```
@@ -425,7 +425,7 @@ Make the path trail thicker and show more trail behind the entity
 **Remove animations:**
 
 ```
-Remove animation abc-123
+Remove animation
 ```
 
 ```

@@ -91,8 +91,14 @@ export class CesiumApp {
   private enableGlobeLighting(): void {
     if (this.viewer?.scene?.globe) {
       this.viewer.scene.globe.enableLighting = true;
+      this.viewer.scene.globe.showGroundAtmosphere = true;
       this.viewer.scene.globe.dynamicAtmosphereLighting = true;
       this.viewer.scene.globe.dynamicAtmosphereLightingFromSun = true;
+    }
+    // Sky atmosphere dynamic lighting (CesiumJS 1.107+ API)
+    if (this.viewer?.scene?.atmosphere) {
+      this.viewer.scene.atmosphere.dynamicLighting =
+        Cesium.DynamicAtmosphereLightingType.SUNLIGHT;
     }
   }
 
