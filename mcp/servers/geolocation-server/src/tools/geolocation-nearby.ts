@@ -1,18 +1,21 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { ICommunicationServer } from "@cesium-mcp/shared";
 import {
   NearbySearchInputSchema,
   SearchResponseSchema,
   type NearbySearchInput,
 } from "../schemas/index.js";
-import { PlacesService } from "../services/places-service.js";
+import type { IPlacesProvider } from "../services/places-provider.interface.js";
 import {
+  ICommunicationServer,
   ResponseEmoji,
-  TIMEOUT_BUFFER_MS,
   formatErrorMessage,
   buildSuccessResponse,
   buildErrorResponse,
 } from "@cesium-mcp/shared";
+import {
+  createPlacesResponseOutput,
+  sendPlacesToClient,
+} from "src/utils/tool-helpers.js";
 
 /**
  * Register the geolocation_nearby tool
@@ -20,8 +23,8 @@ import {
  */
 export function registerGeolocationNearby(
   server: McpServer,
-  communicationServer: ICommunicationServer,
-  placesService: PlacesService,
+  communicationServer: ICommunicationServer | undefined,
+  placesProvider: IPlacesProvider,
 ): void {
   server.registerTool(
     "geolocation_nearby",
@@ -37,44 +40,32 @@ export function registerGeolocationNearby(
       const startTime = Date.now();
 
       try {
-        const places = await placesService.searchNearby(params);
+        const places = await placesProvider.searchNearby(params);
         const responseTime = Date.now() - startTime;
 
-        if (places.length > 0) {
-          await communicationServer.executeCommand(
-            {
-              type: "geolocation_nearby",
-              places: places.map((p) => ({
-                id: p.id,
-                name: p.name,
-                location: p.location,
-                rating: p.rating,
-                types: p.types,
-              })),
-            },
-            TIMEOUT_BUFFER_MS,
-          );
-        }
-
-        const output = {
-          success: true,
+        await sendPlacesToClient(
+          communicationServer,
+          "geolocation_nearby",
           places,
-          message: `Found ${places.length} place(s) within ${params.radius ?? 5000}m`,
-          stats: {
-            queryTime: responseTime,
-            resultsCount: places.length,
-          },
-        };
+        );
+
+        const output = createPlacesResponseOutput(
+          true,
+          places,
+          responseTime,
+          `Found ${places.length} place(s) within ${params.radius ?? 5000}m`,
+        );
 
         return buildSuccessResponse(ResponseEmoji.Search, responseTime, output);
       } catch (error) {
         const responseTime = Date.now() - startTime;
-        const output = {
-          success: false,
-          places: [],
-          message: `Nearby search failed: ${formatErrorMessage(error)}`,
-          stats: { queryTime: responseTime, resultsCount: 0 },
-        };
+        const output = createPlacesResponseOutput(
+          false,
+          [],
+          responseTime,
+          "Nearby search failed",
+          formatErrorMessage(error),
+        );
 
         return buildErrorResponse(responseTime, output);
       }

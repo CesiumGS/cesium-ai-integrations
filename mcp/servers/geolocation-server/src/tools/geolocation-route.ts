@@ -4,17 +4,16 @@ import {
   RouteResponseSchema,
   type RouteInput,
 } from "../schemas/index.js";
-import { RoutesService } from "../services/routes-service.js";
+import type { IRoutesProvider } from "../services/routes-provider.interface.js";
 import {
   ICommunicationServer,
-  executeWithTiming,
   TIMEOUT_BUFFER_MS,
   formatErrorMessage,
   buildSuccessResponse,
   buildErrorResponse,
   ResponseEmoji,
 } from "@cesium-mcp/shared";
-import { formatDistance, formatDuration } from "src/utils/utils.js";
+import { formatDistance, formatDuration } from "../utils/utils.js";
 
 /**
  * Register the geolocation_route tool
@@ -22,8 +21,8 @@ import { formatDistance, formatDuration } from "src/utils/utils.js";
  */
 export function registerGeolocationRoute(
   server: McpServer,
-  communicationServer: ICommunicationServer,
-  routesService: RoutesService,
+  communicationServer: ICommunicationServer | undefined,
+  routesProvider: IRoutesProvider,
 ): void {
   server.registerTool(
     "geolocation_route",
@@ -39,36 +38,38 @@ export function registerGeolocationRoute(
       const startTime = Date.now();
 
       try {
-        const routes = await routesService.computeRoute(params);
+        const routes = await routesProvider.computeRoute(params);
         const responseTime = Date.now() - startTime;
 
-        // Send each route to the browser, marking the first as primary
-        for (let i = 0; i < routes.length; i++) {
-          const route = routes[i];
-          const positions = RoutesService.decodePolyline(route.polyline);
-          const isPrimary = i === 0;
+        // Send each route to the browser for visualization (if communicationServer available)
+        if (communicationServer) {
+          for (let i = 0; i < routes.length; i++) {
+            const route = routes[i];
+            const positions = routesProvider.decodePolyline(route.polyline);
+            const isPrimary = i === 0;
 
-          await communicationServer.executeCommand(
-            {
-              type: "geolocation_route",
-              route: {
-                positions,
-                summary: route.summary,
-                distance: route.distance,
-                duration: route.duration,
-                travelMode: params.travelMode ?? "driving",
+            await communicationServer.executeCommand(
+              {
+                type: "geolocation_route",
+                route: {
+                  positions,
+                  summary: route.summary,
+                  distance: route.distance,
+                  duration: route.duration,
+                  travelMode: params.travelMode ?? "driving",
+                },
+                options: {
+                  showMarkers: isPrimary,
+                  showLabels: isPrimary,
+                  routeWidth: isPrimary ? 5 : 3,
+                  drawCorridor: false,
+                  flyToRoute: isPrimary,
+                  clearPrevious: i === 0 && routes.length === 1,
+                },
               },
-              options: {
-                showMarkers: isPrimary,
-                showLabels: isPrimary,
-                routeWidth: isPrimary ? 5 : 3,
-                drawCorridor: false,
-                flyToRoute: isPrimary,
-                clearPrevious: i === 0 && routes.length === 1,
-              },
-            },
-            TIMEOUT_BUFFER_MS,
-          );
+              TIMEOUT_BUFFER_MS,
+            );
+          }
         }
 
         const routeSummaries = routes
@@ -77,13 +78,10 @@ export function registerGeolocationRoute(
             const traffic = r.trafficInfo?.durationInTraffic
               ? ` (with traffic: ${formatDuration(r.trafficInfo.durationInTraffic)})`
               : "";
-            return (
-              `${label}: ${r.summary}\n` +
-              `   📏 Distance: ${formatDistance(r.distance)}\n` +
-              `   ⏱️  Duration: ${formatDuration(r.duration)}${traffic}\n` +
-              `   🛣️  Legs: ${r.legs.length}` +
-              (r.warnings ? `\n   ⚠️  ${r.warnings.join(", ")}` : "")
-            );
+            const warnings = r.warnings
+              ? `\n   ⚠️  ${r.warnings.join(", ")}`
+              : "";
+            return `${label}: ${r.summary}\n   📏 Distance: ${formatDistance(r.distance)}\n   ⏱️  Duration: ${formatDuration(r.duration)}${traffic}\n   🛣️  Legs: ${r.legs.length}${warnings}`;
           })
           .join("\n\n");
 

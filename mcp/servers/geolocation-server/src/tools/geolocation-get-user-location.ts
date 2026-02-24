@@ -1,15 +1,14 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { ICommunicationServer } from "@cesium-mcp/shared";
 import { z } from "zod";
 import { UserLocationResponseSchema } from "../schemas/index.js";
+import { USER_INTERACTION_TIMEOUT_MS } from "../utils/constants.js";
 import {
-  USER_INTERACTION_TIMEOUT_MS,
-} from "../utils/constants.js";
-import {
+  ICommunicationServer,
   ResponseEmoji,
   formatErrorMessage,
   buildSuccessResponse,
   buildErrorResponse,
+  executeWithTiming,
 } from "@cesium-mcp/shared";
 
 /**
@@ -31,37 +30,43 @@ export function registerGeolocationGetUserLocation(
       outputSchema: UserLocationResponseSchema.shape,
     },
     async () => {
-      const startTime = Date.now();
-
       try {
-        const result = (await communicationServer.executeCommand(
+        const { result, responseTime } = await executeWithTiming(
+          communicationServer,
           { type: "geolocation_get_user_location" },
           USER_INTERACTION_TIMEOUT_MS,
-        )) as Record<string, unknown>;
+        );
 
-        const responseTime = Date.now() - startTime;
+        const resultData = result as Record<string, unknown>;
 
-        if (result["success"] && result["location"]) {
-          const loc = result["location"] as { latitude: number; longitude: number };
-          const accuracy = result["accuracy"] as number | undefined;
+        if (resultData["success"] && resultData["location"]) {
+          const loc = resultData["location"] as {
+            latitude: number;
+            longitude: number;
+          };
+          const accuracy = resultData["accuracy"] as number | undefined;
 
           const output = {
             success: true,
             location: loc,
-            message:
-              `Location acquired — Lat: ${loc.latitude.toFixed(6)}, ` +
-              `Lon: ${loc.longitude.toFixed(6)}` +
-              (accuracy ? ` (±${accuracy.toFixed(0)}m)` : ""),
+            message: `Location acquired — Lat: ${loc.latitude.toFixed(6)}, Lon: ${loc.longitude.toFixed(6)}${accuracy ? ` (±${accuracy.toFixed(0)}m)` : ""}`,
             accuracy: accuracy ?? null,
             timestamp: Date.now(),
           };
 
-          return buildSuccessResponse(ResponseEmoji.Location, responseTime, output);
+          return buildSuccessResponse(
+            ResponseEmoji.Location,
+            responseTime,
+            output,
+          );
         }
 
-        throw new Error((result["error"] as string | undefined) ?? "Failed to get location");
+        throw new Error(
+          (resultData["error"] as string | undefined) ??
+            "Failed to get location",
+        );
       } catch (error) {
-        const responseTime = Date.now() - startTime;
+        const responseTime = 0;
         const output = {
           success: false,
           message:

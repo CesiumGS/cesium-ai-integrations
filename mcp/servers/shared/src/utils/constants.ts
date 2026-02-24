@@ -62,7 +62,7 @@ export enum ResponseEmoji {
   Info = "info",
   Search = "search",
   Route = "route",
-  Location = "location"
+  Location = "location",
 }
 /* eslint-enable no-unused-vars */
 

@@ -166,3 +166,41 @@ export function getCameraViewRectangle(viewer: CesiumViewer): {
     north: Cesium.Math.toDegrees(rectangle.north),
   };
 }
+
+/**
+ * Fly camera to view a bounding box containing multiple positions
+ * @param viewer - The Cesium viewer
+ * @param positions - Array of positions to include in the view
+ * @param offsetMultiplier - Multiplier for the bounding box offset (default: 1.5)
+ * @param duration - Animation duration in seconds (default: 2)
+ */
+export function flyToBoundingBox(
+  viewer: CesiumViewer,
+  positions: Position[],
+  offsetMultiplier: number = 1.5,
+  duration: number = 2,
+): void {
+  if (!positions || positions.length === 0) {
+    return;
+  }
+
+  // Convert positions to Cartesian3
+  const cartesians = positions.map((pos) =>
+    createCartesian3(pos.longitude, pos.latitude, pos.height || 0),
+  );
+
+  // Create a bounding sphere from all positions
+  const boundingSphere = Cesium.BoundingSphere.fromPoints(cartesians);
+
+  // Calculate camera offset based on bounding sphere radius
+  const offset = new Cesium.HeadingPitchRange(
+    0,
+    toRadians(-45),
+    boundingSphere.radius * offsetMultiplier,
+  );
+
+  viewer.camera.flyToBoundingSphere(boundingSphere, {
+    offset,
+    duration,
+  });
+}

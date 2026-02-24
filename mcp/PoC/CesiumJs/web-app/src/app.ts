@@ -27,6 +27,10 @@ const config: CesiumAppConfig = {
       name: "Camera Server",
       port: parseInt(process.env.MCP_CAMERA_PORT || "3002"),
     },
+    {
+      name: "Geolocation Server",
+      port: parseInt(process.env.MCP_GEOLOCATION_PORT || "3005"),
+    },
   ],
 };
 
