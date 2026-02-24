@@ -16,7 +16,7 @@ import {
   HEARTBEAT_INTERVAL_MS,
   GRACEFUL_SHUTDOWN_TIMEOUT_MS,
   ServerDefaults,
-} from "../constants.js";
+} from "../utils/constants.js";
 
 /**
  * Interface for pending command promise handlers

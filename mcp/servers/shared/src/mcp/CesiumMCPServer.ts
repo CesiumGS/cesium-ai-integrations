@@ -10,7 +10,7 @@ import {
   MCPServerConfig,
   ToolRegistrationFunction,
 } from "../models/mcpServerConfig.js";
-import { MCP_PORT_OFFSET } from "../constants.js";
+import { MCP_PORT_OFFSET } from "../utils/constants.js";
 
 /**
  * Generic MCP Server class that handles common setup for all Cesium MCP servers
