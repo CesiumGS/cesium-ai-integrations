@@ -14,9 +14,21 @@ Camera control operations for 3D navigation and positioning in CesiumJS applicat
 
 #### 🌍 [cesium-entity-server](./servers/entity-server/README.md)
 
-Entity creation and management for 3D visualization in CesiumJS applications. Create and manage points, billboards, labels, 3D models, polygons, and polylines.
+Entity creation and management for 3D visualization in CesiumJS applications. Create and manage points, billboards, labels, 3D models, polygons, polylines, boxes, corridors, cylinders, ellipses, rectangles, and walls.
 
-**Tools:** `entity_add_point`, `entity_add_billboard`, `entity_add_label`, `entity_add_model`, `entity_add_polygon`, `entity_add_polyline`, `entity_list`, `entity_remove`
+**Tools:** `entity_add_point`, `entity_add_billboard`, `entity_add_label`, `entity_add_model`, `entity_add_polygon`, `entity_add_polyline`, `entity_add_box`, `entity_add_corridor`, `entity_add_cylinder`, `entity_add_ellipse`, `entity_add_rectangle`, `entity_add_wall`, `entity_list`, `entity_remove`
+
+#### 🎬 [cesium-animation-server](./servers/animation-server/README.md)
+
+Animation, path-based entity control, and clock management for CesiumJS applications. Animate 3D models along paths, control camera tracking, manage the global animation clock, and configure globe lighting.
+
+**Tools:** `animation_create`, `animation_control`, `animation_remove`, `animation_list_active`, `animation_update_path`, `animation_camera_tracking`, `clock_control`, `globe_set_lighting`
+
+#### 📍 [cesium-geolocation-server](./servers/geolocation-server/README.md)
+
+Geolocation-aware search and routing capabilities integrated with Google Maps APIs for 3D visualization in CesiumJS. Requires a Google Maps API key.
+
+**Tools:** `geolocation_search`, `geolocation_nearby`, `geolocation_route`, `geolocation_get_user_location`
 
 ### 🌐 External MCP Servers
 
@@ -47,6 +59,8 @@ pnpm run build              # Build all packages (shared, servers, PoC apps)
 pnpm run build:shared       # Shared utilities
 pnpm run build:camera       # Camera server
 pnpm run build:entity       # Entity server
+pnpm run build:animation    # Animation server
+pnpm run build:geolocation  # Geolocation server
 pnpm run build:poc          # PoC CesiumJs applications
 pnpm run clean              # Clean build artifacts
 ```
@@ -55,7 +69,8 @@ pnpm run clean              # Clean build artifacts
 
 ```bash
 pnpm run dev:camera       # Camera server (port 3002)
-pnpm run dev:entity       # Entity server (port 3004)
+pnpm run dev:animation    # Animation server (port 3006)
+pnpm run dev:geolocation  # Geolocation server (port 3005)
 ```
 
 ### Run PoC Applications
@@ -96,6 +111,27 @@ Add to your MCP client configuration file:
         "ENTITY_SERVER_PORT": "3003",
         "STRICT_PORT": "false"
       }
+    },
+    "cesium-animation": {
+      "command": "node",
+      "args": ["{YOUR_WORKSPACE}/mcp/servers/animation-server/build/index.js"],
+      "env": {
+        "COMMUNICATION_PROTOCOL": "websocket",
+        "ANIMATION_SERVER_PORT": "3006",
+        "STRICT_PORT": "false"
+      }
+    },
+    "cesium-geolocation": {
+      "command": "node",
+      "args": [
+        "{YOUR_WORKSPACE}/mcp/servers/geolocation-server/build/index.js"
+      ],
+      "env": {
+        "COMMUNICATION_PROTOCOL": "websocket",
+        "GEOLOCATION_SERVER_PORT": "3005",
+        "GOOGLE_MAPS_API_KEY": "your_api_key_here",
+        "STRICT_PORT": "false"
+      }
     }
   }
 }
@@ -117,7 +153,9 @@ mcp/
 ├── servers/
 │   ├── shared/              # Shared utilities (MCP base, communications)
 │   ├── camera-server/       # Camera control MCP server
-│   └── entity-server/       # Entity management MCP server
+│   ├── entity-server/       # Entity management MCP server
+│   ├── animation-server/    # Animation, clock, and lighting MCP server
+│   └── geolocation-server/  # Geolocation search and routing MCP server
 ├── PoC/CesiumJs/
 │   ├── packages/client-core/  # Shared client library
 │   └── web-app/              # Browser application (localhost:8080)

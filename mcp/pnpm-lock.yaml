@@ -79,6 +79,31 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  servers/animation-server:
+    dependencies:
+      '@cesium-mcp/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.26.0
+        version: 1.26.0(zod@4.3.6)
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.6.1
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+    devDependencies:
+      '@types/node':
+        specifier: ^25.2.2
+        version: 25.2.3
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   servers/camera-server:
     dependencies:
       '@cesium-mcp/shared':
@@ -105,6 +130,31 @@ importers:
         version: 5.9.3
 
   servers/entity-server:
+    dependencies:
+      '@cesium-mcp/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.26.0
+        version: 1.26.0(zod@4.3.6)
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.6.1
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+    devDependencies:
+      '@types/node':
+        specifier: ^25.2.2
+        version: 25.2.3
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  servers/geolocation-server:
     dependencies:
       '@cesium-mcp/shared':
         specifier: workspace:*

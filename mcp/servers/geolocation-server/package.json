@@ -1,0 +1,37 @@
+{
+  "name": "@cesium-mcp/geolocation-server",
+  "version": "1.0.0",
+  "description": "MCP server for geolocation search and routing with Google Maps integration",
+  "type": "module",
+  "main": "./build/index.js",
+  "bin": {
+    "cesium-geolocation-mcp": "./build/index.js"
+  },
+  "exports": {
+    ".": "./build/index.js",
+    "./schemas": "./build/schemas/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf build",
+    "dev": "tsx src/index.ts"
+  },
+  "keywords": [
+    "mcp",
+    "cesium",
+    "geolocation",
+    "3d"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@cesium-mcp/shared": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "dotenv": "^16.4.7",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
