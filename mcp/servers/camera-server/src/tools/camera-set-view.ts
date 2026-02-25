@@ -1,16 +1,17 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { ICommunicationServer } from "@cesium-mcp/shared";
 import {
   CameraSetViewInputSchema,
   CameraSetViewResponseSchema,
 } from "../schemas/index.js";
-import { DEFAULT_ORIENTATION, ResponseEmoji } from "../utils/constants.js";
+import { DEFAULT_ORIENTATION } from "../utils/constants.js";
 import {
   executeWithTiming,
   formatErrorMessage,
   buildSuccessResponse,
   buildErrorResponse,
-} from "../utils/utils.js";
+  ResponseEmoji,
+  ICommunicationServer,
+} from "@cesium-mcp/shared";
 
 export function registerCameraSetView(
   server: McpServer,

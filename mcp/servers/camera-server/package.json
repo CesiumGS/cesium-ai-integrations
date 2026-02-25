@@ -21,8 +21,7 @@
   ],
   "license": "Apache-2.0",
   "exports": {
-    ".": "./build/index.js",
-    "./tools/camera-tools": "./build/tools/camera-tools.js"
+    ".": "./build/index.js"
   },
   "dependencies": {
     "@cesium-mcp/shared": "workspace:*",

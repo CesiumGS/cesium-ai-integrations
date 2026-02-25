@@ -17,23 +17,3 @@ export const DEFAULT_LOOK_AT_OFFSET = {
 export const DEFAULT_ORBIT_SPEED = 0.005;
 
 export const TIMEOUT_BUFFER_MS = 2000;
-
-/* eslint-disable no-unused-vars */
-export enum ResponseEmoji {
-  Success = "success",
-  Error = "error",
-  Position = "position",
-  Orbit = "orbit",
-  Stop = "stop",
-  Settings = "settings",
-}
-/* eslint-enable no-unused-vars */
-
-export const RESPONSE_EMOJIS = {
-  [ResponseEmoji.Success]: "✅",
-  [ResponseEmoji.Error]: "❌",
-  [ResponseEmoji.Position]: "📍",
-  [ResponseEmoji.Orbit]: "🔄",
-  [ResponseEmoji.Stop]: "⏹️",
-  [ResponseEmoji.Settings]: "⚙️",
-} as const;
