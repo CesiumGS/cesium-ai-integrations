@@ -1,4 +1,8 @@
-import type { SearchInput, NearbySearchInput, Place } from "../schemas/index.js";
+import type {
+  SearchInput,
+  NearbySearchInput,
+  Place,
+} from "../schemas/index.js";
 
 /** Shape of a place object returned by the Google Places API (New) */
 interface GoogleApiPlace {

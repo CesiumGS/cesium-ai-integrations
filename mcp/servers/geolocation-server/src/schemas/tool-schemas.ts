@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { PositionSchema, PlaceTypeSchema, TravelModeSchema } from "./core-schemas.js";
+import {
+  PositionSchema,
+  PlaceTypeSchema,
+  TravelModeSchema,
+} from "./core-schemas.js";
 
 export const SearchInputSchema = z.object({
   query: z

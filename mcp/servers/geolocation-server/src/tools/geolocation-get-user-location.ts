@@ -49,9 +49,7 @@ export function registerGeolocationGetUserLocation(
           };
         }
 
-        throw new Error(
-          (result.error as string) || "Failed to get location",
-        );
+        throw new Error((result.error as string) || "Failed to get location");
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : "Unknown error";
