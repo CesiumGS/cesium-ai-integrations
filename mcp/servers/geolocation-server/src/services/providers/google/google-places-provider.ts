@@ -89,30 +89,18 @@ export class GooglePlacesProvider implements IPlacesProvider {
         requestBody.regionCode = input.countryCode.toUpperCase();
       }
 
-      const response = await fetch(`${this.baseUrl}/places:searchText`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Goog-Api-Key": this.apiKey,
-          "X-Goog-FieldMask": `${this.fieldMask},places.viewport`,
-        },
-        body: JSON.stringify(requestBody),
-      });
+      // Use helper with custom field mask to include viewport for bounding box
+      const places = await this.makeGooglePlacesRequest(
+        "places:searchText",
+        requestBody,
+        `${this.fieldMask},places.viewport`,
+      );
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `Google Places API error: ${response.status} - ${errorText}`,
-        );
-      }
-
-      const data = (await response.json()) as GooglePlacesResponse;
-
-      if (!data.places || data.places.length === 0) {
+      if (!places || places.length === 0) {
         throw new Error(`No results found for address: ${input.address}`);
       }
 
-      const place = data.places[0];
+      const place = places[0];
       const result = this.transformToGeocodeResult(place);
 
       // Cache the result (as Place[] for compatibility)
@@ -201,11 +189,12 @@ export class GooglePlacesProvider implements IPlacesProvider {
         };
       }
 
-      const places = await this.makeGooglePlacesRequest(
+      const googlePlaces = await this.makeGooglePlacesRequest(
         "places:searchText",
         requestBody,
       );
 
+      const places = this.transformPlaces(googlePlaces);
       this.cacheManager.set(cacheKey, places);
       return places;
     } catch (error) {
@@ -216,17 +205,19 @@ export class GooglePlacesProvider implements IPlacesProvider {
 
   /**
    * Make a request to Google Places API
+   * Returns raw GooglePlace array for flexible transformation
    */
   private async makeGooglePlacesRequest(
     endpoint: string,
     requestBody: GoogleTextSearchRequestBody | GoogleNearbySearchRequestBody,
-  ): Promise<Place[]> {
+    customFieldMask?: string,
+  ): Promise<GooglePlace[]> {
     const response = await fetch(`${this.baseUrl}/${endpoint}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": this.apiKey,
-        "X-Goog-FieldMask": this.fieldMask,
+        "X-Goog-FieldMask": customFieldMask || this.fieldMask,
       },
       body: JSON.stringify(requestBody),
     });
@@ -239,7 +230,7 @@ export class GooglePlacesProvider implements IPlacesProvider {
     }
 
     const data = (await response.json()) as GooglePlacesResponse;
-    return this.transformPlaces(data.places || []);
+    return data.places || [];
   }
 
   /**

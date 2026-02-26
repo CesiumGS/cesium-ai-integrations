@@ -18,6 +18,18 @@ Entity creation and management for 3D visualization in CesiumJS applications. Cr
 
 **Tools:** `entity_add_point`, `entity_add_billboard`, `entity_add_label`, `entity_add_model`, `entity_add_polygon`, `entity_add_polyline`, `entity_list`, `entity_remove`
 
+#### 🎬 [cesium-animation-server](./servers/animation-server/README.md)
+
+Animation and path-based entity control for CesiumJS applications. Create animated entities along custom paths with precise timing, camera tracking, and clock management.
+
+**Tools:** `animation_create`, `animation_control`, `animation_remove`, `animation_list_active`, `animation_update_path`, `animation_camera_tracking`, `clock_control`, `globe_set_lighting`
+
+#### 🗺️ [cesium-geolocation-server](./servers/geolocation-server/README.md)
+
+Geolocation-aware search and routing capabilities with support for multiple providers (Google, Nominatim, Overpass, OSRM). Geocoding, POI search, route computation, and browser geolocation.
+
+**Tools:** `geolocation_geocode`, `geolocation_search`, `geolocation_route`, `geolocation_get_user_location`
+
 ### 🌐 External MCP Servers
 
 #### 📚 [cesium-context7](./servers/cesium-context7/README.md)
@@ -47,6 +59,8 @@ pnpm run build              # Build all packages (shared, servers, test applicat
 pnpm run build:shared       # Shared utilities
 pnpm run build:camera       # Camera server
 pnpm run build:entity       # Entity server
+pnpm run build:animation    # Animation server
+pnpm run build:geolocation  # Geolocation server
 pnpm run build:test-applications  # CesiumJS test applications
 pnpm run clean              # Clean build artifacts
 ```
@@ -56,6 +70,8 @@ pnpm run clean              # Clean build artifacts
 ```bash
 pnpm run dev:camera       # Camera server (port 3002)
 pnpm run dev:entity       # Entity server (port 3004)
+pnpm run dev:animation    # Animation server (port 3006)
+pnpm run dev:geolocation  # Geolocation server (port 3005)
 ```
 
 ### Run Test Applications
@@ -96,6 +112,24 @@ Add to your MCP client configuration file:
         "ENTITY_SERVER_PORT": "3003",
         "STRICT_PORT": "false"
       }
+    },
+    "cesium-animation": {
+      "command": "node",
+      "args": ["{YOUR_WORKSPACE}/mcp/servers/animation-server/build/index.js"],
+      "env": {
+        "COMMUNICATION_PROTOCOL": "websocket",
+        "ANIMATION_SERVER_PORT": "3006",
+        "STRICT_PORT": "false"
+      }
+    },
+    "cesium-geolocation": {
+      "command": "node",
+      "args": ["{YOUR_WORKSPACE}/mcp/servers/geolocation-server/build/index.js"],
+      "env": {
+        "COMMUNICATION_PROTOCOL": "websocket",
+        "GEOLOCATION_SERVER_PORT": "3005",
+        "STRICT_PORT": "false"
+      }
     }
   }
 }
@@ -117,7 +151,10 @@ mcp/
 ├── servers/
 │   ├── shared/              # Shared utilities (MCP base, communications)
 │   ├── camera-server/       # Camera control MCP server
-│   └── entity-server/       # Entity management MCP server
+│   ├── entity-server/       # Entity management MCP server
+│   ├── animation-server/    # Animation and path-based entity control MCP server
+│   ├── geolocation-server/  # Geolocation, geocoding, and routing MCP server
+│   └── cesium-context7/     # Documentation access via Context7 (external)
 ├── test-applications/cesium-js/
 │   ├── packages/client-core/  # Shared client library
 │   └── web-app/              # Browser application (localhost:8080)
