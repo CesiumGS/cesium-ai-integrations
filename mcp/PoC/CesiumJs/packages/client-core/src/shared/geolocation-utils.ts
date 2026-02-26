@@ -43,38 +43,6 @@ const PLACE_TYPE_COLORS: Record<string, string> = {
 };
 
 /**
- * Icon mappings for different place types
- */
-const PLACE_TYPE_ICONS: Record<string, string> = {
-  restaurant: "🍽️",
-  food: "🍽️",
-  cafe: "☕",
-  coffee: "☕",
-  bar: "🍺",
-  hotel: "🏨",
-  lodging: "🏨",
-  gym: "💪",
-  fitness: "💪",
-  hospital: "🏥",
-  health: "🏥",
-  pharmacy: "💊",
-  park: "🌳",
-  recreation: "🌳",
-  shopping: "🛍️",
-  mall: "🛍️",
-  store: "🏪",
-  bank: "🏦",
-  atm: "💰",
-  gas: "⛽",
-  fuel: "⛽",
-  airport: "✈️",
-  transit: "🚇",
-  station: "🚉",
-  museum: "🏛️",
-  library: "📚",
-};
-
-/**
  * Travel mode color mappings (Google Maps style)
  */
 const TRAVEL_MODE_COLORS: Record<TravelMode, string> = {
@@ -106,27 +74,6 @@ export function getPlaceColor(types?: PlaceType[]): Color {
 }
 
 /**
- * Get emoji icon for a place based on its type
- */
-export function getPlaceIcon(types?: PlaceType[]): string {
-  if (!types || types.length === 0) {
-    return "📍";
-  }
-
-  const type = types[0].toLowerCase();
-
-  // Find matching icon
-  for (const [key, icon] of Object.entries(PLACE_TYPE_ICONS)) {
-    if (type.includes(key)) {
-      return icon;
-    }
-  }
-
-  // Default icon
-  return "📍";
-}
-
-/**
  * Get color for a travel mode
  */
 export function getTravelModeColor(mode: TravelMode | string): Color {
@@ -142,26 +89,6 @@ export function getTravelModeColor(mode: TravelMode | string): Color {
 }
 
 /**
- * Get emoji icon for a travel mode
- */
-export function getTravelModeIcon(mode: TravelMode | string): string {
-  const normalizedMode = mode.toLowerCase();
-
-  switch (normalizedMode) {
-    case "driving":
-      return "🚗";
-    case "walking":
-      return "🚶";
-    case "cycling":
-      return "🚴";
-    case "transit":
-      return "🚌";
-    default:
-      return "🚗";
-  }
-}
-
-/**
  * Create a place marker configuration
  */
 export function createPlaceMarkerConfig(
@@ -170,13 +97,11 @@ export function createPlaceMarkerConfig(
   rating?: number,
 ): PlaceMarkerConfig {
   const color = getPlaceColor(types);
-  const icon = getPlaceIcon(types);
   const ratingText = rating ? ` ⭐${rating.toFixed(1)}` : "";
-  const labelText = `${icon} ${name}${ratingText}`;
+  const labelText = `${name}${ratingText}`;
 
   return {
     color,
-    icon,
     labelText,
   };
 }
@@ -209,16 +134,11 @@ export function formatDuration(seconds: number): string {
 /**
  * Format route summary
  */
-export function formatRouteSummary(
-  distance: number,
-  duration: number,
-  travelMode: TravelMode | string,
-): string {
-  const icon = getTravelModeIcon(travelMode);
+export function formatRouteSummary(distance: number, duration: number): string {
   const distanceStr = formatDistance(distance);
   const durationStr = formatDuration(duration);
 
-  return `${icon} ${distanceStr} • ${durationStr}`;
+  return `${distanceStr} • ${durationStr}`;
 }
 
 /**

@@ -1,76 +1,15 @@
-import { SearchInput, NearbySearchInput, Place } from "src/schemas/index.js";
-import type { IPlacesProvider } from "../../places-provider.interface.js";
-
-// Google Places API response types
-interface GoogleDisplayName {
-  text?: string;
-}
-
-interface GoogleLatLng {
-  latitude: number;
-  longitude: number;
-}
-
-interface GoogleOpeningHours {
-  openNow?: boolean;
-}
-
-interface GooglePhoto {
-  name: string;
-}
-
-interface GooglePlace {
-  id?: string;
-  displayName?: GoogleDisplayName;
-  name?: string;
-  formattedAddress?: string;
-  location?: GoogleLatLng;
-  types?: string[];
-  rating?: number;
-  userRatingCount?: number;
-  priceLevel?: number;
-  currentOpeningHours?: GoogleOpeningHours;
-  photos?: GooglePhoto[];
-}
-
-interface GooglePlacesResponse {
-  places: GooglePlace[];
-}
-
-interface GoogleTextSearchRequestBody {
-  textQuery: string;
-  maxResultCount: number;
-  locationBias?: {
-    circle: {
-      center: {
-        latitude: number;
-        longitude: number;
-      };
-      radius: number;
-    };
-  };
-}
-
-interface GoogleNearbySearchRequestBody {
-  maxResultCount: number;
-  locationRestriction: {
-    circle: {
-      center: {
-        latitude: number;
-        longitude: number;
-      };
-      radius: number;
-    };
-  };
-  includedTypes?: string[];
-  textQuery?: string;
-  minRating?: number;
-}
-
-interface CacheEntry<T> {
-  data: T;
-  timestamp: number;
-}
+import { SearchInput, GeocodeInput, Place } from "../../../schemas/index.js";
+import type {
+  IPlacesProvider,
+  GeocodeResult,
+} from "../../places-provider.interface.js";
+import { CacheManager } from "../cache-manager.js";
+import type {
+  GooglePlace,
+  GooglePlacesResponse,
+  GoogleTextSearchRequestBody,
+  GoogleNearbySearchRequestBody,
+} from "./google-api-types.js";
 
 /**
  * Google Places API Provider
@@ -88,11 +27,13 @@ interface CacheEntry<T> {
 export class GooglePlacesProvider implements IPlacesProvider {
   private apiKey: string;
   private baseUrl = "https://places.googleapis.com/v1";
-  private cache: Map<string, CacheEntry<Place[]>> = new Map();
-  private cacheDuration = 5 * 60 * 1000; // 5 minutes
+  private cacheManager: CacheManager<Place[]>;
+  private readonly fieldMask =
+    "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.rating,places.userRatingCount,places.priceLevel,places.currentOpeningHours,places.photos";
 
   constructor(apiKey?: string) {
     this.apiKey = apiKey || process.env.GOOGLE_MAPS_API_KEY || "";
+    this.cacheManager = new CacheManager<Place[]>(5 * 60 * 1000, 100, 20); // 5 minutes, max 100 entries, cleanup 20
     if (!this.apiKey) {
       console.error(
         "⚠️  Google Maps API key not set. Set GOOGLE_MAPS_API_KEY environment variable.",
@@ -112,6 +53,121 @@ export class GooglePlacesProvider implements IPlacesProvider {
   }
 
   /**
+   * Geocode an address or place name to coordinates
+   * Returns the single best matching location
+   */
+  async geocode(input: GeocodeInput): Promise<GeocodeResult> {
+    if (!this.isConfigured()) {
+      throw new Error(
+        "Google Maps API key not configured. Set GOOGLE_MAPS_API_KEY environment variable.",
+      );
+    }
+
+    const cacheKey = `geocode:${JSON.stringify(input)}`;
+    const cached = this.cacheManager.get(cacheKey);
+    if (cached && cached.length > 0) {
+      // Convert cached Place back to GeocodeResult
+      const place = cached[0];
+      return {
+        location: place.location,
+        displayName: place.name,
+        address: place.address,
+        placeId: place.id,
+        types: place.types,
+        // Note: boundingBox is not available from cached Place data
+      };
+    }
+
+    try {
+      const requestBody: GoogleTextSearchRequestBody = {
+        textQuery: input.address,
+        maxResultCount: 1,
+      };
+
+      // Add region bias if country code is provided
+      if (input.countryCode) {
+        requestBody.regionCode = input.countryCode.toUpperCase();
+      }
+
+      const response = await fetch(`${this.baseUrl}/places:searchText`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": this.apiKey,
+          "X-Goog-FieldMask": `${this.fieldMask},places.viewport`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `Google Places API error: ${response.status} - ${errorText}`,
+        );
+      }
+
+      const data = (await response.json()) as GooglePlacesResponse;
+
+      if (!data.places || data.places.length === 0) {
+        throw new Error(`No results found for address: ${input.address}`);
+      }
+
+      const place = data.places[0];
+      const result = this.transformToGeocodeResult(place);
+
+      // Cache the result (as Place[] for compatibility)
+      const placesForCache = this.transformPlaces([place]);
+      this.cacheManager.set(cacheKey, placesForCache);
+
+      return result;
+    } catch (error) {
+      console.error("Google Places geocode error:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Transform Google Place to GeocodeResult
+   */
+  private transformToGeocodeResult(place: GooglePlace): GeocodeResult {
+    const location = place.location || { latitude: 0, longitude: 0 };
+
+    const result: GeocodeResult = {
+      location: {
+        latitude: location.latitude || 0,
+        longitude: location.longitude || 0,
+        height: 0,
+      },
+      displayName: place.displayName?.text || place.name || "Unknown",
+      placeId: place.id,
+    };
+
+    if (place.formattedAddress) {
+      result.address = place.formattedAddress;
+    }
+
+    // Add bounding box from viewport if available
+    if (place.viewport) {
+      result.boundingBox = {
+        northeast: {
+          latitude: place.viewport.high?.latitude || 0,
+          longitude: place.viewport.high?.longitude || 0,
+        },
+        southwest: {
+          latitude: place.viewport.low?.latitude || 0,
+          longitude: place.viewport.low?.longitude || 0,
+        },
+      };
+    }
+
+    if (place.types) {
+      result.types = place.types;
+    }
+
+    return result;
+  }
+
+  /**
    * Text search for places
    */
   async searchPlaces(input: SearchInput): Promise<Place[]> {
@@ -122,7 +178,7 @@ export class GooglePlacesProvider implements IPlacesProvider {
     }
 
     const cacheKey = `search:${JSON.stringify(input)}`;
-    const cached = this.getFromCache(cacheKey);
+    const cached = this.cacheManager.get(cacheKey);
     if (cached) {
       return cached;
     }
@@ -145,28 +201,12 @@ export class GooglePlacesProvider implements IPlacesProvider {
         };
       }
 
-      const response = await fetch(`${this.baseUrl}/places:searchText`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Goog-Api-Key": this.apiKey,
-          "X-Goog-FieldMask":
-            "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.rating,places.userRatingCount,places.priceLevel,places.currentOpeningHours,places.photos",
-        },
-        body: JSON.stringify(requestBody),
-      });
+      const places = await this.makeGooglePlacesRequest(
+        "places:searchText",
+        requestBody,
+      );
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `Google Places API error: ${response.status} - ${errorText}`,
-        );
-      }
-
-      const data = (await response.json()) as GooglePlacesResponse;
-      const places = this.transformPlaces(data.places || []);
-
-      this.setCache(cacheKey, places);
+      this.cacheManager.set(cacheKey, places);
       return places;
     } catch (error) {
       console.error("Google Places search error:", error);
@@ -175,79 +215,31 @@ export class GooglePlacesProvider implements IPlacesProvider {
   }
 
   /**
-   * Nearby search for places
+   * Make a request to Google Places API
    */
-  async searchNearby(input: NearbySearchInput): Promise<Place[]> {
-    if (!this.isConfigured()) {
+  private async makeGooglePlacesRequest(
+    endpoint: string,
+    requestBody: GoogleTextSearchRequestBody | GoogleNearbySearchRequestBody,
+  ): Promise<Place[]> {
+    const response = await fetch(`${this.baseUrl}/${endpoint}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": this.apiKey,
+        "X-Goog-FieldMask": this.fieldMask,
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
       throw new Error(
-        "Google Maps API key not configured. Set GOOGLE_MAPS_API_KEY environment variable.",
+        `Google Places API error: ${response.status} - ${errorText}`,
       );
     }
 
-    const cacheKey = `nearby:${JSON.stringify(input)}`;
-    const cached = this.getFromCache(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
-    try {
-      const requestBody: GoogleNearbySearchRequestBody = {
-        maxResultCount: input.maxResults || 10,
-        locationRestriction: {
-          circle: {
-            center: {
-              latitude: input.location.latitude,
-              longitude: input.location.longitude,
-            },
-            radius: input.radius || 5000,
-          },
-        },
-      };
-
-      if (input.types && input.types.length > 0) {
-        requestBody.includedTypes = input.types;
-      }
-
-      if (input.keyword) {
-        requestBody.textQuery = input.keyword;
-      }
-
-      if (input.minRating) {
-        requestBody.minRating = input.minRating;
-      }
-
-      const response = await fetch(`${this.baseUrl}/places:searchNearby`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Goog-Api-Key": this.apiKey,
-          "X-Goog-FieldMask":
-            "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.rating,places.userRatingCount,places.priceLevel,places.currentOpeningHours,places.photos",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `Google Places API error: ${response.status} - ${errorText}`,
-        );
-      }
-
-      const data = (await response.json()) as GooglePlacesResponse;
-      let places = this.transformPlaces(data.places || []);
-
-      // Filter by openNow if specified
-      if (input.openNow) {
-        places = places.filter((p) => p.openNow === true);
-      }
-
-      this.setCache(cacheKey, places);
-      return places;
-    } catch (error) {
-      console.error("Google Places nearby search error:", error);
-      throw error;
-    }
+    const data = (await response.json()) as GooglePlacesResponse;
+    return this.transformPlaces(data.places || []);
   }
 
   /**
@@ -299,38 +291,9 @@ export class GooglePlacesProvider implements IPlacesProvider {
   }
 
   /**
-   * Get data from cache if not expired
-   */
-  private getFromCache(key: string): Place[] | null {
-    const cached = this.cache.get(key);
-    if (cached && Date.now() - cached.timestamp < this.cacheDuration) {
-      return cached.data;
-    }
-    this.cache.delete(key);
-    return null;
-  }
-
-  /**
-   * Set data in cache
-   */
-  private setCache(key: string, data: Place[]): void {
-    this.cache.set(key, { data, timestamp: Date.now() });
-
-    // Clean old entries if cache grows too large
-    if (this.cache.size > 100) {
-      const oldestKeys = Array.from(this.cache.entries())
-        .sort((a, b) => a[1].timestamp - b[1].timestamp)
-        .slice(0, 20)
-        .map(([key]) => key);
-
-      oldestKeys.forEach((key) => this.cache.delete(key));
-    }
-  }
-
-  /**
    * Clear all cached data
    */
   clearCache(): void {
-    this.cache.clear();
+    this.cacheManager.clear();
   }
 }

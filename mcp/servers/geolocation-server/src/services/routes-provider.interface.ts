@@ -1,4 +1,4 @@
-import { Position, Route, RouteInput } from "src/schemas/index.js";
+import { Position, Route, RouteInput } from "../schemas/index.js";
 
 /**
  * Interface for routing providers

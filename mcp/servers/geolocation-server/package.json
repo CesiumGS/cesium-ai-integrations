@@ -15,7 +15,9 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
-    "clean": "rimraf build"
+    "clean": "rimraf build",
+    "test:osm": "tsx test-osm-providers.ts",
+    "test:overpass": "tsx test-overpass-provider.ts"
   },
   "dependencies": {
     "@cesium-mcp/shared": "workspace:*",

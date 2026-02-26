@@ -3,8 +3,9 @@ import { z } from "zod";
 /**
  * Core schemas for geolocation services
  *
- * These schemas are provider-agnostic, supporting multiple geocoding and routing
- * services (Google, OSM/Nominatim, OSRM, etc.). See PROVIDERS.md for details.
+ * These schemas are provider-agnostic and define common data structures
+ * for geographic positions, place types, and travel modes.
+ * See PROVIDERS.md for details on available service providers.
  */
 
 /**
@@ -28,43 +29,43 @@ export const PositionSchema = z.object({
 });
 
 /**
- * Common place types - providers may support different subsets or additional types
+ * Common place types supported across different data sources
  */
 export const CommonPlaceTypes = [
   "restaurant",
   "cafe",
   "bar",
+  "pub",
   "gym",
   "hotel",
   "hospital",
   "pharmacy",
   "bank",
   "atm",
-  "gas_station",
+  "fuel",
   "parking",
-  "shopping_mall",
-  "store",
+  "mall",
+  "shop",
   "museum",
   "library",
   "park",
-  "tourist_attraction",
+  "attraction",
   "airport",
-  "transit_station",
+  "station",
 ] as const;
 
 /**
- * Place type schema - accepts any string to support provider-specific types
- * (e.g., Google's detailed taxonomy, OSM amenity types)
+ * Place type schema - accepts any string to support various taxonomies
  */
 export const PlaceTypeSchema = z
   .string()
   .min(1)
   .describe(
-    "Type of place to search for (e.g., restaurant, cafe, hotel). Supported types vary by provider.",
+    "Type of place to search for (e.g., restaurant, cafe, hotel, hospital, fuel, bank, pharmacy, museum, library, park)",
   );
 
 /**
- * Supported travel modes for routing (support varies by provider)
+ * Supported travel modes for routing
  */
 export const TravelModeSchema = z
   .enum(["driving", "walking", "cycling", "transit"])

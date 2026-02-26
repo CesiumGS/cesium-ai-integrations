@@ -19,11 +19,11 @@ const STRICT_PORT = process.env.STRICT_PORT === "true";
 async function main() {
   try {
     // Check configuration
-    const placesProvider = process.env.PLACES_PROVIDER || "google";
-    const routesProvider = process.env.ROUTES_PROVIDER || "google";
+    const placesProvider = process.env.PLACES_PROVIDER || "nominatim";
+    const routesProvider = process.env.ROUTES_PROVIDER || "osrm";
 
-    console.log(`\n📍 Places Provider: ${placesProvider}`);
-    console.log(`🗺️  Routes Provider: ${routesProvider}`);
+    console.error(`\n📍 Places Provider: ${placesProvider}`);
+    console.error(`🗺️  Routes Provider: ${routesProvider}`);
 
     if (
       (placesProvider === "google" || routesProvider === "google") &&
@@ -33,7 +33,8 @@ async function main() {
         "\n⚠️  GOOGLE_MAPS_API_KEY not set but Google provider selected.",
       );
       console.error("   Set GOOGLE_MAPS_API_KEY or use alternative providers:");
-      console.error("   - PLACES_PROVIDER=nominatim");
+      console.error("   - PLACES_PROVIDER=nominatim (geocoding)");
+      console.error("   - PLACES_PROVIDER=overpass (POI search)");
       console.error("   - ROUTES_PROVIDER=osrm");
     }
 

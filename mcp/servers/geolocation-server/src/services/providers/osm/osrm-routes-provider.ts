@@ -1,43 +1,16 @@
-import { Position, Route, RouteInput } from "src/schemas/index.js";
+import "dotenv/config";
+import { Position, Route, RouteInput } from "../../../schemas/index.js";
 import type { IRoutesProvider } from "../../routes-provider.interface.js";
-
-// OSRM API response types
-interface OSRMManeuver {
-  location?: [number, number]; // [longitude, latitude]
-  instruction?: string;
-}
-
-interface OSRMStep {
-  distance?: number;
-  duration?: number;
-  name?: string;
-  maneuver?: OSRMManeuver;
-}
-
-interface OSRMLeg {
-  distance?: number;
-  duration?: number;
-  steps?: OSRMStep[];
-}
-
-interface OSRMRoute {
-  distance?: number;
-  duration?: number;
-  geometry?: string;
-  legs?: OSRMLeg[];
-  weight_name?: string;
-}
-
-interface OSRMResponse {
-  code: string;
-  message?: string;
-  routes?: OSRMRoute[];
-}
-
-interface CacheEntry<T> {
-  data: T;
-  timestamp: number;
-}
+import { CacheManager } from "../cache-manager.js";
+import { decodePolyline } from "../polyline-utils.js";
+import { calculateBounds } from "../geospatial-utils.js";
+import { getUserAgent } from "./osm-utils.js";
+import type {
+  OSRMRoute,
+  OSRMResponse,
+  OSRMStep,
+  OSRMLeg,
+} from "./types/osrm-api-types.js";
 
 /**
  * OSRM (Open Source Routing Machine) Provider
@@ -48,26 +21,22 @@ interface CacheEntry<T> {
  * - Alternative routes
  * - Step-by-step instructions
  *
- * Limitations compared to Google Routes:
- * - No real-time traffic data
- * - No transit routing
- * - Less sophisticated route optimization
- * - Limited route customization (avoid tolls/highways/ferries not supported)
- *
  * Default: Uses public OSRM demo server (https://router.project-osrm.org)
  * For production: Set OSRM_SERVER_URL to your own OSRM instance
  */
 export class OSRMRoutesProvider implements IRoutesProvider {
   private baseUrl: string;
-  private cache: Map<string, CacheEntry<Route[]>> = new Map();
-  private cacheDuration = 60 * 60 * 1000; // 1 hour for routes
+  private cacheManager: CacheManager<Route[]>;
+  private userAgent: string;
 
   constructor(serverUrl?: string) {
     this.baseUrl =
       serverUrl ||
       process.env.OSRM_SERVER_URL ||
       "https://router.project-osrm.org";
-    console.log(`🗺️  OSRM Routes Provider using: ${this.baseUrl}`);
+    this.cacheManager = new CacheManager<Route[]>(60 * 60 * 1000, 50, 10); // 1 hour, max 50 entries, cleanup 10
+    this.userAgent = getUserAgent();
+    console.error(`🗺️  OSRM Routes Provider using: ${this.baseUrl}`);
   }
 
   /**
@@ -86,7 +55,7 @@ export class OSRMRoutesProvider implements IRoutesProvider {
    */
   async computeRoute(input: RouteInput): Promise<Route[]> {
     const cacheKey = `route:${JSON.stringify(input)}`;
-    const cached = this.getFromCache(cacheKey);
+    const cached = this.cacheManager.get(cacheKey);
     if (cached) {
       return cached;
     }
@@ -113,29 +82,19 @@ export class OSRMRoutesProvider implements IRoutesProvider {
 
       // Build query parameters
       const params = new URLSearchParams({
-        overview: "full",
-        geometries: "polyline",
-        steps: "true",
-        alternatives: input.alternatives ? "true" : "false",
+        overview: "full", // Return full geometry
+        geometries: "polyline", // Use polyline encoding (precision 5)
+        steps: "true", // Return turn-by-turn instructions
+        alternatives: input.alternatives ? "true" : "false", // Alternative routes
+        // Note: annotations=true would provide additional metadata (node IDs, per-segment data)
+        // but is not currently needed for basic routing
       });
-
-      // Note: OSRM doesn't support avoid options, traffic, or departure time
-      if (
-        input.avoidTolls ||
-        input.avoidHighways ||
-        input.avoidFerries ||
-        input.departureTime
-      ) {
-        console.warn(
-          "⚠️  OSRM does not support avoidTolls, avoidHighways, avoidFerries, or departureTime. These options are ignored.",
-        );
-      }
 
       const url = `${this.baseUrl}/route/v1/${profile}/${coordsString}?${params}`;
 
       const response = await fetch(url, {
         headers: {
-          "User-Agent": "CesiumJS-MCP-Server/1.0",
+          "User-Agent": this.userAgent,
         },
       });
 
@@ -155,7 +114,7 @@ export class OSRMRoutesProvider implements IRoutesProvider {
 
       const routes = this.transformRoutes(data.routes || []);
 
-      this.setCache(cacheKey, routes);
+      this.cacheManager.set(cacheKey, routes);
       return routes;
     } catch (error) {
       console.error("OSRM route computation error:", error);
@@ -185,16 +144,126 @@ export class OSRMRoutesProvider implements IRoutesProvider {
   }
 
   /**
+   * Build human-readable instruction from OSRM maneuver
+   */
+  private buildInstruction(
+    maneuverType?: string,
+    modifier?: string,
+    streetName?: string,
+    exit?: number,
+  ): string {
+    if (!maneuverType) {
+      return streetName || "Continue";
+    }
+
+    // Handle special maneuver types
+    switch (maneuverType) {
+      case "depart":
+        return `Head ${modifier || ""}`.trim();
+
+      case "arrive":
+        return "Arrive at destination";
+
+      case "roundabout":
+      case "rotary":
+        if (exit !== undefined) {
+          return `Take exit ${exit} at roundabout${streetName ? ` onto ${streetName}` : ""}`;
+        }
+        return `Enter roundabout${streetName ? ` onto ${streetName}` : ""}`;
+
+      case "roundabout turn":
+        return `At roundabout, turn ${modifier || ""}${streetName ? ` onto ${streetName}` : ""}`.trim();
+
+      case "merge":
+        return `Merge ${modifier || ""}${streetName ? ` onto ${streetName}` : ""}`.trim();
+
+      case "on ramp":
+      case "on_ramp":
+        return `Take ramp ${modifier || ""}${streetName ? ` onto ${streetName}` : ""}`.trim();
+
+      case "off ramp":
+      case "off_ramp":
+        return `Take exit ${modifier || ""}${streetName ? ` onto ${streetName}` : ""}`.trim();
+
+      case "fork":
+        return `At fork, keep ${modifier || ""}${streetName ? ` onto ${streetName}` : ""}`.trim();
+
+      case "end of road":
+        return `At end of road, turn ${modifier || ""}${streetName ? ` onto ${streetName}` : ""}`.trim();
+
+      case "use lane":
+        return `Use lane${streetName ? ` to continue on ${streetName}` : ""}`;
+
+      case "continue":
+        return `Continue ${modifier || ""}${streetName ? ` on ${streetName}` : ""}`.trim();
+
+      case "turn":
+        if (modifier === "straight") {
+          return `Continue straight${streetName ? ` on ${streetName}` : ""}`;
+        }
+        return `Turn ${modifier || ""}${streetName ? ` onto ${streetName}` : ""}`.trim();
+
+      case "new name":
+        return streetName
+          ? `Continue onto ${streetName}`
+          : "Continue on same road";
+
+      case "notification":
+        return streetName || "Continue";
+
+      default:
+        // Fallback for unknown maneuver types
+        if (modifier && streetName) {
+          return `${modifier} onto ${streetName}`;
+        } else if (streetName) {
+          return `Continue on ${streetName}`;
+        } else if (modifier) {
+          return `Go ${modifier}`;
+        }
+        return "Continue";
+    }
+  }
+
+  /**
    * Transform OSRM response to our Route schema
    */
   private transformRoutes(osrmRoutes: OSRMRoute[]): Route[] {
     return osrmRoutes.map((route) => {
       const legs = route.legs || [];
 
+      // Build route summary from leg summaries or major road names
+      let summary = "Route";
+      if (legs.length > 0) {
+        // Collect major road names from leg summaries
+        const summaries = legs
+          .map((leg) => leg.summary)
+          .filter((s) => s && s.trim().length > 0);
+
+        if (summaries.length > 0) {
+          summary = summaries.join(" → ");
+        } else {
+          // Fallback: collect unique road names from steps
+          const roadNames = new Set<string>();
+          legs.forEach((leg) => {
+            leg.steps?.forEach((step) => {
+              if (step.name && step.name.trim().length > 0) {
+                roadNames.add(step.name);
+              }
+            });
+          });
+
+          if (roadNames.size > 0) {
+            // Take up to 3 major road names
+            const majorRoads = Array.from(roadNames).slice(0, 3);
+            summary = majorRoads.join(", ");
+          }
+        }
+      }
+
       // Calculate bounds from waypoints
       const allCoords: Position[] = [];
-      legs.forEach((leg) => {
-        leg.steps?.forEach((step) => {
+      legs.forEach((leg: OSRMLeg) => {
+        leg.steps?.forEach((step: OSRMStep) => {
           if (step.maneuver?.location) {
             allCoords.push({
               longitude: step.maneuver.location[0],
@@ -205,15 +274,15 @@ export class OSRMRoutesProvider implements IRoutesProvider {
         });
       });
 
-      const bounds = this.calculateBounds(allCoords);
+      const bounds = calculateBounds(allCoords);
 
       const transformed: Route = {
-        summary: route.weight_name || "Route",
+        summary,
         distance: route.distance || 0,
         duration: route.duration || 0,
         polyline: route.geometry || "",
         bounds,
-        legs: legs.map((leg) => ({
+        legs: legs.map((leg: OSRMLeg) => ({
           distance: leg.distance || 0,
           duration: leg.duration || 0,
           startLocation: {
@@ -229,8 +298,13 @@ export class OSRMRoutesProvider implements IRoutesProvider {
             height: 0,
           },
           steps: leg.steps
-            ? leg.steps.map((step) => ({
-                instruction: step.maneuver?.instruction || step.name || "",
+            ? leg.steps.map((step: OSRMStep) => ({
+                instruction: this.buildInstruction(
+                  step.maneuver?.type,
+                  step.maneuver?.modifier,
+                  step.name,
+                  step.maneuver?.exit,
+                ),
                 distance: step.distance || 0,
                 duration: step.duration || 0,
               }))
@@ -243,116 +317,17 @@ export class OSRMRoutesProvider implements IRoutesProvider {
   }
 
   /**
-   * Calculate bounding box from coordinates
-   */
-  private calculateBounds(coords: Position[]): {
-    northeast: Position;
-    southwest: Position;
-  } {
-    if (coords.length === 0) {
-      return {
-        northeast: { latitude: 0, longitude: 0, height: 0 },
-        southwest: { latitude: 0, longitude: 0, height: 0 },
-      };
-    }
-
-    let minLat = coords[0].latitude;
-    let maxLat = coords[0].latitude;
-    let minLon = coords[0].longitude;
-    let maxLon = coords[0].longitude;
-
-    coords.forEach((coord) => {
-      minLat = Math.min(minLat, coord.latitude);
-      maxLat = Math.max(maxLat, coord.latitude);
-      minLon = Math.min(minLon, coord.longitude);
-      maxLon = Math.max(maxLon, coord.longitude);
-    });
-
-    return {
-      northeast: { latitude: maxLat, longitude: maxLon, height: 0 },
-      southwest: { latitude: minLat, longitude: minLon, height: 0 },
-    };
-  }
-
-  /**
    * Decode polyline string to coordinates
-   * Uses the same algorithm as Google (polyline5)
+   * Uses shared polyline decoder utility
    */
   decodePolyline(encoded: string): Position[] {
-    const positions: Position[] = [];
-    let index = 0;
-    let lat = 0;
-    let lng = 0;
-
-    while (index < encoded.length) {
-      let shift = 0;
-      let result = 0;
-      let byte: number;
-
-      do {
-        byte = encoded.charCodeAt(index++) - 63;
-        result |= (byte & 0x1f) << shift;
-        shift += 5;
-      } while (byte >= 0x20);
-
-      const deltaLat = result & 1 ? ~(result >> 1) : result >> 1;
-      lat += deltaLat;
-
-      shift = 0;
-      result = 0;
-
-      do {
-        byte = encoded.charCodeAt(index++) - 63;
-        result |= (byte & 0x1f) << shift;
-        shift += 5;
-      } while (byte >= 0x20);
-
-      const deltaLng = result & 1 ? ~(result >> 1) : result >> 1;
-      lng += deltaLng;
-
-      positions.push({
-        latitude: lat / 1e5,
-        longitude: lng / 1e5,
-        height: 0,
-      });
-    }
-
-    return positions;
-  }
-
-  /**
-   * Get data from cache if not expired
-   */
-  private getFromCache(key: string): Route[] | null {
-    const cached = this.cache.get(key);
-    if (cached && Date.now() - cached.timestamp < this.cacheDuration) {
-      return cached.data;
-    }
-    this.cache.delete(key);
-    return null;
-  }
-
-  /**
-   * Set data in cache
-   */
-  private setCache(key: string, data: Route[]): void {
-    this.cache.set(key, { data, timestamp: Date.now() });
-
-    // Clean old entries if cache grows too large
-    if (this.cache.size > 50) {
-      const oldestKeys = Array.from(this.cache.entries())
-        .sort((a, b) => a[1].timestamp - b[1].timestamp)
-        .slice(0, 10)
-        .map(([key]) => key);
-
-      oldestKeys.forEach((key) => this.cache.delete(key));
-    }
+    return decodePolyline(encoded);
   }
 
   /**
    * Clear all cached data
    */
   clearCache(): void {
-    this.cache.clear();
+    this.cacheManager.clear();
   }
 }

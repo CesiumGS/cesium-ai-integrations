@@ -1,8 +1,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { ICommunicationServer } from "@cesium-mcp/shared";
 import { ProviderFactory } from "../services/provider-factory.js";
+import { registerGeolocationGeocode } from "./geolocation-geocode.js";
 import { registerGeolocationSearch } from "./geolocation-search.js";
-import { registerGeolocationNearby } from "./geolocation-nearby.js";
 import { registerGeolocationRoute } from "./geolocation-route.js";
 import { registerGeolocationGetUserLocation } from "./geolocation-get-user-location.js";
 
@@ -17,16 +17,20 @@ export function registerGeolocationTools(
   communicationServer: ICommunicationServer | undefined,
 ): void {
   // Create provider instances based on configuration
-  const placesProvider = ProviderFactory.createPlacesProvider();
+  const geocodeProvider = ProviderFactory.createGeocodeProvider();
+  const searchProvider = ProviderFactory.createSearchProvider();
   const routesProvider = ProviderFactory.createRoutesProvider();
 
   // Print provider info
-  console.log(`📍 Places provider: ${placesProvider.getProviderName()}`);
-  console.log(`🗺️  Routes provider: ${routesProvider.getProviderName()}`);
+  console.error(`📍 Geocode provider: ${geocodeProvider.getProviderName()}`);
+  console.error(`🔍 Search provider: ${searchProvider.getProviderName()}`);
+  console.error(`🗺️  Routes provider: ${routesProvider.getProviderName()}`);
 
-  // Register tools that can work with or without visualization
-  registerGeolocationSearch(server, communicationServer, placesProvider);
-  registerGeolocationNearby(server, communicationServer, placesProvider);
+  // Register places tools (geocoding and search)
+  registerGeolocationGeocode(server, communicationServer, geocodeProvider);
+  registerGeolocationSearch(server, communicationServer, searchProvider);
+
+  // Register route tool
   registerGeolocationRoute(server, communicationServer, routesProvider);
 
   // Register browser-dependent tool only if communicationServer is available

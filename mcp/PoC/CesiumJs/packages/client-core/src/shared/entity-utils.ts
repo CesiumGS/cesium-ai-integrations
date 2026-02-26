@@ -16,6 +16,7 @@ import type {
   VerticalOrigin,
   HorizontalOrigin,
   Cartesian2,
+  PinBuilder,
 } from "cesium";
 
 // Type aliases for Cesium types
@@ -25,6 +26,7 @@ type CesiumLabelStyle = LabelStyle;
 type CesiumVerticalOrigin = VerticalOrigin;
 type CesiumHorizontalOrigin = HorizontalOrigin;
 type CesiumCartesian2 = Cartesian2;
+type CesiumPinBuilder = PinBuilder;
 
 /**
  * Options for creating a point entity
@@ -39,6 +41,21 @@ export interface PointEntityOptions {
   heightReference?: CesiumHeightReference;
   clampToGround?: boolean;
   label?: LabelGraphics.ConstructorOptions;
+}
+
+/**
+ * Options for creating a billboard pin entity
+ */
+export interface BillboardPinOptions {
+  id?: string;
+  name?: string;
+  color?: string | CesiumColor;
+  text?: string;
+  size?: number;
+  clampToGround?: boolean;
+  label?: LabelGraphics.ConstructorOptions;
+  scale?: number;
+  verticalOrigin?: CesiumVerticalOrigin;
 }
 
 /**
@@ -121,6 +138,66 @@ export function addPointEntity(
       heightReference: clampToGround
         ? Cesium.HeightReference.CLAMP_TO_GROUND
         : Cesium.HeightReference.NONE,
+    },
+    ...(label ? { label } : {}),
+  });
+
+  return entity;
+}
+
+// Singleton PinBuilder instance
+let pinBuilder: CesiumPinBuilder | null = null;
+
+/**
+ * Get or create a PinBuilder instance
+ */
+function getPinBuilder(): CesiumPinBuilder {
+  if (!pinBuilder) {
+    pinBuilder = new Cesium.PinBuilder();
+  }
+  return pinBuilder;
+}
+
+/**
+ * Add a billboard pin entity to the viewer
+ */
+export function addBillboardPinEntity(
+  viewer: CesiumViewer,
+  position: Position,
+  options: BillboardPinOptions = {},
+): Entity {
+  const {
+    id = `pin_${Date.now()}`,
+    name = "Pin",
+    color = "red",
+    text,
+    size = 48,
+    clampToGround = true,
+    label,
+    scale = 1.0,
+    verticalOrigin = Cesium.VerticalOrigin.BOTTOM,
+  } = options;
+
+  const builder = getPinBuilder();
+  const pinColor = parseColor(color);
+
+  // Create pin image - use text if provided, otherwise color-only pin
+  const pinImage = text
+    ? builder.fromText(text, pinColor, size)
+    : builder.fromColor(pinColor, size);
+
+  const entity = viewer.entities.add({
+    id,
+    name,
+    position: positionToCartesian3(position),
+    billboard: {
+      image: pinImage,
+      verticalOrigin,
+      scale,
+      heightReference: clampToGround
+        ? Cesium.HeightReference.CLAMP_TO_GROUND
+        : Cesium.HeightReference.NONE,
+      disableDepthTestDistance: Number.POSITIVE_INFINITY,
     },
     ...(label ? { label } : {}),
   });

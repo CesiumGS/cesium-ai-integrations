@@ -1,102 +1,13 @@
-import { Position, Route, RouteInput } from "src/schemas/index.js";
+import { Position, Route, RouteInput } from "../../../schemas/index.js";
 import type { IRoutesProvider } from "../../routes-provider.interface.js";
-
-// Google Routes API response types
-interface GoogleLatLng {
-  latitude: number;
-  longitude: number;
-}
-
-interface GoogleLocation {
-  latLng: GoogleLatLng;
-}
-
-interface GoogleViewport {
-  low?: GoogleLatLng;
-  high?: GoogleLatLng;
-}
-
-interface GoogleNavigationInstruction {
-  instructions?: string;
-}
-
-interface GoogleStep {
-  distanceMeters?: number;
-  staticDuration?: string;
-  navigationInstruction?: GoogleNavigationInstruction;
-}
-
-interface GoogleLeg {
-  distanceMeters?: number;
-  duration?: string;
-  startLocation?: GoogleLocation;
-  endLocation?: GoogleLocation;
-  steps?: GoogleStep[];
-}
-
-interface GooglePolyline {
-  encodedPolyline?: string;
-}
-
-interface GoogleTravelAdvisory {
-  duration?: string;
-}
-
-interface GoogleRoute {
-  distanceMeters?: number;
-  duration?: string;
-  polyline?: GooglePolyline;
-  legs?: GoogleLeg[];
-  viewport?: GoogleViewport;
-  warnings?: string[];
-  description?: string;
-  travelAdvisory?: GoogleTravelAdvisory;
-}
-
-interface GoogleRoutesResponse {
-  routes: GoogleRoute[];
-}
-
-interface GoogleRouteRequestBody {
-  origin: {
-    location: {
-      latLng: {
-        latitude: number;
-        longitude: number;
-      };
-    };
-  };
-  destination: {
-    location: {
-      latLng: {
-        latitude: number;
-        longitude: number;
-      };
-    };
-  };
-  travelMode: string;
-  computeAlternativeRoutes: boolean;
-  routeModifiers: {
-    avoidTolls?: boolean;
-    avoidHighways?: boolean;
-    avoidFerries?: boolean;
-  };
-  routingPreference?: string;
-  intermediates?: Array<{
-    location: {
-      latLng: {
-        latitude: number;
-        longitude: number;
-      };
-    };
-  }>;
-  departureTime?: string;
-}
-
-interface CacheEntry<T> {
-  data: T;
-  timestamp: number;
-}
+import { CacheManager } from "../cache-manager.js";
+import { decodePolyline } from "../polyline-utils.js";
+import type {
+  GoogleLocation,
+  GoogleRoute,
+  GoogleRoutesResponse,
+  GoogleRouteRequestBody,
+} from "./google-api-types.js";
 
 /**
  * Google Routes API Provider
@@ -106,19 +17,17 @@ interface CacheEntry<T> {
  * - Real-time traffic data
  * - Multiple travel modes including transit
  * - Route optimization and alternatives
- * - Avoid tolls, highways, ferries
- * - Departure time support for traffic prediction
  *
  * Requires: GOOGLE_MAPS_API_KEY environment variable
  */
 export class GoogleRoutesProvider implements IRoutesProvider {
   private apiKey: string;
   private baseUrl = "https://routes.googleapis.com/directions/v2:computeRoutes";
-  private cache: Map<string, CacheEntry<Route[]>> = new Map();
-  private cacheDuration = 60 * 60 * 1000; // 1 hour for routes
+  private cacheManager: CacheManager<Route[]>;
 
   constructor(apiKey?: string) {
     this.apiKey = apiKey || process.env.GOOGLE_MAPS_API_KEY || "";
+    this.cacheManager = new CacheManager<Route[]>(60 * 60 * 1000, 50, 10); // 1 hour, max 50 entries, cleanup 10
     if (!this.apiKey) {
       console.error(
         "⚠️  Google Maps API key not set. Set GOOGLE_MAPS_API_KEY environment variable.",
@@ -148,7 +57,7 @@ export class GoogleRoutesProvider implements IRoutesProvider {
     }
 
     const cacheKey = `route:${JSON.stringify(input)}`;
-    const cached = this.getFromCache(cacheKey);
+    const cached = this.cacheManager.get(cacheKey);
     if (cached) {
       return cached;
     }
@@ -195,22 +104,6 @@ export class GoogleRoutesProvider implements IRoutesProvider {
         }));
       }
 
-      // Route modifiers
-      if (input.avoidTolls) {
-        requestBody.routeModifiers.avoidTolls = true;
-      }
-      if (input.avoidHighways) {
-        requestBody.routeModifiers.avoidHighways = true;
-      }
-      if (input.avoidFerries) {
-        requestBody.routeModifiers.avoidFerries = true;
-      }
-
-      // Departure time for traffic-aware routing
-      if (input.departureTime) {
-        requestBody.departureTime = input.departureTime;
-      }
-
       const response = await fetch(this.baseUrl, {
         method: "POST",
         headers: {
@@ -232,7 +125,7 @@ export class GoogleRoutesProvider implements IRoutesProvider {
       const data = (await response.json()) as GoogleRoutesResponse;
       const routes = this.transformRoutes(data.routes || []);
 
-      this.setCache(cacheKey, routes);
+      this.cacheManager.set(cacheKey, routes);
       return routes;
     } catch (error) {
       console.error("Google Routes computation error:", error);
@@ -336,83 +229,16 @@ export class GoogleRoutesProvider implements IRoutesProvider {
 
   /**
    * Decode polyline string to coordinates
-   * Uses Google's encoded polyline algorithm
+   * Uses shared polyline decoder utility
    */
   decodePolyline(encoded: string): Position[] {
-    const positions: Position[] = [];
-    let index = 0;
-    let lat = 0;
-    let lng = 0;
-
-    while (index < encoded.length) {
-      let shift = 0;
-      let result = 0;
-      let byte: number;
-
-      do {
-        byte = encoded.charCodeAt(index++) - 63;
-        result |= (byte & 0x1f) << shift;
-        shift += 5;
-      } while (byte >= 0x20);
-
-      const deltaLat = result & 1 ? ~(result >> 1) : result >> 1;
-      lat += deltaLat;
-
-      shift = 0;
-      result = 0;
-
-      do {
-        byte = encoded.charCodeAt(index++) - 63;
-        result |= (byte & 0x1f) << shift;
-        shift += 5;
-      } while (byte >= 0x20);
-
-      const deltaLng = result & 1 ? ~(result >> 1) : result >> 1;
-      lng += deltaLng;
-
-      positions.push({
-        latitude: lat / 1e5,
-        longitude: lng / 1e5,
-        height: 0,
-      });
-    }
-
-    return positions;
-  }
-
-  /**
-   * Get data from cache if not expired
-   */
-  private getFromCache(key: string): Route[] | null {
-    const cached = this.cache.get(key);
-    if (cached && Date.now() - cached.timestamp < this.cacheDuration) {
-      return cached.data;
-    }
-    this.cache.delete(key);
-    return null;
-  }
-
-  /**
-   * Set data in cache
-   */
-  private setCache(key: string, data: Route[]): void {
-    this.cache.set(key, { data, timestamp: Date.now() });
-
-    // Clean old entries if cache grows too large
-    if (this.cache.size > 50) {
-      const oldestKeys = Array.from(this.cache.entries())
-        .sort((a, b) => a[1].timestamp - b[1].timestamp)
-        .slice(0, 10)
-        .map(([key]) => key);
-
-      oldestKeys.forEach((key) => this.cache.delete(key));
-    }
+    return decodePolyline(encoded);
   }
 
   /**
    * Clear all cached data
    */
   clearCache(): void {
-    this.cache.clear();
+    this.cacheManager.clear();
   }
 }

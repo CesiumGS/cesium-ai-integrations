@@ -8,78 +8,74 @@ import {
 /**
  * Tool input schemas for geolocation operations
  *
- * Provider-specific parameters are documented to indicate support levels.
- * See PROVIDERS.md for detailed provider capabilities.
+ * These schemas define generic interfaces for location search and routing.
+ * See PROVIDERS.md for details on available service providers.
  */
 
 /**
- * Text search input for places
+ * Geocode input for address-to-coordinates conversion
+ * Use for: "What are the coordinates of X?", single landmarks, addresses
+ * NOT for: Finding multiple businesses/POIs by category (use SearchInputSchema)
+ * Best providers: Nominatim (free), Google (commercial)
+ */
+export const GeocodeInputSchema = z.object({
+  address: z
+    .string()
+    .min(1)
+    .describe(
+      "SINGLE address, landmark, or place name to convert to coordinates. " +
+        'Examples: "Empire State Building", "Eiffel Tower", "1600 Pennsylvania Avenue", "Tokyo, Japan". ' +
+        'Use this for "What are the coordinates of X?" queries. ' +
+        "DO NOT use for finding multiple businesses (use geolocation_search instead).",
+    ),
+  countryCode: z
+    .string()
+    .length(2)
+    .optional()
+    .describe(
+      "Optional two-letter country code to restrict search (e.g., 'US', 'GB', 'JP')",
+    ),
+});
+
+/**
+ * Text search input for POI (Point of Interest) search
+ * Use for: Finding MULTIPLE businesses/amenities by category or type
+ * Supports both general search and location-based (nearby) search
+ * NOT for: Single landmarks or "coordinates of X" queries (use GeocodeInputSchema)
+ * Best providers: Overpass (free, better POI data), Google (commercial, rich details)
  */
 export const SearchInputSchema = z.object({
   query: z
     .string()
     .min(1)
-    .describe('Search query (e.g., "pizza restaurants", "gyms near me")'),
+    .describe(
+      'Category or TYPE of places to find (e.g., "pizza restaurants", "gyms", "coffee shops", "hotels", "gas stations"). ' +
+        "Returns MULTIPLE places. " +
+        'DO NOT use for single landmarks like "Empire State Building" - use geolocation_geocode for those.',
+    ),
   location: PositionSchema.optional().describe(
-    "Center point for location-biased search",
+    "Center point for location-biased or nearby search. When combined with radius, performs a nearby search.",
   ),
   radius: z
     .number()
     .min(0)
     .max(50000)
     .optional()
-    .describe("Search radius in meters (max 50km, support varies by provider)"),
-  types: z
-    .array(PlaceTypeSchema)
-    .optional()
-    .describe("Filter by place types (support varies by provider)"),
-  maxResults: z
-    .number()
-    .min(1)
-    .max(20)
-    .default(10)
-    .describe("Maximum number of results"),
-});
-
-/**
- * Nearby places search input
- */
-export const NearbySearchInputSchema = z.object({
-  location: PositionSchema.describe("Center point for nearby search"),
-  radius: z
-    .number()
-    .min(0)
-    .max(50000)
-    .default(5000)
-    .describe("Search radius in meters (default 5km)"),
-  types: z
-    .array(PlaceTypeSchema)
-    .optional()
-    .describe("Filter by place types (support varies by provider)"),
-  keyword: z
-    .string()
-    .optional()
-    .describe('Keyword to filter results (e.g., "organic")'),
-  minRating: z
-    .number()
-    .min(0)
-    .max(5)
-    .optional()
     .describe(
-      "Minimum rating (0-5) - Provider-specific: Supported by Google, ignored by OSM/Nominatim",
+      "Search radius in meters (max 50km). When specified with location, restricts results to this distance (nearby search). When omitted, results are biased toward location but not restricted.",
     ),
-  openNow: z
-    .boolean()
+  types: z
+    .array(PlaceTypeSchema)
     .optional()
     .describe(
-      "Only return places open now - Provider-specific: Supported by Google, ignored by OSM/Nominatim",
+      "Filter by place types (e.g., restaurant, cafe, hotel, hospital). Supported types vary by data source.",
     ),
   maxResults: z
     .number()
     .min(1)
     .max(20)
     .default(10)
-    .describe("Maximum number of results"),
+    .describe("Maximum number of results to return"),
 });
 
 /**
@@ -91,36 +87,14 @@ export const RouteInputSchema = z.object({
   waypoints: z
     .array(PositionSchema)
     .optional()
-    .describe("Intermediate waypoints"),
+    .describe("Intermediate waypoints for multi-stop routes"),
   travelMode: TravelModeSchema.default("driving").describe(
-    "Travel mode (support varies by provider)",
+    "Travel mode: driving, walking, cycling, or transit",
   ),
-  avoidTolls: z
-    .boolean()
-    .optional()
-    .describe("Avoid toll roads - Provider-specific: Google only"),
-  avoidHighways: z
-    .boolean()
-    .optional()
-    .describe("Avoid highways - Provider-specific: Google only"),
-  avoidFerries: z
-    .boolean()
-    .optional()
-    .describe("Avoid ferries - Provider-specific: Google only"),
-  departureTime: z
-    .string()
-    .optional()
-    .describe(
-      "Departure time in ISO 8601 format - Provider-specific: Google only",
-    ),
-  trafficModel: z
-    .enum(["best_guess", "pessimistic", "optimistic"])
-    .optional()
-    .describe("Traffic prediction model - Provider-specific: Google only"),
   alternatives: z
     .boolean()
     .default(false)
-    .describe("Return alternative routes"),
+    .describe("Return alternative routes when available"),
 });
 
 /**
@@ -150,7 +124,7 @@ export const VisualizationOptionsSchema = z.object({
 });
 
 // Export inferred types
+export type GeocodeInput = z.infer<typeof GeocodeInputSchema>;
 export type SearchInput = z.infer<typeof SearchInputSchema>;
-export type NearbySearchInput = z.infer<typeof NearbySearchInputSchema>;
 export type RouteInput = z.infer<typeof RouteInputSchema>;
 export type VisualizationOptions = z.infer<typeof VisualizationOptionsSchema>;

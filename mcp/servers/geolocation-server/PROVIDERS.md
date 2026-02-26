@@ -6,19 +6,20 @@ This document outlines the capabilities and limitations of different geolocation
 
 ### Places Search Providers
 
-| Feature               | Google Places API  | Nominatim (OSM) |
-| --------------------- | ------------------ | --------------- |
-| **API Key Required**  | ✅ Yes             | ❌ No           |
-| **Cost**              | Paid (per request) | Free            |
-| **Rate Limiting**     | Generous           | 1 req/sec       |
-| **Address Geocoding** | ✅ Excellent       | ✅ Good         |
-| **POI Database**      | ✅ Comprehensive   | ⚠️ Limited      |
-| **Place Ratings**     | ✅ Yes             | ❌ No           |
-| **User Reviews**      | ✅ Yes             | ❌ No           |
-| **Opening Hours**     | ✅ Yes             | ❌ No           |
-| **Photos**            | ✅ Yes             | ❌ No           |
-| **Price Levels**      | ✅ Yes             | ❌ No           |
-| **Real-time Data**    | ✅ Yes             | ❌ No           |
+| Feature               | Google Places API  | Nominatim (OSM) | Overpass API (OSM) |
+| --------------------- | ------------------ | --------------- | ------------------ |
+| **API Key Required**  | ✅ Yes             | ❌ No           | ❌ No              |
+| **Cost**              | Paid (per request) | Free            | Free               |
+| **Rate Limiting**     | Generous           | 1 req/sec       | ~2 req/sec         |
+| **Address Geocoding** | ✅ Excellent       | ✅ Good         | ⚠️ Limited         |
+| **POI Database**      | ✅ Comprehensive   | ⚠️ Limited      | ✅ Good            |
+| **Place Ratings**     | ✅ Yes             | ❌ No           | ❌ No              |
+| **User Reviews**      | ✅ Yes             | ❌ No           | ❌ No              |
+| **Opening Hours**     | ✅ Yes             | ❌ No           | ❌ No              |
+| **Photos**            | ✅ Yes             | ❌ No           | ❌ No              |
+| **Price Levels**      | ✅ Yes             | ❌ No           | ❌ No              |
+| **Real-time Data**    | ✅ Yes             | ❌ No           | ❌ No              |
+| **Best Use Case**     | Rich business data | Geocoding       | POI search         |
 
 ### Routing Providers
 
@@ -59,7 +60,12 @@ Google supports a comprehensive taxonomy of place types. See [Google's documenta
 
 **Configuration:**
 
-- No configuration required
+- No API key required
+- **Recommended**: Set `OSM_USER_AGENT` environment variable
+  - Format: `"ApplicationName/Version (contact@example.com)"`
+  - Required by [Nominatim's usage policy](https://operations.osmfoundation.org/policies/nominatim/)
+  - Should include contact information (email or website)
+  - Example: `OSM_USER_AGENT="MyApp/1.0 (contact@example.com)"`
 - Uses public OSM data
 - Respects usage policy (1 request/second)
 
@@ -87,6 +93,61 @@ Nominatim uses OSM's tagging system. Common amenity types include:
 - No photos or price levels
 - Limited POI data compared to commercial services
 - Stricter rate limiting (1 req/sec for free tier)
+
+### Overpass API (OpenStreetMap)
+
+**Configuration:**
+
+- No API key required
+- **Recommended**: Set `OSM_USER_AGENT` environment variable
+  - Format: `"ApplicationName/Version (contact@example.com)"`
+  - Should include contact information (email or website)
+  - Example: `OSM_USER_AGENT="MyApp/1.0 (contact@example.com)"`
+- Optional: Set `OVERPASS_SERVER_URL` for custom instance
+  - Default: `https://overpass-api.de/api/interpreter` (public instance)
+  - Self-hosting recommended for production: https://github.com/drolbr/Overpass-API
+- Enable with `PLACES_PROVIDER=overpass`
+- Respects usage policy (~2 requests/second recommended)
+
+**Supported Place Types:**
+Overpass uses OSM's full tagging system with direct queries. Supports all OSM tags including:
+
+- **Amenities**: `restaurant`, `cafe`, `bar`, `pub`, `hotel`, `hospital`, `pharmacy`, `bank`, `atm`, `fuel`, `parking`, `library`
+- **Shops**: `supermarket`, `convenience`, `clothes`, `bakery`, `mall`, `department_store`
+- **Tourism**: `museum`, `attraction`, `hotel`, `hostel`, `viewpoint`, `artwork`
+- **Leisure**: `park`, `playground`, `fitness_centre`, `sports_centre`, `swimming_pool`
+- See [OSM Map Features](https://wiki.openstreetmap.org/wiki/Map_Features) for complete list
+
+**Best Use Cases:**
+
+- POI searches (cafes, restaurants, shops)
+- "Near me" queries for businesses
+- Finding amenities within a specific area
+- Free, open-source projects needing better POI coverage than Nominatim
+- When self-hosting for unlimited queries
+
+**Advantages over Nominatim:**
+
+- ✅ Better POI search capabilities
+- ✅ More flexible querying (Overpass QL)
+- ✅ Direct access to OSM amenity database
+- ✅ Can self-host for unlimited queries
+- ✅ Better for finding businesses by type
+
+**Limitations:**
+
+- No ratings, reviews, or user-generated content
+- No opening hours or real-time availability
+- No photos or price levels
+- Slower than Nominatim for simple geocoding
+- More complex query language (handled by provider)
+- Public server rate limits (~2 req/sec recommended)
+- Less suitable for address/city geocoding than Nominatim
+
+**When to Use Overpass vs Nominatim:**
+
+- **Use Overpass**: "Find cafes near me", "restaurants in downtown", POI searches
+- **Use Nominatim**: "Get coordinates of Seattle", "123 Main St address lookup", city/landmark geocoding
 
 ### Google Routes API
 
@@ -121,8 +182,12 @@ Nominatim uses OSM's tagging system. Common amenity types include:
 
 **Configuration:**
 
-- No configuration required for public server
-- Set `OSRM_SERVER_URL` to use your own instance
+- No API key required
+- **Recommended**: Set `OSM_USER_AGENT` environment variable
+  - Format: `"ApplicationName/Version (contact@example.com)"`
+  - Best practice for identifying your application
+  - Example: `OSM_USER_AGENT="MyApp/1.0 (contact@example.com)"`
+- Set `OSRM_SERVER_URL` to use your own instance (optional)
 - Public server at `https://router.project-osrm.org`
 
 **Travel Modes:**
@@ -228,7 +293,7 @@ The schema is designed to be **provider-agnostic**, with clear documentation of 
 
 The architecture supports adding new providers. Potential candidates:
 
-- **Places:** MapBox, HERE, Azure Maps, OpenTripPlanner
+- **Places:** MapBox, HERE, Azure Maps, Foursquare, Pelias, Photon
 - **Routing:** Valhalla, GraphHopper, MapBox Directions, HERE Routing
 
 To add a new provider:

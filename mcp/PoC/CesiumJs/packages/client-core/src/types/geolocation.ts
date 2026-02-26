@@ -106,7 +106,6 @@ export interface UserLocation {
  */
 export interface PlaceMarkerConfig {
   color: Color; // Cesium.Color
-  icon: string; // Emoji or text
   labelText: string;
 }
 
@@ -140,4 +139,14 @@ export interface VisualizeRouteResult extends MCPCommandResult {
  */
 export interface ClearVisualizationResult extends MCPCommandResult {
   removedCount?: number;
+}
+
+/**
+ * Result from geocode location command
+ */
+export interface GeocodeLocationResult extends MCPCommandResult {
+  location?: Position;
+  displayName?: string;
+  address?: string;
+  entityCount?: number;
 }

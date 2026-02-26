@@ -21,15 +21,15 @@ import type {
   VisualizePlacesResult,
   VisualizeRouteResult,
   ClearVisualizationResult,
+  GeocodeLocationResult,
 } from "../types/geolocation.js";
 
 import {
-  addPointEntity,
   addPolylineEntity,
   removeEntitiesByIds,
   createLabelGraphics,
+  addBillboardPinEntity,
 } from "../shared/entity-utils.js";
-import { positionToCartesian3 } from "../shared/cesium-utils.js";
 import { flyToBoundingBox } from "../shared/camera-utils.js";
 import {
   createPlaceMarkerConfig,
@@ -45,6 +45,7 @@ class CesiumGeolocationManager implements ManagerInterface {
   private currentLocation: UserLocation | null = null;
   private routeEntityIds: string[] = [];
   private placeEntityIds: string[] = [];
+  private geocodeEntityIds: string[] = [];
   private readonly LOCATION_CACHE_MAX_AGE = 5 * 60 * 1000; // 5 minutes
 
   constructor(viewer: CesiumViewer) {
@@ -64,6 +65,10 @@ class CesiumGeolocationManager implements ManagerInterface {
     this.handlers.set("geolocation_search", this.visualizePlaces.bind(this));
     this.handlers.set("geolocation_nearby", this.visualizePlaces.bind(this));
     this.handlers.set("geolocation_route", this.visualizeRoute.bind(this));
+    this.handlers.set(
+      "geolocation_geocode",
+      this.visualizeGeocodedLocation.bind(this),
+    );
   }
 
   /**
@@ -166,6 +171,86 @@ class CesiumGeolocationManager implements ManagerInterface {
   }
 
   /**
+   * Visualize a geocoded location and fly to it
+   */
+  private async visualizeGeocodedLocation(
+    cmd: MCPCommand,
+  ): Promise<GeocodeLocationResult> {
+    console.log(
+      "📍 Geolocation Manager: visualizeGeocodedLocation called",
+      cmd,
+    );
+    try {
+      const location = cmd.location as Position | undefined;
+      const displayName = cmd.displayName as string | undefined;
+      const address = cmd.address as string | undefined;
+      const boundingBox = cmd.boundingBox as
+        | { northeast: Position; southwest: Position }
+        | undefined;
+
+      if (!location) {
+        return {
+          success: false,
+          error: "No location provided",
+          entityCount: 0,
+        };
+      }
+
+      // Clear previous geocode markers
+      removeEntitiesByIds(this.viewer, this.geocodeEntityIds);
+      this.geocodeEntityIds = [];
+
+      // Create a marker for the geocoded location using a map pin
+      const entityId = `geocode_${Date.now()}`;
+
+      const entity = addBillboardPinEntity(this.viewer, location, {
+        id: entityId,
+        name: displayName || "Geocoded Location",
+        color: "red",
+        size: 48,
+        label: createLabelGraphics(displayName || "Location", {
+          font: "18px sans-serif",
+          fillColor: "black",
+          outlineColor: "white",
+          outlineWidth: 2,
+          pixelOffset: new Cesium.Cartesian2(0, -40),
+        }),
+      });
+
+      this.geocodeEntityIds.push(entity.id);
+
+      // Fly to the location
+      // If boundingBox is available, fly to it. Otherwise, fly to the single location.
+      if (boundingBox) {
+        // Convert bounding box to array of positions for flyToBoundingBox
+        flyToBoundingBox(
+          this.viewer,
+          [boundingBox.northeast, boundingBox.southwest],
+          2.5,
+        );
+      } else {
+        // Fly to single location with appropriate height
+        flyToBoundingBox(this.viewer, [location], 1.5);
+      }
+
+      return {
+        success: true,
+        message: `Geocoded location: ${displayName || "Location"}${address ? ` (${address})` : ""}`,
+        entityCount: 1,
+        location,
+        displayName,
+        address,
+      };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+        entityCount: 0,
+      };
+    }
+  }
+
+  /**
    * Visualize multiple places on the map
    */
   private async visualizePlaces(
@@ -187,7 +272,7 @@ class CesiumGeolocationManager implements ManagerInterface {
       removeEntitiesByIds(this.viewer, this.placeEntityIds);
       this.placeEntityIds = [];
 
-      // Add markers for each place
+      // Add markers for each place using map pins
       for (const place of places) {
         const entityId = `place_${place.id}_${Date.now()}`;
 
@@ -198,22 +283,18 @@ class CesiumGeolocationManager implements ManagerInterface {
           place.rating,
         );
 
-        // Create point marker with label
-        const entity = this.viewer.entities.add({
+        // Create billboard pin marker with label
+        const entity = addBillboardPinEntity(this.viewer, place.location, {
           id: entityId,
           name: place.name,
-          position: positionToCartesian3(place.location),
-          point: {
-            pixelSize: 12,
-            color: markerConfig.color,
-            outlineColor: Cesium.Color.WHITE,
-            outlineWidth: 2,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          },
+          color: markerConfig.color,
+          size: 48,
           label: createLabelGraphics(markerConfig.labelText, {
-            fillColor: "red",
+            font: "18px sans-serif",
+            fillColor: "black",
             outlineColor: "white",
             outlineWidth: 2,
+            pixelOffset: new Cesium.Cartesian2(0, -40),
           }),
         });
 
@@ -315,25 +396,27 @@ class CesiumGeolocationManager implements ManagerInterface {
   }
 
   /**
-   * Add start and end markers for a route
+   * Add start and end markers for a route using map pins
    */
   private addRouteMarkers(route: Route, showLabels: boolean): void {
     const startPos = route.positions[0];
     const endPos = route.positions[route.positions.length - 1];
 
-    // Start marker (green)
-    const startEntity = addPointEntity(this.viewer, startPos, {
+    // Start marker (green pin with "S" text)
+    const startEntity = addBillboardPinEntity(this.viewer, startPos, {
       id: `route_start_${Date.now()}`,
       name: "Start",
-      pixelSize: 15,
       color: "green",
-      outlineColor: "white",
-      outlineWidth: 3,
+      text: "S",
+      size: 48,
       ...(showLabels
         ? {
-            label: createLabelGraphics("🚩 Start", {
-              fillColor: "white",
-              outlineColor: "black",
+            label: createLabelGraphics("Start", {
+              font: "18px sans-serif",
+              fillColor: "black",
+              outlineColor: "white",
+              outlineWidth: 2,
+              pixelOffset: new Cesium.Cartesian2(0, -40),
             }),
           }
         : {}),
@@ -341,19 +424,21 @@ class CesiumGeolocationManager implements ManagerInterface {
 
     this.routeEntityIds.push(startEntity.id);
 
-    // End marker (red)
-    const endEntity = addPointEntity(this.viewer, endPos, {
+    // End marker (red pin with "E" text)
+    const endEntity = addBillboardPinEntity(this.viewer, endPos, {
       id: `route_end_${Date.now()}`,
       name: "End",
-      pixelSize: 15,
       color: "red",
-      outlineColor: "white",
-      outlineWidth: 3,
+      text: "E",
+      size: 48,
       ...(showLabels
         ? {
-            label: createLabelGraphics("🏁 End", {
-              fillColor: "white",
-              outlineColor: "black",
+            label: createLabelGraphics("End", {
+              font: "18px sans-serif",
+              fillColor: "black",
+              outlineColor: "white",
+              outlineWidth: 2,
+              pixelOffset: new Cesium.Cartesian2(0, -40),
             }),
           }
         : {}),
@@ -367,11 +452,16 @@ class CesiumGeolocationManager implements ManagerInterface {
   private async clearVisualization(): Promise<ClearVisualizationResult> {
     try {
       // Remove all entities
-      const allEntityIds = [...this.routeEntityIds, ...this.placeEntityIds];
+      const allEntityIds = [
+        ...this.routeEntityIds,
+        ...this.placeEntityIds,
+        ...this.geocodeEntityIds,
+      ];
       const removedCount = removeEntitiesByIds(this.viewer, allEntityIds);
 
       this.routeEntityIds = [];
       this.placeEntityIds = [];
+      this.geocodeEntityIds = [];
 
       return {
         success: true,

@@ -1,15 +1,16 @@
 # 🌍 Cesium Geolocation MCP Server
 
-MCP server providing geolocation-aware search and routing capabilities with support for multiple providers (Google, Nominatim, OSRM) for 3D visualization in CesiumJS.
+MCP server providing geolocation-aware search and routing capabilities with support for multiple providers (Google, Nominatim, Overpass, OSRM) for 3D visualization in CesiumJS.
 
 ## ✨ Features
 
-- **Place Search**: Text-based and nearby search for places (restaurants, gyms, hotels, etc.)
+- **Geocoding**: Convert addresses and place names to coordinates ("Empire State Building" → lat/long)
+- **POI Search**: Find points of interest by type/category (restaurants, gyms, hotels, etc.) - supports both general and location-based (nearby) search
 - **Route Computation**: Multi-modal routing with traffic awareness (driving, walking, cycling, transit)
 - **Browser Geolocation**: Access user location for "near me" queries
 - **3D Visualization**: Automatic route polyline and place marker rendering on Cesium globe
-- **Multiple Providers**: Choose between Google, Nominatim, and OSRM backends
-- **Generic Schema**: Provider-agnostic API design that works with any geocoding/routing service
+- **Multiple Providers**: Choose between Google, Nominatim, Overpass, and OSRM backends
+- **Smart Provider Selection**: Each provider optimized for specific tasks (see provider capabilities below)
 
 ## 🔌 Provider Support
 
@@ -17,31 +18,51 @@ This server uses a **generic, provider-agnostic schema** that works with multipl
 
 ### 📍 Places Providers
 
-#### Google Places API ✨ (Default)
+#### Nominatim (OpenStreetMap) 🌍 (Default)
 
-- **Pros**: Full POI database, ratings, reviews, photos, opening hours, price levels
-- **Cons**: Requires API key, pay-per-use ($17-32/1K requests)
-- **Setup**: Set `GOOGLE_MAPS_API_KEY` environment variable
-
-#### Nominatim (OpenStreetMap) 🌍
-
-- **Pros**: Free, no API key required, good for geocoding and basic search
+- **Pros**: Free, no API key required, **excellent for geocoding** addresses and place names
 - **Cons**: Limited POI data, no ratings/hours/photos, rate limit (1 req/sec)
-- **Setup**: Set `PLACES_PROVIDER=nominatim`
+- **Best For**: **Geocoding** (address-to-coordinates), finding major landmarks and cities
+- **Supports**: ✅ Geocoding, ❌ POI Search (use Overpass instead)
+- **Setup**:
+  - Recommended: Set `OSM_USER_AGENT` environment variable (e.g., `"MyApp/1.0 (contact@example.com)"`)
+  - Required by Nominatim's usage policy to include contact information
+
+#### Overpass API (OpenStreetMap) 🆕
+
+- **Pros**: Free, no API key required, **excellent for POI search** (restaurants, cafes, shops)
+- **Cons**: Slower queries, no ratings/hours/photos, rate limit (recommend 2 sec/req), **NOT for geocoding**
+- **Best For**: **POI Search** - finding businesses, amenities, and points of interest
+- **Supports**: ✅ POI Search, ✅ Nearby Search, ❌ Geocoding (use Nominatim instead)
+- **Setup**:
+  - Set `PLACES_PROVIDER=overpass`
+  - Recommended: Set `OSM_USER_AGENT` environment variable
+  - Optional: Set `OVERPASS_SERVER_URL` for custom instance
+- **Note**: Will throw error if used for geocoding - automatically fall back to Nominatim
+
+#### Google Places API ✨
+
+- **Pros**: Full POI database, **excellent geocoding**, ratings, reviews, photos, opening hours, price levels
+- **Cons**: Requires API key, pay-per-use ($17-32/1K requests)
+- **Best For**: Production apps requiring rich business data, supports **both geocoding and POI search**
+- **Supports**: ✅ Geocoding, ✅ POI Search, ✅ Nearby Search, ✅ Rich Details
+- **Setup**: Set `GOOGLE_MAPS_API_KEY` environment variable and `PLACES_PROVIDER=google`
 
 ### 🛣️ Routes Providers
 
-#### Google Routes API ✨ (Default)
-
-- **Pros**: Real-time traffic, transit routing, avoid options (tolls/highways/ferries)
-- **Cons**: Requires API key, pay-per-use ($5-10/1K requests)
-- **Setup**: Set `GOOGLE_MAPS_API_KEY` environment variable
-
-#### OSRM (Open Source Routing Machine) 🌍
+#### OSRM (Open Source Routing Machine) 🌍 (Default)
 
 - **Pros**: Free, no API key required, good routing quality
 - **Cons**: No traffic data, no transit mode, no avoid options
-- **Setup**: Set `ROUTES_PROVIDER=osrm`
+- **Setup**:
+  - Recommended: Set `OSM_USER_AGENT` environment variable (e.g., `"MyApp/1.0 (contact@example.com)"`)
+  - Best practice for identifying your application to the OSRM public server
+
+#### Google Routes API ✨
+
+- **Pros**: Real-time traffic, transit routing, avoid options (tolls/highways/ferries)
+- **Cons**: Requires API key, pay-per-use ($5-10/1K requests)
+- **Setup**: Set `GOOGLE_MAPS_API_KEY` environment variable and `ROUTES_PROVIDER=google`
 
 > **📖 For detailed provider comparisons, capabilities, and limitations, see [PROVIDERS.md](./PROVIDERS.md)**
 
@@ -56,23 +77,41 @@ pnpm run build
 
 ### Prerequisites
 
-Choose your providers and set up authentication:
+The server works out-of-the-box with free providers (Nominatim + OSRM). For Google features, follow these steps:
 
-**Option 1: Google (Full Features)**
+**Option 1: Free/Open Source (Default - Nominatim)**
+
+- Places: Nominatim (default, no configuration needed)
+- Routes: OSRM (default, no configuration needed)
+- Recommended: Set `OSM_USER_AGENT` (e.g., `"MyApp/1.0 (your@email.com)"`)
+- **Best for**: **Geocoding** addresses and place names to coordinates
+- **Limited**: Basic POI search only (use Overpass for better POI results)
+
+**Option 2: Free/Open Source (Recommended - Hybrid)**
+
+- Places: Use **Nominatim for geocoding** + **Overpass for POI search** (auto-fallback)
+- Routes: OSRM (default)
+- Setup:
+  - `PLACES_PROVIDER=overpass` (will auto-fallback to Nominatim for geocoding)
+  - Optional: `OVERPASS_SERVER_URL=https://your-instance.com` (for custom server)
+  - Recommended: Set `OSM_USER_AGENT`
+- **Best for**: Finding businesses and POIs while still supporting address lookups
+- **Note**: Server automatically uses Nominatim for geocoding when Overpass is primary provider
+
+**Option 3: Google (Full Features)**
 
 1. Go to [GCP Console](https://console.cloud.google.com/)
 2. Enable "Places API (New)" and "Routes API"
 3. Create API key and restrict by HTTP referrers and API services
-4. Set environment variable: `GOOGLE_MAPS_API_KEY=your_api_key_here`
+4. Set environment variables:
+   - `GOOGLE_MAPS_API_KEY=your_api_key_here`
+   - `PLACES_PROVIDER=google`
+   - `ROUTES_PROVIDER=google`
 
-**Option 2: Free/Open Source**
+- **Best for**: Production apps with budget for rich data
 
-- For places: Use Nominatim (set `PLACES_PROVIDER=nominatim`)
-- For routes: Use OSRM (set `ROUTES_PROVIDER=osrm`)
-- No API keys required!
-
-**Option 3: Hybrid**
-Mix and match providers based on your needs (e.g., Nominatim for search, Google for routing with traffic)
+**Option 4: Hybrid**
+Mix and match providers based on your needs (e.g., Overpass for POI search, Google for routing with traffic)
 
 ### Running the Server
 
@@ -85,63 +124,107 @@ The server will start on port 3005 with WebSocket transport.
 
 ## 🛠️ Tools
 
-### 1. `geolocation_search`
+### 1. `geolocation_geocode` 🆕
 
-**Search for places by name or type**
+**Convert address or place name to coordinates (single location)**
 
-Performs text-based search to find locations, points of interest, or addresses matching your query.
+Geocodes an address or landmark name to geographic coordinates. Returns a **single best matching location**, not a list of places.
 
 **Capabilities:**
 
-- Text-based location search
-- Points of interest (POI) search by type (restaurants, hotels, gyms, etc.)
-- Address geocoding
+- Address to coordinates conversion
+- Landmark and place name lookup
+- City, state, country geocoding
+- Single result (best match)
 - Automatic 3D marker visualization on Cesium globe
-- Provider-specific enhancements (ratings, photos with Google)
+- Bounding box information
+
+**Best Providers:**
+
+- 🌍 Nominatim (free, excellent)
+- ✨ Google (commercial, very accurate)
+- ❌ Overpass (not supported - will error)
 
 **Input:**
 
-- `query`: Search text (e.g., "coffee shops", "Eiffel Tower", "123 Main St")
-- `location` (optional): Center location for biased results (longitude, latitude)
-- `radius` (optional): Search radius in meters (default: based on provider)
-- `maxResults` (optional): Maximum number of results to return
+- `address`: Address or place name (e.g., "Empire State Building", "1600 Pennsylvania Avenue", "Tokyo, Japan")
+- `countryCode` (optional): Two-letter country code to restrict search (e.g., "US", "GB", "JP")
+
+**Output:**
+
+- Single location with coordinates (latitude, longitude)
+- Display name and formatted address
+- Bounding box (if available)
+- Place ID and types
+- Visualization marker on Cesium globe
+
+**Example:**
+
+```
+"What are the coordinates of the Eiffel Tower?"
+"Geocode 1600 Pennsylvania Avenue"
+"Where is Tokyo Tower located?"
+```
+
+---
+
+### 2. `geolocation_search`
+
+**Search for Points of Interest (POIs) by type/category**
+
+Searches for multiple POIs (restaurants, hotels, gyms, etc.) matching your query. Returns a **list of places**, not just one location. Supports both general search and location-based (nearby) search.
+
+**Capabilities:**
+
+- POI search by type or category
+- Location-biased results
+- Nearby search (use location + radius parameters)
+- Multiple results
+- Type filtering (restaurant, cafe, hotel, etc.)
+- Automatic 3D marker visualization on Cesium globe
+- Provider-specific enhancements (ratings, photos with Google)
+
+**Best Providers:**
+
+- 🆕 Overpass (free, excellent for POIs)
+- ✨ Google (commercial, includes ratings/reviews/photos)
+- 🌍 Nominatim (basic support, better for geocoding)
+
+**Use When:**
+
+- Finding businesses: "coffee shops", "pizza restaurants", "hotels"
+- Searching amenities: "gas stations", "pharmacies", "gyms"
+- Looking for multiple options
+- Nearby searches: "gyms near Golden Gate Bridge", "restaurants within 2km"
+
+**DON'T Use For:**
+
+- Single address lookup (use `geolocation_geocode` instead)
+- Getting coordinates of a place (use `geolocation_geocode` instead)
+
+**Input:**
+
+- `query`: Search query describing type (e.g., "pizza restaurants", "gyms", "coffee shops")
+- `location` (optional): Center location for biased/nearby results (longitude, latitude)
+- `radius` (optional): Search radius in meters (when used with location, performs nearby search)
+- `types` (optional): Filter by place types array
+- `maxResults` (optional): Maximum number of results (default: 10)
 
 **Output:**
 
 - Array of matching places with coordinates
-- Place details (name, address, type)
+- Place details (name, address, types)
 - Provider-specific data (ratings, photos, hours when available)
 - Visualization markers on Cesium globe
 
----
+**Example:**
 
-### 2. `geolocation_nearby`
-
-**Find places within a radius of a location**
-
-Searches for places of specific types near a given location (e.g., "restaurants near me").
-
-**Capabilities:**
-
-- Proximity-based search
-- Place type filtering (restaurants, gas stations, hotels, etc.)
-- Radius-based filtering
-- Result ranking by distance or relevance
-- Automatic 3D marker visualization
-
-**Input:**
-
-- `location`: Center location (longitude, latitude)
-- `radius`: Search radius in meters
-- `placeType` (optional): Filter by place type (e.g., "restaurant", "hotel")
-- `maxResults` (optional): Maximum number of results
-
-**Output:**
-
-- Array of nearby places with coordinates
-- Distance from center point
-- Place details and provider-specific data
-- Visualization markers on Cesium globe
+```
+"Find coffee shops near downtown Seattle"
+"Search for Italian restaurants within 5km"
+"Show me all gyms in this area"
+"What gyms are near the Golden Gate Bridge?"
+```
 
 ---
 
@@ -262,19 +345,25 @@ Open Cline in VS Code and use natural language commands (see example queries bel
 
 Try these natural language queries with your AI client:
 
-### Basic Search
+### Geocoding (Address to Coordinates)
+
+```
+"What are the coordinates of the Empire State Building?"
+"Geocode 1600 Pennsylvania Avenue"
+"Where is the Eiffel Tower located?"
+"Find the latitude and longitude of Tokyo Tower"
+```
+
+### POI Search (Finding Businesses/Amenities)
 
 ```
 "Find coffee shops in Seattle"
-"Search for the Statue of Liberty"
+"Search for Italian restaurants near downtown"
+"Show me gyms within 2km"
+"Find gas stations nearby"
 "Show me hotels in downtown San Francisco"
-```
-
-### Nearby Search
-
-```
-"Find restaurants within 1 kilometer of Times Square"
 "What gyms are near the Golden Gate Bridge?"
+"Find restaurants within 1 kilometer of Times Square"
 "Show gas stations within 5 miles of my current location"
 ```
 
@@ -331,6 +420,7 @@ MCP_GEOLOCATION_PORT=3005
 ### API Keys
 
 - `GOOGLE_MAPS_API_KEY`: Required for Google providers
+- `OSM_USER_AGENT`: Recommended for Nominatim (format: `"AppName/Version (contact@email.com)"`)
 - `OSRM_SERVER_URL`: Optional custom OSRM server URL (default: public demo server)
 
 ### Server Configuration
