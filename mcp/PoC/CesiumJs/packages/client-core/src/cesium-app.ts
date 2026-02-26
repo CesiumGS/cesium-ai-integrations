@@ -7,6 +7,7 @@
 
 import type { CesiumViewer } from "./types/cesium-types.js";
 import CesiumCameraController from "./managers/camera-manager.js";
+import CesiumEntityManager from "./managers/entity-manager.js";
 import CesiumAnimationManager from "./managers/animation-manager.js";
 import { BaseCommunicationManager } from "./communications/base-communication.js";
 import SSECommunicationManager from "./communications/sse-communication.js";
@@ -109,6 +110,7 @@ export class CesiumApp {
 
     this.managers = [
       new CesiumCameraController(this.viewer),
+      new CesiumEntityManager(this.viewer),
       new CesiumAnimationManager(this.viewer),
     ];
   }

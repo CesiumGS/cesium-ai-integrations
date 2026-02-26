@@ -1,16 +1,17 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { ICommunicationServer } from "@cesium-mcp/shared";
 import {
   CameraLookAtTransformInputSchema,
   CameraLookAtTransformResponseSchema,
 } from "../schemas/index.js";
-import { DEFAULT_LOOK_AT_OFFSET, ResponseEmoji } from "../utils/constants.js";
+import { DEFAULT_LOOK_AT_OFFSET } from "../utils/constants.js";
 import {
   executeWithTiming,
   formatErrorMessage,
   buildSuccessResponse,
   buildErrorResponse,
-} from "../utils/utils.js";
+  ICommunicationServer,
+  ResponseEmoji,
+} from "@cesium-mcp/shared";
 
 export function registerCameraLookAtTransform(
   server: McpServer,

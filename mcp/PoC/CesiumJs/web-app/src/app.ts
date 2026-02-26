@@ -28,6 +28,10 @@ const config: CesiumAppConfig = {
       port: parseInt(process.env.MCP_CAMERA_PORT || "3002"),
     },
     {
+      name: "Entity Server",
+      port: parseInt(process.env.MCP_ENTITY_PORT || "3003"),
+    },
+    {
       name: "Animation Server",
       port: parseInt(process.env.MCP_ANIMATION_PORT || "3004"),
     },

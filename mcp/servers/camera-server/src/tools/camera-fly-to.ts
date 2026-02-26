@@ -1,20 +1,18 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { ICommunicationServer } from "@cesium-mcp/shared";
 import {
   CameraFlyToInputSchema,
   CameraFlyToResponseSchema,
 } from "../schemas/index.js";
-import {
-  DEFAULT_ORIENTATION,
-  TIMEOUT_BUFFER_MS,
-  ResponseEmoji,
-} from "../utils/constants.js";
+import { DEFAULT_ORIENTATION } from "../utils/constants.js";
 import {
   executeWithTiming,
   formatErrorMessage,
   buildSuccessResponse,
   buildErrorResponse,
-} from "../utils/utils.js";
+  TIMEOUT_BUFFER_MS,
+  ResponseEmoji,
+  ICommunicationServer,
+} from "@cesium-mcp/shared";
 
 export function registerCameraFlyTo(
   server: McpServer,

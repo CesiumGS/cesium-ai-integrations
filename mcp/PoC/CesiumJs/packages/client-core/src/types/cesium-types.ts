@@ -6,6 +6,7 @@ import type {
   HeadingPitchRoll,
   Matrix4,
   Rectangle,
+  RectangleGraphics,
   Color,
   Quaternion,
   JulianDate,
@@ -32,6 +33,9 @@ export type CesiumHeadingPitchRange = HeadingPitchRange;
 export type CesiumHeadingPitchRoll = HeadingPitchRoll;
 export type CesiumMatrix4 = Matrix4;
 export type CesiumRectangle = Rectangle;
+export type CesiumRectangleGraphics = RectangleGraphics;
+export type CesiumRectangleGraphicsOptions =
+  RectangleGraphics.ConstructorOptions;
 export type CesiumColor = Color;
 export type CesiumQuaternion = Quaternion;
 export type CesiumJulianDate = JulianDate;
@@ -76,11 +80,8 @@ export type CesiumCameraViewOptions = {
 
 export type CesiumLabelStyle = number;
 
-export type CesiumEntity = Entity;
 export type CesiumEntityOptions = Entity.ConstructorOptions;
-
 export type CesiumEntityCollection = EntityCollection;
-
 export type CesiumDataSource = DataSource;
 
 export type CesiumZoomTarget =
@@ -97,3 +98,4 @@ export type CesiumTimeline = Timeline;
 
 // CesiumViewer extends the native Cesium Viewer
 export type CesiumViewer = Viewer;
+export type CesiumEntity = Entity;

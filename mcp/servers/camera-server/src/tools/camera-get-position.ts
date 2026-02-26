@@ -1,14 +1,14 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { ICommunicationServer } from "@cesium-mcp/shared";
 import { CameraGetPositionResponseSchema } from "../schemas/index.js";
 import {
   executeWithTiming,
   formatErrorMessage,
   buildSuccessResponse,
   buildErrorResponse,
-  CameraPositionResult,
   ResponseEmoji,
-} from "../utils/index.js";
+  ICommunicationServer,
+} from "@cesium-mcp/shared";
+import type { CameraPositionResult } from "../utils/index.js";
 
 export function registerCameraGetPosition(
   server: McpServer,
