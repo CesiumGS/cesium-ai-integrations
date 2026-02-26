@@ -12,6 +12,12 @@ Camera control operations for 3D navigation and positioning in CesiumJS applicat
 
 **Tools:** `camera_fly_to`, `camera_set_view`, `camera_look_at_transform`, `camera_start_orbit`, `camera_stop_orbit`, `camera_get_position`, `camera_set_controller_options`
 
+#### 🌍 [cesium-entity-server](./servers/entity-server/README.md)
+
+Entity creation and management for 3D visualization in CesiumJS applications. Create and manage points, billboards, labels, 3D models, polygons, and polylines.
+
+**Tools:** `entity_add_point`, `entity_add_billboard`, `entity_add_label`, `entity_add_model`, `entity_add_polygon`, `entity_add_polyline`, `entity_list`, `entity_remove`
+
 ### 🌐 External MCP Servers
 
 #### 📚 [cesium-context7](./servers/cesium-context7/README.md)
@@ -37,10 +43,11 @@ pnpm run build
 ### Build Commands
 
 ```bash
-pnpm run build              # Build all packages (shared, camera server, PoC apps)
+pnpm run build              # Build all packages (shared, servers, test applications)
 pnpm run build:shared       # Shared utilities
 pnpm run build:camera       # Camera server
-pnpm run build:poc          # PoC CesiumJs applications
+pnpm run build:entity       # Entity server
+pnpm run build:test-applications  # CesiumJS test applications
 pnpm run clean              # Clean build artifacts
 ```
 
@@ -48,9 +55,10 @@ pnpm run clean              # Clean build artifacts
 
 ```bash
 pnpm run dev:camera       # Camera server (port 3002)
+pnpm run dev:entity       # Entity server (port 3004)
 ```
 
-### Run PoC Applications
+### Run Test Applications
 
 **Web Browser Client:**
 
@@ -79,6 +87,15 @@ Add to your MCP client configuration file:
         "CAMERA_SERVER_PORT": "3002",
         "STRICT_PORT": "false"
       }
+    },
+    "cesium-entity": {
+      "command": "node",
+      "args": ["{YOUR_WORKSPACE}/mcp/servers/entity-server/build/index.js"],
+      "env": {
+        "COMMUNICATION_PROTOCOL": "websocket",
+        "ENTITY_SERVER_PORT": "3003",
+        "STRICT_PORT": "false"
+      }
     }
   }
 }
@@ -98,37 +115,13 @@ Add to your MCP client configuration file:
 ```
 mcp/
 ├── servers/
-│   ├── shared/                    # Shared utilities
-│   │   ├── src/
-│   │   │   ├── communications/    # SSE and WebSocket servers
-│   │   │   ├── mcp/               # MCP server base classes
-│   │   │   ├── models/            # Configuration models
-│   │   │   └── index.ts           # Barrel exports
-│   │   └── package.json
-│   └── camera-server/             # Camera control MCP server
-│       ├── src/
-│       │   ├── tools/             # Camera control tools
-│       │   ├── schemas.ts         # Zod schemas
-│       │   └── index.ts           # Server entry point
-│       └── package.json
-├── PoC/
-│   └── CesiumJs/                  # Proof-of-concept applications
-│       ├── packages/
-│       │   └── client-core/       # Shared client library
-│       │       ├── src/
-│       │       │   ├── managers/  # Camera controller
-│       │       │   ├── communications/ # SSE and WebSocket clients
-│       │       │   ├── shared/    # Utility functions
-│       │       │   ├── types/     # TypeScript definitions
-│       │       │   ├── cesium-app.ts  # Main CesiumApp class
-│       │       │   └── index.ts   # Package exports
-│       │       └── package.json
-│       └── web-app/               # Browser web application
-│           ├── src/
-│           │   └── app.ts         # Browser UI initialization
-│           ├── index.html
-│           └── package.json
-└── package.json                   # Root package (workspaces)
+│   ├── shared/              # Shared utilities (MCP base, communications)
+│   ├── camera-server/       # Camera control MCP server
+│   └── entity-server/       # Entity management MCP server
+├── test-applications/cesium-js/
+│   ├── packages/client-core/  # Shared client library
+│   └── web-app/              # Browser application (localhost:8080)
+└── package.json              # pnpm workspace root
 ```
 
 ### Communication Flow
@@ -137,9 +130,9 @@ mcp/
 2. **MCP Server** ←→ **CesiumJS Client** via Server-Sent Events (SSE) or WebSocket
 3. **CesiumJS Client** renders 3D visualization in browser
 
-### PoC Applications
+### Test Applications
 
-The [PoC/CesiumJs](./PoC/CesiumJs/README.md) application demonstrates MCP server integrations:
+The [test-applications/cesium-js](./test-applications/cesium-js/README.md) application demonstrates MCP server integrations:
 
 - **Web App** - Browser-based 3D viewer on `http://localhost:8080`
 - **Shared Core Library** (`packages/client-core/`) - CesiumApp initialization, managers, and utilities

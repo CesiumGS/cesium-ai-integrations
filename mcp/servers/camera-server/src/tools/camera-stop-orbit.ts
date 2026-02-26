@@ -1,13 +1,13 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { ICommunicationServer } from "@cesium-mcp/shared";
 import { CameraOrbitResponseSchema } from "../schemas/index.js";
-import { ResponseEmoji } from "../utils/constants.js";
 import {
   executeWithTiming,
   formatErrorMessage,
   buildSuccessResponse,
   buildErrorResponse,
-} from "../utils/utils.js";
+  ResponseEmoji,
+  ICommunicationServer,
+} from "@cesium-mcp/shared";
 
 export function registerCameraStopOrbit(
   server: McpServer,

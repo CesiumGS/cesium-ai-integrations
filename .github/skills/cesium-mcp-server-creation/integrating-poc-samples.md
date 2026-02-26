@@ -1,6 +1,6 @@
-# Integrating MCP Servers with PoC Samples
+# Integrating MCP Servers with Test Applications
 
-This guide explains how to integrate a new Cesium MCP server with the CesiumJS PoC web application. It provides both a **streamlined checklist** for quick integration and **step-by-step instructions** with placeholder examples.
+This guide explains how to integrate a new Cesium MCP server with the CesiumJS test web application. It provides both a **streamlined checklist** for quick integration and **step-by-step instructions** with placeholder examples.
 
 ## Table of Contents
 
@@ -21,7 +21,7 @@ For experienced developers, here's a quick checklist:
 - ✅ Completed MCP server implementation
 - ✅ Server compiles and runs without errors
 - ✅ Tools and schemas are properly defined
-- ✅ PoC web application exists at `mcp/PoC/CesiumJs/`
+- ✅ Test web application exists at `mcp/test-applications/cesium-js/`
 
 ### Integration Steps
 1. ☐ Create manager in `client-core/src/managers/[feature]-manager.ts`
@@ -38,7 +38,7 @@ For experienced developers, here's a quick checklist:
 
 ## Architecture Overview
 
-The PoC application has a three-layer architecture:
+The test application has a three-layer architecture:
 
 ```
 Browser (web-app)
@@ -58,18 +58,18 @@ MCP Server ([feature]-server)
 ## Prerequisites
 
 - Completed MCP server from [Creating a New MCP Server](./creating-mcp-server.md)
-- PoC web application set up at `mcp/PoC/CesiumJs/`
+- Test web application set up at `mcp/test-applications/cesium-js/`
 - Server running and accessible on a specific port
 
 ---
 
 ## Detailed Integration Steps
 
-Follow these steps to integrate your MCP server with the PoC application.
+Follow these steps to integrate your MCP server with the test application.
 
 ## Step 1: Create a Manager in client-core
 
-**Location**: `mcp/PoC/CesiumJs/packages/client-core/src/managers/[feature]-manager.ts`
+**Location**: `mcp/test-applications/cesium-js/packages/client-core/src/managers/[feature]-manager.ts`
 
 Managers handle domain-specific operations and communication with MCP servers.
 
@@ -159,7 +159,7 @@ export default Cesium[Feature]Manager;
 
 ## Step 2: Register Manager in CesiumApp
 
-Update `mcp/PoC/CesiumJs/packages/client-core/src/cesium-app.ts`:
+Update `mcp/test-applications/cesium-js/packages/client-core/src/cesium-app.ts`:
 
 ### 1. Import the Manager
 
@@ -193,7 +193,7 @@ Locate the `initializeControllers()` method and add your manager to the array:
 
 ## Step 3: Export Manager from client-core
 
-Update `mcp/PoC/CesiumJs/packages/client-core/src/index.ts`:
+Update `mcp/test-applications/cesium-js/packages/client-core/src/index.ts`:
 
 ```typescript
 // Add to exports
@@ -205,7 +205,7 @@ export type { [FeatureType]Options } from "./managers/[feature]-manager.js";
 
 ## Step 4: Update Web App Configuration
 
-**Location**: `mcp/PoC/CesiumJs/web-app/src/app.ts`
+**Location**: `mcp/test-applications/cesium-js/web-app/src/app.ts`
 
 Add your new server to the `mcpServers` array:
 
@@ -254,7 +254,7 @@ MCP_TRANSPORT=stdio
 
 ### Client Configuration
 
-Update `mcp/PoC/CesiumJs/web-app/.env`:
+Update `mcp/test-applications/cesium-js/web-app/.env`:
 
 ```bash
 # Cesium Configuration
@@ -299,7 +299,7 @@ esbuild.build({
 ```bash
 # From mcp root
 pnpm install
-cd PoC/CesiumJs/packages/client-core && pnpm run build
+cd test-applications/cesium-js/packages/client-core && pnpm run build
 cd ../../web-app && pnpm run build
 ```
 
@@ -313,7 +313,7 @@ cd mcp/servers/[feature]-server
 pnpm run dev
 
 # Terminal 2: Web application
-cd mcp/PoC/CesiumJs/web-app
+cd mcp/test-applications/cesium-js/web-app
 pnpm run serve:dev
 ```
 
@@ -355,7 +355,7 @@ Call your MCP tool with appropriate parameters
 
 Start the web application:
 ```bash
-cd mcp/PoC/CesiumJs/web-app
+cd mcp/test-applications/cesium-js/web-app
 pnpm run serve:dev
 ```
 

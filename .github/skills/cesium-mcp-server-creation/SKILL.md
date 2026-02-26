@@ -1,6 +1,6 @@
 ---
 name: cesium-mcp-server-creation
-description: Comprehensive guide for creating new Cesium MCP servers and integrating them with PoC samples. Covers server architecture, tool registration, schema validation with Zod, communication protocols (SSE/WebSocket), and client integration patterns. Use when building new MCP servers for Cesium features like entities, animations, imagery, terrain, or other CesiumJS capabilities.
+description: Comprehensive guide for creating new Cesium MCP servers and integrating them with test applications. Covers server architecture, tool registration, schema validation with Zod, communication protocols (SSE/WebSocket), and client integration patterns. Use when building new MCP servers for Cesium features like entities, animations, imagery, terrain, or other CesiumJS capabilities.
 ---
 
 # Cesium MCP Server Creation Guide
@@ -25,7 +25,7 @@ This skill is organized into focused guides for different aspects of MCP server 
    - Dependencies and configuration
    - Building and testing
 
-3. **[Integrating with PoC Samples](./integrating-poc-samples.md)** - Complete guide for connecting servers to the PoC web app
+3. **[Integrating with Test Applications](./integrating-poc-samples.md)** - Complete guide for connecting servers to the test web app
    - Quick integration checklist
    - Manager creation (templates and examples)
    - CesiumApp configuration
@@ -38,7 +38,7 @@ This skill is organized into focused guides for different aspects of MCP server 
 Use this skill to:
 - Create new Cesium MCP servers for entities, camera, imagery, terrain, or other CesiumJS features
 - Add tools and schemas to existing servers
-- Integrate MCP servers with the PoC web application
+- Integrate MCP servers with the test web application
 - Understand the server architecture and reference implementation
 
 ## Quick Reference by Task
@@ -57,8 +57,8 @@ Use this skill to:
 - Dependencies and build configuration
 - Testing
 
-**I want to integrate a server with the PoC:**
-→ See [Integrating with PoC Samples](./integrating-poc-samples.md)
+**I want to integrate a server with the test application:**
+→ See [Integrating with Test Applications](./integrating-poc-samples.md)
 - Quick integration checklist
 - Manager creation (templates and examples)
 - CesiumApp configuration
@@ -71,7 +71,7 @@ Use this skill to:
 
 1. **Create Server**: Follow [Creating a New MCP Server](./creating-mcp-server.md) - covers setup, schemas, tools, and testing
 2. **Add Tools**: Use patterns from [Tool and Schema Patterns](./tool-and-schema-patterns.md) for defining schemas and implementing tools  
-3. **Integrate**: Follow [Integrating with PoC Samples](./integrating-poc-samples.md) - includes manager creation, configuration, and testing
+3. **Integrate**: Follow [Integrating with Test Applications](./integrating-poc-samples.md) - includes manager creation, configuration, and testing
    - Add your manager to the `managers` array in `cesium-app.ts` `initializeControllers()` method
    - Add your server to `mcpServers` array in `web-app/src/app.ts` (Step 4)
 
@@ -85,13 +85,13 @@ Each guide contains complete checklists and step-by-step instructions.
 
 - **[Tool and Schema Patterns](./tool-and-schema-patterns.md)** - Patterns for creating tools and schemas
 - **[Creating a New MCP Server](./creating-mcp-server.md)** - Complete server creation guide
-- **[Integrating with PoC Samples](./integrating-poc-samples.md)** - Complete integration guide with examples
+- **[Integrating with Test Applications](./integrating-poc-samples.md)** - Complete integration guide with examples
 
 ### Code References
 
 - [Camera Server README](../../mcp/servers/camera-server/README.md) - Reference implementation with complete documentation
 - [Shared Package](../../mcp/servers/shared/) - Base classes and utilities
-- [Client Core](../../mcp/PoC/CesiumJs/packages/client-core/) - Client library
+- [Client Core](../../mcp/test-applications/cesium-js/packages/client-core/) - Client library
 
 ### External Resources
 
@@ -103,4 +103,4 @@ Each guide contains complete checklists and step-by-step instructions.
 
 - **CesiumJS documentation**: Use the **cesium-context7 skill** for up-to-date API docs
 - **Architecture patterns**: Review camera-server implementation
-- **Integration examples**: Check client-core library and PoC web app
+- **Integration examples**: Check client-core library and test web app

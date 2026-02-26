@@ -11,7 +11,7 @@ export default [
       "**/node_modules/",
       "**/*.d.ts",
       "**/pnpm-lock.yaml",
-      "PoC/CesiumJs/web-app/index.html",
+      "test-applications/cesium-js/web-app/index.html",
     ],
   },
   {
@@ -56,13 +56,13 @@ export default [
       ],
     },
   },
-  // TypeScript configuration for PoC client-core (browser environment)
+  // TypeScript configuration for test application client-core (browser environment)
   ...[...tseslint.configs.recommended].map((config) => ({
     ...config,
-    files: ["PoC/CesiumJs/packages/client-core/**/*.ts"],
+    files: ["test-applications/cesium-js/packages/client-core/**/*.ts"],
   })),
   {
-    files: ["PoC/CesiumJs/packages/client-core/**/*.{ts,js}"],
+    files: ["test-applications/cesium-js/packages/client-core/**/*.{ts,js}"],
     ...configCesium.configs.browser,
     languageOptions: {
       ...configCesium.configs.browser.languageOptions,
@@ -83,14 +83,14 @@ export default [
       ],
     },
   },
-  // TypeScript configuration for PoC web-app (browser environment)
+  // TypeScript configuration for test application web-app (browser environment)
   ...[...tseslint.configs.recommended].map((config) => ({
     ...config,
-    files: ["PoC/CesiumJs/web-app/**/*.ts"],
+    files: ["test-applications/cesium-js/web-app/**/*.ts"],
   })),
   {
-    files: ["PoC/CesiumJs/web-app/**/*.{ts,js}"],
-    ignores: ["PoC/CesiumJs/web-app/**/*.config.cjs"],
+    files: ["test-applications/cesium-js/web-app/**/*.{ts,js}"],
+    ignores: ["test-applications/cesium-js/web-app/**/*.config.cjs"],
     ...configCesium.configs.browser,
     languageOptions: {
       ...configCesium.configs.browser.languageOptions,
@@ -111,9 +111,9 @@ export default [
       ],
     },
   },
-  // Config files in PoC (Node.js environment)
+  // Config files in test application (Node.js environment)
   {
-    files: ["PoC/CesiumJs/web-app/**/*.config.cjs"],
+    files: ["test-applications/cesium-js/web-app/**/*.config.cjs"],
     ...configCesium.configs.node,
     languageOptions: {
       ...configCesium.configs.node.languageOptions,
