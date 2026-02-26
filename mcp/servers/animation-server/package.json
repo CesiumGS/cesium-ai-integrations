@@ -1,0 +1,28 @@
+{
+  "name": "@cesium-mcp/animation-server",
+  "version": "1.0.0",
+  "description": "MCP server for Cesium animation, path-based entity control, and clock management",
+  "type": "module",
+  "main": "build/index.js",
+  "bin": {
+    "cesium-animation-mcp": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node build/index.js",
+    "clean": "rimraf build"
+  },
+  "dependencies": {
+    "@cesium-mcp/shared": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "dotenv": "^16.4.7",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "tsx": "^4.7.0",
+    "rimraf": "^5.0.0"
+  }
+}

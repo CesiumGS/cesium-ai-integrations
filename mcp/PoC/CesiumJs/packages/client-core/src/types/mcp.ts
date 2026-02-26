@@ -453,6 +453,17 @@ export interface CameraControllerOptions {
   enableLook?: boolean;
 }
 
+// Clock configuration types
+export interface ClockConfig {
+  startTime: string | JulianDate;
+  stopTime: string | JulianDate;
+  currentTime: string | JulianDate;
+  clockRange: string;
+  clockStep?: string;
+  multiplier?: number;
+  shouldAnimate?: boolean;
+}
+
 // Server configuration types
 export type Protocol = "sse" | "websocket";
 
@@ -460,4 +471,14 @@ export interface ServerConfig {
   name: string;
   port: number;
   protocol?: Protocol;
+}
+
+// Animation types
+export interface PositionSample extends Position {
+  time: string | JulianDate;
+}
+
+export interface AnimationState {
+  startTime: string | JulianDate;
+  stopTime: string | JulianDate;
 }

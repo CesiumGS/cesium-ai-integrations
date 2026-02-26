@@ -54,6 +54,12 @@ export enum ResponseEmoji {
   Orbit = "orbit",
   Stop = "stop",
   Settings = "settings",
+  Animation = "animation",
+  Play = "play",
+  Pause = "pause",
+  Speed = "speed",
+  Track = "track",
+  Info = "info",
 }
 /* eslint-enable no-unused-vars */
 
@@ -78,4 +84,10 @@ export const RESPONSE_EMOJIS = {
   [ResponseEmoji.Orbit]: "🔄",
   [ResponseEmoji.Stop]: "⏹️",
   [ResponseEmoji.Settings]: "⚙️",
+  [ResponseEmoji.Animation]: "🎬",
+  [ResponseEmoji.Play]: "▶️",
+  [ResponseEmoji.Pause]: "⏸️",
+  [ResponseEmoji.Speed]: "⚡",
+  [ResponseEmoji.Track]: "🎥",
+  [ResponseEmoji.Info]: "ℹ️",
 } as const;

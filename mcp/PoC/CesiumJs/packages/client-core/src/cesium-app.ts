@@ -8,6 +8,7 @@
 import type { CesiumViewer } from "./types/cesium-types.js";
 import CesiumCameraController from "./managers/camera-manager.js";
 import CesiumEntityManager from "./managers/entity-manager.js";
+import CesiumAnimationManager from "./managers/animation-manager.js";
 import { BaseCommunicationManager } from "./communications/base-communication.js";
 import SSECommunicationManager from "./communications/sse-communication.js";
 import WebSocketCommunicationManager from "./communications/websocket-communication.js";
@@ -91,8 +92,14 @@ export class CesiumApp {
   private enableGlobeLighting(): void {
     if (this.viewer?.scene?.globe) {
       this.viewer.scene.globe.enableLighting = true;
+      this.viewer.scene.globe.showGroundAtmosphere = true;
       this.viewer.scene.globe.dynamicAtmosphereLighting = true;
       this.viewer.scene.globe.dynamicAtmosphereLightingFromSun = true;
+    }
+    // Sky atmosphere dynamic lighting (CesiumJS 1.107+ API)
+    if (this.viewer?.scene?.atmosphere) {
+      this.viewer.scene.atmosphere.dynamicLighting =
+        Cesium.DynamicAtmosphereLightingType.SUNLIGHT;
     }
   }
 
@@ -104,6 +111,7 @@ export class CesiumApp {
     this.managers = [
       new CesiumCameraController(this.viewer),
       new CesiumEntityManager(this.viewer),
+      new CesiumAnimationManager(this.viewer),
     ];
   }
 

@@ -166,3 +166,10 @@ export function getCameraViewRectangle(viewer: CesiumViewer): {
     north: Cesium.Math.toDegrees(rectangle.north),
   };
 }
+
+/**
+ * Reset camera transform to world coordinates
+ */
+export function resetCameraTransform(viewer: CesiumViewer): void {
+  viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+}

@@ -12,6 +12,12 @@ import type {
   CesiumFixedFrameTransform,
   CesiumEasingFunction,
   CesiumJulianDate,
+  CesiumViewer,
+  CesiumRectangle,
+  CesiumMatrix4,
+  CesiumClockRange,
+  CesiumClockStep,
+  CesiumEntity,
 } from "../types/cesium-types.js";
 
 /**
@@ -206,4 +212,204 @@ export function parseEasingFunction(
     CesiumEasingFunction
   >;
   return easingFunctions[easingFunctionName];
+}
+
+/**
+ * Decimate array to max size while preserving start/end points
+ * Prevents memory issues from too many position samples
+ */
+export function decimateArray<T>(arr: T[], maxSize: number = 500): T[] {
+  if (arr.length <= maxSize) {
+    return arr;
+  }
+
+  const result: T[] = [arr[0]]; // Always include first
+  const step = (arr.length - 1) / (maxSize - 1);
+
+  for (let i = 1; i < maxSize - 1; i++) {
+    const index = Math.round(i * step);
+    result.push(arr[index]);
+  }
+
+  result.push(arr[arr.length - 1]); // Always include last
+  return result;
+}
+
+/**
+ * Get current time as Julian date
+ */
+export function getCurrentJulianDate(): CesiumJulianDate {
+  return Cesium.JulianDate.now() as CesiumJulianDate;
+}
+
+/**
+ * Create a Rectangle from an array of Cartesian3 positions
+ */
+export function createRectangleFromPositions(
+  positions: CesiumCartesian3[],
+): CesiumRectangle {
+  return Cesium.Rectangle.fromCartesianArray(positions);
+}
+
+/**
+ * Create an east-north-up transform at a position
+ */
+export function createEastNorthUpTransform(
+  position: CesiumCartesian3,
+): CesiumMatrix4 {
+  return Cesium.Transforms.eastNorthUpToFixedFrame(position);
+}
+
+/**
+ * Get entity type from entity object
+ */
+export function getEntityType(entity: CesiumEntity): string {
+  if (entity.point) {
+    return "point";
+  }
+  if (entity.label) {
+    return "label";
+  }
+  if (entity.polygon) {
+    return "polygon";
+  }
+  if (entity.polyline) {
+    return "polyline";
+  }
+  if (entity.billboard) {
+    return "billboard";
+  }
+  if (entity.model) {
+    return "model";
+  }
+  if (entity.ellipse) {
+    return "ellipse";
+  }
+  if (entity.rectangle) {
+    return "rectangle";
+  }
+  if (entity.wall) {
+    return "wall";
+  }
+  if (entity.cylinder) {
+    return "cylinder";
+  }
+  if (entity.box) {
+    return "box";
+  }
+  if (entity.corridor) {
+    return "corridor";
+  }
+  return "unknown";
+}
+
+/**
+ * Clamp a value between min and max
+ */
+export function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+/**
+ * Convert a ClockRange string to Cesium.ClockRange enum
+ */
+export function parseClockRange(range: string): CesiumClockRange {
+  switch (range) {
+    case "UNBOUNDED":
+      return Cesium.ClockRange.UNBOUNDED;
+    case "CLAMPED":
+      return Cesium.ClockRange.CLAMPED;
+    case "LOOP_STOP":
+      return Cesium.ClockRange.LOOP_STOP;
+    default:
+      return Cesium.ClockRange.LOOP_STOP;
+  }
+}
+
+/**
+ * Convert a ClockStep string to Cesium.ClockStep enum
+ */
+export function parseClockStep(step: string): CesiumClockStep {
+  switch (step) {
+    case "TICK_DEPENDENT":
+      return Cesium.ClockStep.TICK_DEPENDENT;
+    case "SYSTEM_CLOCK_MULTIPLIER":
+      return Cesium.ClockStep.SYSTEM_CLOCK_MULTIPLIER;
+    case "SYSTEM_CLOCK":
+      return Cesium.ClockStep.SYSTEM_CLOCK;
+    default:
+      return Cesium.ClockStep.SYSTEM_CLOCK_MULTIPLIER;
+  }
+}
+
+/**
+ * Set the clock multiplier (animation speed)
+ */
+export function setClockMultiplier(
+  viewer: CesiumViewer,
+  multiplier: number,
+): void {
+  viewer.clock.multiplier = multiplier;
+}
+
+/**
+ * Set whether the clock should animate
+ */
+export function setClockShouldAnimate(
+  viewer: CesiumViewer,
+  shouldAnimate: boolean,
+): void {
+  viewer.clock.shouldAnimate = shouldAnimate;
+}
+
+/**
+ * Set the current time on the clock
+ */
+export function setClockCurrentTime(
+  viewer: CesiumViewer,
+  time: string | JulianDate,
+): void {
+  viewer.clock.currentTime = parseJulianDate(time);
+}
+
+/**
+ * Configure clock with start/stop times and range
+ */
+export function configureClockTimes(
+  viewer: CesiumViewer,
+  startTime: string | JulianDate,
+  stopTime: string | JulianDate,
+  currentTime?: string | JulianDate,
+  clockRange?: string,
+): {
+  start: CesiumJulianDate;
+  stop: CesiumJulianDate;
+  current: CesiumJulianDate;
+} {
+  const start = parseJulianDate(startTime);
+  const stop = parseJulianDate(stopTime);
+  const current = currentTime ? parseJulianDate(currentTime) : start.clone();
+
+  viewer.clock.startTime = start.clone();
+  viewer.clock.stopTime = stop.clone();
+  viewer.clock.currentTime = current.clone();
+
+  if (clockRange) {
+    viewer.clock.clockRange = parseClockRange(clockRange);
+  }
+
+  return { start, stop, current };
+}
+
+/**
+ * Update timeline to match clock settings
+ */
+export function updateTimeline(
+  viewer: CesiumViewer,
+  startTime?: CesiumJulianDate,
+  stopTime?: CesiumJulianDate,
+): void {
+  if (viewer.timeline && startTime && stopTime) {
+    viewer.timeline.zoomTo(startTime, stopTime);
+  }
 }
