@@ -60,6 +60,9 @@ export enum ResponseEmoji {
   Speed = "speed",
   Track = "track",
   Info = "info",
+  Search = "search",
+  Route = "route",
+  Location = "location",
 }
 /* eslint-enable no-unused-vars */
 
@@ -90,4 +93,7 @@ export const RESPONSE_EMOJIS = {
   [ResponseEmoji.Speed]: "⚡",
   [ResponseEmoji.Track]: "🎥",
   [ResponseEmoji.Info]: "ℹ️",
+  [ResponseEmoji.Search]: "🔍",
+  [ResponseEmoji.Route]: "🛣️",
+  [ResponseEmoji.Location]: "📍",
 } as const;
