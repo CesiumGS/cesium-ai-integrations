@@ -124,7 +124,9 @@ Add to your MCP client configuration file:
     },
     "cesium-geolocation": {
       "command": "node",
-      "args": ["{YOUR_WORKSPACE}/mcp/servers/geolocation-server/build/index.js"],
+      "args": [
+        "{YOUR_WORKSPACE}/mcp/servers/geolocation-server/build/index.js"
+      ],
       "env": {
         "COMMUNICATION_PROTOCOL": "websocket",
         "GEOLOCATION_SERVER_PORT": "3005",
