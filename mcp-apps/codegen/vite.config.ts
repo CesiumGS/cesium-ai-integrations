@@ -3,11 +3,11 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 
 export default defineConfig({
   plugins: [viteSingleFile()],
-  root: 'src',
+  root: "src",
   build: {
     outDir: "../build",
     rollupOptions: {
-      input: '/mcp-app.html'
+      input: "/mcp-app.html",
     },
   },
 });
