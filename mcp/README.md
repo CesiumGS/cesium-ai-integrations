@@ -43,11 +43,11 @@ pnpm run build
 ### Build Commands
 
 ```bash
-pnpm run build              # Build all packages (shared, servers, PoC apps)
+pnpm run build              # Build all packages (shared, servers, test apps)
 pnpm run build:shared       # Shared utilities
 pnpm run build:camera       # Camera server
 pnpm run build:entity       # Entity server
-pnpm run build:poc          # PoC CesiumJs applications
+pnpm run build:cesium-js    # CesiumJS test application
 pnpm run clean              # Clean build artifacts
 ```
 
@@ -58,7 +58,7 @@ pnpm run dev:camera       # Camera server (port 3002)
 pnpm run dev:entity       # Entity server (port 3004)
 ```
 
-### Run PoC Applications
+### Run Test Applications
 
 **Web Browser Client:**
 

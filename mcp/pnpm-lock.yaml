@@ -43,42 +43,6 @@ importers:
         specifier: ^8.55.0
         version: 8.55.0(eslint@9.39.2)(typescript@5.9.3)
 
-  PoC/CesiumJs: {}
-
-  PoC/CesiumJs/packages/client-core:
-    devDependencies:
-      cesium:
-        specifier: ^1.112.0
-        version: 1.138.0
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  PoC/CesiumJs/web-app:
-    dependencies:
-      '@cesium-mcp/client-core':
-        specifier: workspace:*
-        version: link:../packages/client-core
-    devDependencies:
-      '@types/node':
-        specifier: ^25.2.2
-        version: 25.2.3
-      dotenv:
-        specifier: ^16.4.7
-        version: 16.6.1
-      esbuild:
-        specifier: ^0.27.3
-        version: 0.27.3
-      http-server:
-        specifier: ^14.1.1
-        version: 14.1.1
-      rimraf:
-        specifier: ^6.1.2
-        version: 6.1.2
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
   servers/animation-server:
     dependencies:
       '@cesium-mcp/shared':
@@ -184,6 +148,42 @@ importers:
       '@types/ws':
         specifier: ^8.18.1
         version: 8.18.1
+      rimraf:
+        specifier: ^6.1.2
+        version: 6.1.2
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  test-applications/cesium-js: {}
+
+  test-applications/cesium-js/packages/client-core:
+    devDependencies:
+      cesium:
+        specifier: ^1.112.0
+        version: 1.138.0
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  test-applications/cesium-js/web-app:
+    dependencies:
+      '@cesium-mcp/client-core':
+        specifier: workspace:*
+        version: link:../packages/client-core
+    devDependencies:
+      '@types/node':
+        specifier: ^25.2.2
+        version: 25.2.3
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.6.1
+      esbuild:
+        specifier: ^0.27.3
+        version: 0.27.3
+      http-server:
+        specifier: ^14.1.1
+        version: 14.1.1
       rimraf:
         specifier: ^6.1.2
         version: 6.1.2
