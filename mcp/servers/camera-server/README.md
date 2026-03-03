@@ -255,7 +255,7 @@ To see camera movements in real-time 3D:
 
 ```bash
 # Configure environment
-cd PoC/CesiumJs/web-app
+cd test-applications/cesium-js/web-app
 cp .env.example .env
 # Edit .env and add your Cesium Ion token from https://ion.cesium.com/tokens
 
@@ -318,7 +318,7 @@ Try these natural language queries with your AI client:
 
 ### Web Client Configuration
 
-Add to your `.env` file in `PoC/CesiumJs/web-app`:
+Add to your `.env` file in `test-applications/cesium-js/web-app`:
 
 ```bash
 CESIUM_ACCESS_TOKEN=your_token_here

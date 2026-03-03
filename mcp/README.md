@@ -118,7 +118,7 @@ mcp/
 │   ├── shared/              # Shared utilities (MCP base, communications)
 │   ├── camera-server/       # Camera control MCP server
 │   └── entity-server/       # Entity management MCP server
-├── PoC/CesiumJs/
+├── test-applications/cesium-js/
 │   ├── packages/client-core/  # Shared client library
 │   └── web-app/              # Browser application (localhost:8080)
 └── package.json              # pnpm workspace root
@@ -130,9 +130,9 @@ mcp/
 2. **MCP Server** ←→ **CesiumJS Client** via Server-Sent Events (SSE) or WebSocket
 3. **CesiumJS Client** renders 3D visualization in browser
 
-### PoC Applications
+### Test Applications
 
-The [PoC/CesiumJs](./PoC/CesiumJs/README.md) application demonstrates MCP server integrations:
+The [test-applications/cesium-js](./test-applications/cesium-js/README.md) application demonstrates MCP server integrations:
 
 - **Web App** - Browser-based 3D viewer on `http://localhost:8080`
 - **Shared Core Library** (`packages/client-core/`) - CesiumApp initialization, managers, and utilities
