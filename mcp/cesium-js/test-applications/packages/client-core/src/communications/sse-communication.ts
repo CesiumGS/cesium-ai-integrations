@@ -58,16 +58,14 @@ class SSECommunicationManager extends BaseCommunicationManager {
             await this.handleSSEMessage(data, port);
           } catch (error) {
             console.error(
-              `❌ Error processing SSE message from ${serverName}:`,
+              `Error processing SSE message from ${serverName}:`,
               error,
             );
           }
         };
 
         eventSource.onerror = () => {
-          console.error(
-            `❌ SSE connection error: ${serverName} (port ${port})`,
-          );
+          console.error(`SSE connection error: ${serverName} (port ${port})`);
 
           // Don't delete from map - keep it so status shows as disconnected
           // The readyState will be CLOSED (2) or CONNECTING (0)

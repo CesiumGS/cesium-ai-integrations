@@ -39,7 +39,7 @@ async function main() {
     );
 
     console.error(
-      `🚀 Camera Server starting with ${PROTOCOL.toUpperCase()} on port ${PORT} (strictPort: ${STRICT_PORT})`,
+      `Camera Server starting with ${PROTOCOL.toUpperCase()} on port ${PORT} (strictPort: ${STRICT_PORT})`,
     );
 
     // Register camera tools
@@ -48,7 +48,7 @@ async function main() {
     // Start the server
     await server.start();
   } catch (error) {
-    console.error("❌ Failed to start camera server:", error);
+    console.error("Failed to start camera server:", error);
     process.exit(1);
   }
 }

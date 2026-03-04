@@ -86,7 +86,7 @@ cesium-js/
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) >= 18
+- [Node.js](https://nodejs.org/) >= 22 (Node 22 LTS is required for the built-in global `WebSocket` API)
 - [pnpm](https://pnpm.io/) >= 8
 
 ### Install & Build

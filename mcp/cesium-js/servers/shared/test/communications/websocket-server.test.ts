@@ -181,10 +181,12 @@ describe("CesiumWebSocketServer", () => {
       const { ws } = await connectClient(port);
       expect(server.getStats().clients).toBe(1);
 
-      await server.stop();
+      // Register listener before stop() so we don't miss the close event
+      // that fires while wss.close() drains active connections.
+      const closePromise = waitForClose(ws);
 
-      // Wait for the client to receive the close
-      await waitForClose(ws);
+      await server.stop();
+      await closePromise;
 
       expect(server.getStats().clients).toBe(0);
     });

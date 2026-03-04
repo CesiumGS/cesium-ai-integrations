@@ -69,22 +69,19 @@ class WebSocketCommunicationManager extends BaseCommunicationManager {
             await this.handleWSMessage(data, port);
           } catch (error) {
             console.error(
-              `❌ Error processing WebSocket message from ${serverName}:`,
+              `Error processing WebSocket message from ${serverName}:`,
               error,
             );
           }
         };
 
         ws.onerror = (error) => {
-          console.error(
-            `❌ WebSocket error: ${serverName} (port ${port})`,
-            error,
-          );
+          console.error(`WebSocket error: ${serverName} (port ${port})`, error);
         };
 
         ws.onclose = () => {
           console.error(
-            `❌ WebSocket connection closed: ${serverName} (port ${port})`,
+            `WebSocket connection closed: ${serverName} (port ${port})`,
           );
 
           // Schedule reconnection with exponential backoff
@@ -133,7 +130,7 @@ class WebSocketCommunicationManager extends BaseCommunicationManager {
       ws.send(JSON.stringify(message));
     } else {
       console.error(
-        `❌ Cannot send message: WebSocket not connected for port ${port}`,
+        `Cannot send message: WebSocket not connected for port ${port}`,
       );
     }
   }

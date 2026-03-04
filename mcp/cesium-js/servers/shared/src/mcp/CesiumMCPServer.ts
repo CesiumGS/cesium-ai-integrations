@@ -91,11 +91,11 @@ export class CesiumMCPServer {
       this.setupGracefulShutdown();
 
       if (!this.config.silent) {
-        console.error(`✅ ${this.config.name} started successfully`);
+        console.error(`${this.config.name} started successfully`);
       }
     } catch (error) {
       if (!this.config.silent) {
-        console.error(`❌ Failed to start ${this.config.name}:`, error);
+        console.error(`Failed to start ${this.config.name}:`, error);
       }
       throw error;
     }
