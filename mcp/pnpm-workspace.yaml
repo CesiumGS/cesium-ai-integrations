@@ -1,6 +1,0 @@
-packages:
-  - "servers/shared"
-  - "servers/*"
-  - "test-applications/cesium-js"
-  - "test-applications/cesium-js/packages/*"
-  - "test-applications/cesium-js/web-app"

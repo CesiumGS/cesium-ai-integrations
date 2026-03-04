@@ -8,8 +8,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  cesium_js_build:
     runs-on: ubuntu-latest
+    name: Build CesiumJS MCP Servers
     
     steps:
     - name: Checkout code
@@ -25,24 +26,24 @@ jobs:
       with:
         node-version: 20.x
         cache: 'pnpm'
-        cache-dependency-path: './mcp/pnpm-lock.yaml'
+        cache-dependency-path: './mcp/cesium-js/pnpm-lock.yaml'
     
     - name: Install dependencies
-      working-directory: ./mcp
+      working-directory: ./mcp/cesium-js
       run: pnpm install --frozen-lockfile
     
     - name: Security audit
-      working-directory: ./mcp
+      working-directory: ./mcp/cesium-js
       run: pnpm audit
     
     - name: Lint & Prettier check
-      working-directory: ./mcp
+      working-directory: ./mcp/cesium-js
       run: pnpm run check
     
     - name: Build mcp servers
-      working-directory: ./mcp
+      working-directory: ./mcp/cesium-js
       run: pnpm run build
     
     - name: Run tests
-      working-directory: ./mcp
+      working-directory: ./mcp/cesium-js
       run: pnpm test

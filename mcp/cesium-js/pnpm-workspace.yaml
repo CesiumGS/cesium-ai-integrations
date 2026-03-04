@@ -1,0 +1,6 @@
+packages:
+  - "servers/shared"
+  - "servers/*"
+  - "test-applications"
+  - "test-applications/packages/*"
+  - "test-applications/web-app"

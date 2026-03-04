@@ -756,7 +756,7 @@ Add to your Cline MCP settings (`~/.config/Code/User/globalStorage/saoudrizwan.c
     "cesium-entity-server": {
       "command": "node",
       "args": [
-        "{YOUR_WORKSPACE}/cesium-ai-integrations/mcp/servers/entity-server/build/index.js"
+        "{YOUR_WORKSPACE}/cesium-ai-integrations/mcp/cesium-js/servers/entity-server/build/index.js"
       ],
       "env": {
         "PORT": "3003",
@@ -773,7 +773,7 @@ To see entities in real-time 3D:
 
 ```bash
 # Configure environment
-cd test-applications/cesium-js/web-app
+cd test-applications/web-app
 cp .env.example .env
 # Edit .env and add your Cesium Ion token from https://ion.cesium.com/tokens
 
@@ -866,7 +866,7 @@ Try these simple commands with your AI client:
 
 ### Web Client Configuration
 
-Add to your `.env` file in `test-applications/cesium-js/web-app`:
+Add to your `.env` file in `test-applications/web-app`:
 
 ```bash
 CESIUM_ACCESS_TOKEN=your_token_here

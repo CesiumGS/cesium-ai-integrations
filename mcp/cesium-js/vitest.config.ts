@@ -7,13 +7,18 @@ export default defineConfig({
     environment: "node",
     include: [
       "servers/*/test/**/*.test.ts",
-      "PoC/CesiumJs/packages/*/test/**/*.test.ts",
+      "test-applications/packages/*/test/**/*.test.ts",
     ],
-    setupFiles: ["PoC/CesiumJs/packages/client-core/test/setup/cesium-mock.ts"],
+    setupFiles: [
+      "test-applications/packages/client-core/test/setup/cesium-mock.ts",
+    ],
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
-      include: ["servers/*/src/**/*.ts", "PoC/CesiumJs/packages/*/src/**/*.ts"],
+      include: [
+        "servers/*/src/**/*.ts",
+        "test-applications/packages/*/src/**/*.ts",
+      ],
       exclude: [
         "**/*.test.ts",
         "**/index.ts",
