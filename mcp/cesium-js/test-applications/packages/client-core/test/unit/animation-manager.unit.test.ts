@@ -95,13 +95,19 @@ describe("Animation Manager Unit Tests", () => {
         LIME: { r: 0, g: 1, b: 0, a: 1 },
         WHITE: { r: 1, g: 1, b: 1, a: 1 },
       },
-      SampledPositionProperty: vi.fn(() => ({
-        addSample: vi.fn(),
-        setInterpolationOptions: vi.fn(),
-      })),
+      SampledPositionProperty: vi.fn(function () {
+        return {
+          addSample: vi.fn(),
+          setInterpolationOptions: vi.fn(),
+        };
+      }),
       LagrangePolynomialApproximation: {},
-      ConstantProperty: vi.fn((val: unknown) => ({ val })),
-      PolylineGlowMaterialProperty: vi.fn((opts: unknown) => ({ opts })),
+      ConstantProperty: vi.fn(function (val: unknown) {
+        return { val };
+      }),
+      PolylineGlowMaterialProperty: vi.fn(function (opts: unknown) {
+        return { opts };
+      }),
       DynamicAtmosphereLightingType: {
         NONE: "NONE",
         SUNLIGHT: "SUNLIGHT",

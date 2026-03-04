@@ -39,7 +39,7 @@ const SERVER_PORT = 4004;
 const SERVER_URL = `ws://localhost:${SERVER_PORT}/mcp/ws`;
 const ENTITY_SERVER_DIR = path.resolve(
   __dirname,
-  "../../../../../../servers/entity-server",
+  "../../../../../servers/entity-server",
 );
 
 // Transport selection via environment variable (default: stdio)

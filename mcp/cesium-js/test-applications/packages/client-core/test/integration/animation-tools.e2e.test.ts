@@ -39,7 +39,7 @@ const SERVER_PORT = 4005;
 const SERVER_URL = `ws://localhost:${SERVER_PORT}/mcp/ws`;
 const ANIMATION_SERVER_DIR = path.resolve(
   __dirname,
-  "../../../../../../servers/animation-server",
+  "../../../../../servers/animation-server",
 );
 
 // Transport selection via environment variable (default: stdio)

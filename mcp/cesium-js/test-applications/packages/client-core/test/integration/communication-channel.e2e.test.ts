@@ -44,7 +44,7 @@ const __dirname = path.dirname(__filename);
 
 const CAMERA_SERVER_DIR = path.resolve(
   __dirname,
-  "../../../../../../servers/camera-server",
+  "../../../../../servers/camera-server",
 );
 
 // ═══════════════════════════════════════════════════════════════════════════

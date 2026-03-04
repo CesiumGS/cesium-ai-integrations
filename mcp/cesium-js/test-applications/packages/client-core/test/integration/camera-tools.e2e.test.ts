@@ -39,7 +39,7 @@ const SERVER_PORT = 4003;
 const SERVER_URL = `ws://localhost:${SERVER_PORT}/mcp/ws`;
 const CAMERA_SERVER_DIR = path.resolve(
   __dirname,
-  "../../../../../../servers/camera-server",
+  "../../../../../servers/camera-server",
 );
 
 // Transport selection via environment variable (default: stdio)

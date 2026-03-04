@@ -9,6 +9,10 @@ const mocks = vi.hoisted(() => {
   const mcpConnect = vi.fn().mockResolvedValue(undefined);
   const mcpServerInstance = { connect: mcpConnect };
 
+  const McpServerMock = vi.fn(function () {
+    return mcpServerInstance;
+  });
+
   const mockHttpServerClose = vi.fn((cb: () => void) => cb && cb());
   const mockHttpServer = { close: mockHttpServerClose };
 
@@ -26,6 +30,7 @@ const mocks = vi.hoisted(() => {
   return {
     mcpConnect,
     mcpServerInstance,
+    McpServerMock,
     mockHttpServer,
     mockHttpServerClose,
     mockExpressApp,
@@ -33,17 +38,19 @@ const mocks = vi.hoisted(() => {
 });
 
 vi.mock("@modelcontextprotocol/sdk/server/mcp.js", () => ({
-  McpServer: vi.fn().mockImplementation(() => mocks.mcpServerInstance),
+  McpServer: mocks.McpServerMock,
 }));
 
 vi.mock("@modelcontextprotocol/sdk/server/stdio.js", () => ({
-  StdioServerTransport: vi.fn().mockImplementation(() => ({ _type: "stdio" })),
+  StdioServerTransport: vi.fn(function () {
+    return { _type: "stdio" };
+  }),
 }));
 
 vi.mock("@modelcontextprotocol/sdk/server/streamableHttp.js", () => ({
-  StreamableHTTPServerTransport: vi.fn().mockImplementation(() => ({
-    handleRequest: vi.fn(),
-  })),
+  StreamableHTTPServerTransport: vi.fn(function () {
+    return { handleRequest: vi.fn() };
+  }),
 }));
 
 vi.mock("express", () => {
@@ -96,6 +103,20 @@ function makeCommunicationServer(
 describe("CesiumMCPServer", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.McpServerMock.mockImplementation(function () {
+      return mocks.mcpServerInstance;
+    });
+    mocks.mcpConnect.mockResolvedValue(undefined);
+    vi.mocked(StdioServerTransport).mockImplementation(function () {
+      return { _type: "stdio" } as unknown as InstanceType<
+        typeof StdioServerTransport
+      >;
+    });
+    vi.mocked(StreamableHTTPServerTransport).mockImplementation(function () {
+      return { handleRequest: vi.fn() } as unknown as InstanceType<
+        typeof StreamableHTTPServerTransport
+      >;
+    });
     // Reset listen mock so each test gets a fresh mockHttpServer reference
     mocks.mockExpressApp.listen.mockImplementation(
       (_port: number, cb: () => void) => {
