@@ -1,5 +1,5 @@
 {
-  "name": "@cesium-mcp/codegen",
+  "name": "@cesium-mcp-apps/codegen",
   "version": "1.0.0",
   "description": "MCP App for Cesium codegen",
   "type": "module",
@@ -16,26 +16,31 @@
     "format:check": "prettier --check .",
     "check": "pnpm run format:check && pnpm run lint"
   },
+  "keywords": [
+    "mcp",
+    "cesium",
+    "codegen"
+  ],
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./build/index.js"
+  },
   "dependencies": {
     "@modelcontextprotocol/ext-apps": "^1.1.1",
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "cors": "^2.8.6",
     "dotenv": "^16.4.7",
+    "express": "^5.2.1",
     "openai": "^6.25.0",
-    "vite": "^7.3.1",
-    "vite-plugin-singlefile": "^2.3.0"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^25.3.2",
-    "@cesium/eslint-config": "^13.0.0",
-    "eslint": "^9.39.2",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.5",
-    "globals": "^17.3.0",
-    "prettier": "^3.8.1",
-    "rimraf": "^5.0.0",
-    "tsx": "^4.7.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.55.0"
+    "vite": "^7.3.1",
+    "vite-plugin-singlefile": "^2.3.0"
   }
 }

@@ -1,0 +1,39 @@
+{
+  "name": "cesium-mcp-apps",
+  "version": "1.0.0",
+  "description": "Monorepo for Cesium MCP Apps",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "pnpm run build:codegen",
+    "build:codegen": "pnpm --filter @cesium-mcp-apps/codegen build",
+    "start:codegen": "pnpm --filter @cesium-mcp-apps/codegen start",
+    "clean": "pnpm -r run clean",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "pnpm run format:check && pnpm run lint"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "cesium"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "@cesium/eslint-config": "^13.0.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "globals": "^17.3.0",
+    "prettier": "^3.8.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.55.0"
+  }
+}

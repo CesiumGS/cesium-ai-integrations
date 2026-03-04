@@ -51,7 +51,7 @@ Try these simple commands with your AI client:
 "Orbit the great pyramid"
 "Fly from Chicago to New York"
 "Fly from Chicago to New York with plane"
-"Cesium man on top of mount everest"
+"Cesium man on top of mount Everest"
 "Tour of Paris"
 "With day night switch"
 ```
