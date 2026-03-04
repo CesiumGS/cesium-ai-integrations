@@ -43,11 +43,11 @@ pnpm run build
 ### Build Commands
 
 ```bash
-pnpm run build              # Build all packages (shared, servers, PoC apps)
+pnpm run build              # Build all packages (shared, servers, test apps)
 pnpm run build:shared       # Shared utilities
 pnpm run build:camera       # Camera server
 pnpm run build:entity       # Entity server
-pnpm run build:poc          # PoC CesiumJs applications
+pnpm run build:cesium-js    # CesiumJS test application
 pnpm run clean              # Clean build artifacts
 ```
 
@@ -58,7 +58,7 @@ pnpm run dev:camera       # Camera server (port 3002)
 pnpm run dev:entity       # Entity server (port 3004)
 ```
 
-### Run PoC Applications
+### Run Test Applications
 
 **Web Browser Client:**
 
@@ -118,7 +118,7 @@ mcp/
 │   ├── shared/              # Shared utilities (MCP base, communications)
 │   ├── camera-server/       # Camera control MCP server
 │   └── entity-server/       # Entity management MCP server
-├── PoC/CesiumJs/
+├── test-applications/cesium-js/
 │   ├── packages/client-core/  # Shared client library
 │   └── web-app/              # Browser application (localhost:8080)
 └── package.json              # pnpm workspace root
@@ -130,9 +130,9 @@ mcp/
 2. **MCP Server** ←→ **CesiumJS Client** via Server-Sent Events (SSE) or WebSocket
 3. **CesiumJS Client** renders 3D visualization in browser
 
-### PoC Applications
+### Test Applications
 
-The [PoC/CesiumJs](./PoC/CesiumJs/README.md) application demonstrates MCP server integrations:
+The [test-applications/cesium-js](./test-applications/cesium-js/README.md) application demonstrates MCP server integrations:
 
 - **Web App** - Browser-based 3D viewer on `http://localhost:8080`
 - **Shared Core Library** (`packages/client-core/`) - CesiumApp initialization, managers, and utilities

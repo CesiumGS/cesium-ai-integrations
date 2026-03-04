@@ -72,7 +72,7 @@ pnpm run dev:camera
 ### 3. Run Web Application
 
 ```bash
-# From mcp/PoC/CesiumJs/
+# From mcp/test-applications/cesium-js/
 pnpm run start:web
 # Opens http://localhost:8080
 ```

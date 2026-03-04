@@ -1,8 +1,8 @@
 {
-  "name": "@cesium-mcp/poc",
+  "name": "@cesium-mcp/cesium-js",
   "version": "1.0.0",
   "private": true,
-  "description": "PoC web application for Cesium MCP servers containing shared core and web app",
+  "description": "Test application for Cesium MCP servers containing shared core and web app",
   "scripts": {
     "build": "pnpm --filter @cesium-mcp/client-core build && pnpm --filter @cesium-mcp/web-app build",
     "build:core": "pnpm --filter @cesium-mcp/client-core build",
