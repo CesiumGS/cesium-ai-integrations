@@ -14,6 +14,14 @@ CesiumJs servers live in [`cesium-js/`](./cesium-js/README.md). See the [cesium-
 | 🌍 [cesium-entity-server](./cesium-js/servers/entity-server/README.md) | `cesium-js/servers/entity-server/` | Entity management: points, billboards, labels, models, polygons, polylines, and more |
 | 🎬 [cesium-animation-server](./cesium-js/servers/animation-server/README.md) | `cesium-js/servers/animation-server/` | Path-based animations, clock control, camera tracking, globe lighting |
 
+### 💻 Cesium MCP Apps
+
+Cesium MCP Apps live in [`mcp-apps/`](./mcp-apps/README.md). See the [mcp-apps README](./mcp-apps/README.md) for installation, build instructions, and MCP client configuration.
+
+| Server | Folder | Description |
+|---|---|---|
+| 🪄 [cesium-codegen](./mcp-apps/codegen/README.md) | `mcp-apps/codegen/` | Cesium views code generation |
+
 ### 🌐 External MCP Servers
 
 | Server | Folder | Description |
@@ -50,6 +58,8 @@ mcp/
 │   └── pnpm-workspace.yaml
 ├── external/
 │   └── cesium-context7/         # Context7 external MCP server
+├── mcp-apps/
+│   └── codegen/                 # Cesium views code generation
 └── README.md
 ```
 

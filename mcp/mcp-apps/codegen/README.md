@@ -2,11 +2,18 @@
 
 MCP App for generating Cesium views.
 
-Read more about MCP Apps in https://modelcontextprotocol.io/extensions/apps/overview.
+Read more about MCP Apps in https://blog.modelcontextprotocol.io/posts/2026-01-26-mcp-apps/.
+
+## Prerequisites
+
+- [OpenAI deployment](https://azure.microsoft.com/en-us/products/ai-foundry/models/openai) with `gpt-5.2-codex` model
+- MCP Apps compatible client like [Basic Host](https://github.com/modelcontextprotocol/ext-apps/tree/main/examples/basic-host)
 
 ## Configure
 
 Create `.env` file based on `.env.example` and fill required `HOST_URL`, `CESIUM_TOKEN`, `OPENAI_URL` and `OPENAI_KEY` values.
+Optionally change `OPENAI_MODEL` if different LLM Model is required.
+Change `HOST_URL` to the public domain value if hosting publicly. This is required for [CSP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP).
 
 ## Installation
 
