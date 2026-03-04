@@ -4,14 +4,14 @@ pnpm monorepo containing MCP servers and test applications for controlling [Cesi
 
 ## 📦 Packages
 
-| Package | Description | Port |
-|---|---|---|
-| [`@cesium-mcp/shared`](./servers/shared/README.md) | Shared MCP server base, SSE/WebSocket communications, common types | — |
-| [`@cesium-mcp/camera-server`](./servers/camera-server/README.md) | Camera control: fly-to, orbit, look-at, position queries | 3002 |
-| [`@cesium-mcp/entity-server`](./servers/entity-server/README.md) | Entity management: points, billboards, labels, models, polygons, polylines, and more | 3003 |
-| [`@cesium-mcp/animation-server`](./servers/animation-server/README.md) | Path-based animations, clock control, camera tracking, globe lighting | 3004 |
-| [`@cesium-mcp/client-core`](./test-applications/packages/client-core/README.md) | Shared browser client library (managers, communications) | — |
-| [`@cesium-mcp/cesium-js`](./test-applications/README.md) | Browser web application (CesiumJS viewer) | 8080 |
+| Package                                                                         | Description                                                                          | Port |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ---- |
+| [`@cesium-mcp/shared`](./servers/shared/README.md)                              | Shared MCP server base, SSE/WebSocket communications, common types                   | —    |
+| [`@cesium-mcp/camera-server`](./servers/camera-server/README.md)                | Camera control: fly-to, orbit, look-at, position queries                             | 3002 |
+| [`@cesium-mcp/entity-server`](./servers/entity-server/README.md)                | Entity management: points, billboards, labels, models, polygons, polylines, and more | 3003 |
+| [`@cesium-mcp/animation-server`](./servers/animation-server/README.md)          | Path-based animations, clock control, camera tracking, globe lighting                | 3004 |
+| [`@cesium-mcp/client-core`](./test-applications/packages/client-core/README.md) | Shared browser client library (managers, communications)                             | —    |
+| [`@cesium-mcp/cesium-js`](./test-applications/README.md)                        | Browser web application (CesiumJS viewer)                                            | 8080 |
 
 ## 🛠️ MCP Servers
 
@@ -19,51 +19,51 @@ pnpm monorepo containing MCP servers and test applications for controlling [Cesi
 
 Camera control and 3D navigation in CesiumJS applications.
 
-| Tool | Description |
-|---|---|
-| `camera_fly_to` | Smoothly animate the camera to a destination with easing options |
-| `camera_set_view` | Instantly position the camera without animation |
-| `camera_look_at_transform` | Lock the camera to orbit around a specific point |
-| `camera_start_orbit` | Begin automated circular orbit around a target |
-| `camera_stop_orbit` | Stop the current orbit and restore manual control |
-| `camera_get_position` | Query current camera position, orientation, and view bounds |
-| `camera_set_controller_options` | Adjust camera movement constraints and behavior |
+| Tool                            | Description                                                      |
+| ------------------------------- | ---------------------------------------------------------------- |
+| `camera_fly_to`                 | Smoothly animate the camera to a destination with easing options |
+| `camera_set_view`               | Instantly position the camera without animation                  |
+| `camera_look_at_transform`      | Lock the camera to orbit around a specific point                 |
+| `camera_start_orbit`            | Begin automated circular orbit around a target                   |
+| `camera_stop_orbit`             | Stop the current orbit and restore manual control                |
+| `camera_get_position`           | Query current camera position, orientation, and view bounds      |
+| `camera_set_controller_options` | Adjust camera movement constraints and behavior                  |
 
 ### 🌍 [cesium-entity-server](./servers/entity-server/README.md)
 
 Create and manage 3D entities on the CesiumJS globe.
 
-| Tool | Description |
-|---|---|
-| `entity_add_point` | Colored point marker with size control |
-| `entity_add_billboard` | Image/icon marker with pixel offset and sizing |
-| `entity_add_label` | 3D text label with font, color, and outline styling |
-| `entity_add_model` | GLTF/GLB model placement with scale and orientation |
-| `entity_add_polygon` | Area visualization with fill and outline styling |
-| `entity_add_polyline` | Path/line rendering with width and color |
-| `entity_add_box` | 3D box for buildings, containers, or volumetric data |
-| `entity_add_corridor` | Path with width for roads, pipelines, or routes |
-| `entity_add_cylinder` | Cylinder or cone for towers or pillars |
-| `entity_add_ellipse` | Circular area for zones or coverage regions |
-| `entity_add_rectangle` | Geographic rectangle for regions or bounding boxes |
-| `entity_add_wall` | Vertical wall for barriers or fences |
-| `entity_list` | List all entities currently in the scene |
-| `entity_remove` | Remove an entity by ID |
+| Tool                   | Description                                          |
+| ---------------------- | ---------------------------------------------------- |
+| `entity_add_point`     | Colored point marker with size control               |
+| `entity_add_billboard` | Image/icon marker with pixel offset and sizing       |
+| `entity_add_label`     | 3D text label with font, color, and outline styling  |
+| `entity_add_model`     | GLTF/GLB model placement with scale and orientation  |
+| `entity_add_polygon`   | Area visualization with fill and outline styling     |
+| `entity_add_polyline`  | Path/line rendering with width and color             |
+| `entity_add_box`       | 3D box for buildings, containers, or volumetric data |
+| `entity_add_corridor`  | Path with width for roads, pipelines, or routes      |
+| `entity_add_cylinder`  | Cylinder or cone for towers or pillars               |
+| `entity_add_ellipse`   | Circular area for zones or coverage regions          |
+| `entity_add_rectangle` | Geographic rectangle for regions or bounding boxes   |
+| `entity_add_wall`      | Vertical wall for barriers or fences                 |
+| `entity_list`          | List all entities currently in the scene             |
+| `entity_remove`        | Remove an entity by ID                               |
 
 ### 🎬 [cesium-animation-server](./servers/animation-server/README.md)
 
 Animate 3D models along paths and control the scene clock.
 
-| Tool | Description |
-|---|---|
-| `animation_create` | Create an entity animated along custom position samples |
-| `animation_control` | Play, pause, or adjust playback speed of an animation |
-| `animation_remove` | Remove an animation and its entity from the scene |
-| `animation_list_active` | List all active animations |
-| `animation_update_path` | Update the path samples of an existing animation |
+| Tool                        | Description                                                  |
+| --------------------------- | ------------------------------------------------------------ |
+| `animation_create`          | Create an entity animated along custom position samples      |
+| `animation_control`         | Play, pause, or adjust playback speed of an animation        |
+| `animation_remove`          | Remove an animation and its entity from the scene            |
+| `animation_list_active`     | List all active animations                                   |
+| `animation_update_path`     | Update the path samples of an existing animation             |
 | `animation_camera_tracking` | Follow an animated entity with the camera (or stop tracking) |
-| `clock_control` | Configure global clock time, speed, and playback state |
-| `globe_set_lighting` | Enable realistic day/night globe lighting |
+| `clock_control`             | Configure global clock time, speed, and playback state       |
+| `globe_set_lighting`        | Enable realistic day/night globe lighting                    |
 
 ## 🏗️ Structure
 
@@ -139,7 +139,9 @@ Add the servers to your MCP client (e.g., Claude Desktop, Cline):
   "mcpServers": {
     "cesium-camera": {
       "command": "node",
-      "args": ["{YOUR_WORKSPACE}/mcp/cesium-js/servers/camera-server/build/index.js"],
+      "args": [
+        "{YOUR_WORKSPACE}/mcp/cesium-js/servers/camera-server/build/index.js"
+      ],
       "env": {
         "COMMUNICATION_PROTOCOL": "websocket",
         "CAMERA_SERVER_PORT": "3002",
@@ -148,7 +150,9 @@ Add the servers to your MCP client (e.g., Claude Desktop, Cline):
     },
     "cesium-entity": {
       "command": "node",
-      "args": ["{YOUR_WORKSPACE}/mcp/cesium-js/servers/entity-server/build/index.js"],
+      "args": [
+        "{YOUR_WORKSPACE}/mcp/cesium-js/servers/entity-server/build/index.js"
+      ],
       "env": {
         "COMMUNICATION_PROTOCOL": "websocket",
         "ENTITY_SERVER_PORT": "3003",
@@ -157,7 +161,9 @@ Add the servers to your MCP client (e.g., Claude Desktop, Cline):
     },
     "cesium-animation": {
       "command": "node",
-      "args": ["{YOUR_WORKSPACE}/mcp/cesium-js/servers/animation-server/build/index.js"],
+      "args": [
+        "{YOUR_WORKSPACE}/mcp/cesium-js/servers/animation-server/build/index.js"
+      ],
       "env": {
         "COMMUNICATION_PROTOCOL": "websocket",
         "ANIMATION_SERVER_PORT": "3004",
