@@ -1,6 +1,0 @@
-packages:
-  - "servers/shared"
-  - "servers/*"
-  - "PoC/CesiumJs"
-  - "PoC/CesiumJs/packages/*"
-  - "PoC/CesiumJs/web-app"

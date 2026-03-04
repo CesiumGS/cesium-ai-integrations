@@ -65,14 +65,14 @@ cp .env.example .env
 ### 2. Start MCP Servers
 
 ```bash
-# From mcp directory
+# From mcp/cesium-js directory
 pnpm run dev:camera
 ```
 
 ### 3. Run Web Application
 
 ```bash
-# From mcp/PoC/CesiumJs/
+# From mcp/cesium-js/test-applications/
 pnpm run start:web
 # Opens http://localhost:8080
 ```
