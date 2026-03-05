@@ -43,3 +43,39 @@ jobs:
     - name: Build mcp servers
       working-directory: ./mcp/cesium-js
       run: pnpm run build
+  
+  mcp_apps_build:
+    runs-on: ubuntu-latest
+    name: Build MCP Apps Servers
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+      
+    - name: Setup Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'pnpm'
+        cache-dependency-path: './mcp/mcp-apps/pnpm-lock.yaml'
+    
+    - name: Install dependencies
+      working-directory: ./mcp/mcp-apps
+      run: pnpm install --frozen-lockfile
+    
+    - name: Security audit
+      working-directory: ./mcp/mcp-apps
+      run: pnpm audit
+    
+    - name: Lint & Prettier check
+      working-directory: ./mcp/mcp-apps
+      run: pnpm run check
+    
+    - name: Build mcp servers
+      working-directory: ./mcp/mcp-apps
+      run: pnpm run build

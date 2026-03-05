@@ -4,9 +4,9 @@ pnpm monorepo containing Cesium MCP Apps for AI assistants.
 
 ## 📦 Packages
 
-| Package                                           | Description                         | Port |
-| --------------------------------------------------| ------------------------------------| ---- |
-| [`@cesium-mcp-apps/codegen`](./codegen/README.md) | Cesium views code generation        | 3001 |
+| Package                                           | Description                  | Port |
+| ------------------------------------------------- | ---------------------------- | ---- |
+| [`@cesium-mcp-apps/codegen`](./codegen/README.md) | Cesium views code generation | 3001 |
 
 ## 🛠️ MCP Servers
 
@@ -14,9 +14,9 @@ pnpm monorepo containing Cesium MCP Apps for AI assistants.
 
 MCP App for generating Cesium views.
 
-| Tool                            | Description                                                      |
-| ------------------------------- | ---------------------------------------------------------------- |
-| `codegen`                       | Generate Views from provided description                         |
+| Tool      | Description                              |
+| --------- | ---------------------------------------- |
+| `codegen` | Generate Views from provided description |
 
 ## 🏗️ Structure
 
