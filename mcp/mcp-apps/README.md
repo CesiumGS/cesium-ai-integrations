@@ -85,7 +85,7 @@ sequenceDiagram
 1. **AI assistant** calls MCP tool.
 2. **MCP tool** returns associated UI component resource in `_meta.ui.resourceUri`.
 3. **AI assistant** downloads associated resource.
-4. **AI assistant** shows reource contents as a webpage in **iframe**.
+4. **AI assistant** shows resource contents as a webpage in **iframe**.
 5. **iframe** script calls MCP tool.
 6. MCP tool returns result to **iframe**
 7. **iframne** renders, external requests can optionally be made.
