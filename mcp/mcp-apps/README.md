@@ -58,14 +58,14 @@ pnpm run clean              # Remove all build artifacts
 ### MCP Servers
 
 ```bash
-pnpm run start:codegen     # Camera server on port 3002
+pnpm run start:codegen     # Codegen server on port 3001
 ```
 
 ### Using with AI Clients
 
 The codegen server works with MCP clients that support MCP Apps like **Claude Desktop**.
 
-MCP App can be tested using [Basic Host](https://github.com/modelcontextprotocol/ext-apps/tree/main/examples/basic-host). Update `SERVERS` environment variable to point to MCP server.
+MCP App can be tested using [Basic Host](https://github.com/modelcontextprotocol/ext-apps/tree/main/examples/basic-host). Set `HOST_URL` value in `SERVERS` environment variable to connect Basic Host to MCP Server.
 
 ## 🏛️ Architecture
 
@@ -88,7 +88,7 @@ sequenceDiagram
 4. **AI assistant** shows reource contents as a webpage in **iframe**.
 5. **iframe** script calls MCP tool.
 6. MCP tool returns result to **iframe**
-7. **iframne** renders, external resources and calls can optionally be made.
+7. **iframne** renders, external requests can optionally be made.
 
 ## 🤝 Contributing
 

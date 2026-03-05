@@ -11,7 +11,7 @@ Read more about MCP Apps in https://blog.modelcontextprotocol.io/posts/2026-01-2
 
 ## Configure
 
-Create `.env` file based on `.env.example` and fill required `HOST_URL`, `CESIUM_TOKEN`, `OPENAI_URL` and `OPENAI_KEY` values.
+Create `.env` file based on `.env.example` and fill required `CESIUM_TOKEN`, `OPENAI_URL` and `OPENAI_KEY` values.
 Optionally change `OPENAI_MODEL` if different LLM Model is required.
 Change `HOST_URL` to the public domain value if hosting publicly. This is required for [CSP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP).
 
@@ -44,11 +44,11 @@ Shows a Cesium viewer generated from provided description.
 
 The codegen server works with MCP clients that support MCP Apps like **Claude Desktop**.
 
-MCP App can be tested using [Basic Host](https://github.com/modelcontextprotocol/ext-apps/tree/main/examples/basic-host). Update `SERVERS` environment variable to point to codegen server.
+MCP App can be tested using [Basic Host](https://github.com/modelcontextprotocol/ext-apps/tree/main/examples/basic-host). Set `HOST_URL` value in `SERVERS` environment variable to connect Basic Host to Codegen MCP Server.
 
 ## Using code generation directly
 
-An `<iframe>` generated for MCP App can be used directly without MCP infrastructure or embedded in web pages. Just open the `{HOST_URL}/iframe?description={description}` url and put the viewer description in `{description}` query parameter.
+An `<iframe>` generated for MCP App can be used directly without MCP infrastructure like embedding in web pages. Just open the `{HOST_URL}/iframe?description={description}` url and put the viewer description in `{description}` query parameter.
 
 ## Example Queries
 
@@ -65,8 +65,8 @@ Try these simple commands with your AI client:
 
 ## Contributing
 
-Interested in contributing? Please read [CONTRIBUTING.md](../../CONTRIBUTING.md). We also ask that you follow the [Code of Conduct](../../CODE_OF_CONDUCT.md).
+Interested in contributing? Please read [CONTRIBUTING.md](../../../CONTRIBUTING.md). We also ask that you follow the [Code of Conduct](../../../CODE_OF_CONDUCT.md).
 
 ## License
 
-Apache 2.0. See [LICENSE](../../LICENSE).
+Apache 2.0. See [LICENSE](../../../LICENSE).
