@@ -1,0 +1,74 @@
+{
+  "name": "cesium-mcp",
+  "version": "1.0.0",
+  "description": "Monorepo for Cesium MCP servers",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "pnpm run build:shared && pnpm run build:camera && pnpm run build:entity && pnpm run build:animation && pnpm run build:cesium-js",
+    "build:shared": "pnpm --filter @cesium-mcp/shared build",
+    "build:camera": "pnpm --filter @cesium-mcp/camera-server build",
+    "build:entity": "pnpm --filter @cesium-mcp/entity-server build",
+    "build:animation": "pnpm --filter @cesium-mcp/animation-server build",
+    "build:cesium-js": "pnpm --filter @cesium-mcp/cesium-js build",
+    "dev:camera": "pnpm --filter @cesium-mcp/camera-server dev",
+    "dev:entity": "pnpm --filter @cesium-mcp/entity-server dev",
+    "dev:animation": "pnpm --filter @cesium-mcp/animation-server dev",
+    "start:web": "pnpm --filter @cesium-mcp/cesium-js start:web",
+    "clean": "pnpm -r run clean",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "pnpm run format:check && pnpm run lint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:camera": "pnpm --filter @cesium-mcp/camera-server test",
+    "test:entity": "pnpm --filter @cesium-mcp/entity-server test",
+    "test:animation": "pnpm --filter @cesium-mcp/animation-server test"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "cesium",
+    "camera",
+    "geolocation",
+    "3d",
+    "geospatial"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@modelcontextprotocol/sdk>ajv": ">=8.18.0",
+      "eslint>ajv": "^6.12.6",
+      "@eslint/eslintrc>ajv": "^6.12.6",
+      "minimatch": ">=10.2.3",
+      "hono": ">=4.11.10",
+      "dompurify": ">=3.3.2"
+    },
+    "auditConfig": {
+      "ignoreCves": [
+        "CVE-2025-69873"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@cesium/eslint-config": "^13.0.0",
+    "@types/node": "^25.2.2",
+    "@vitest/coverage-v8": "^4.0.18",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "globals": "^17.3.0",
+    "prettier": "^3.8.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.55.0",
+    "vitest": "^4.0.18"
+  }
+}
