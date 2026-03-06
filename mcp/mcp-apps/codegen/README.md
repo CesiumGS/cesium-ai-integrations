@@ -1,4 +1,4 @@
-# 🌍 Cesium Entity MCP Server
+# 🌍 Cesium Codegen MCP App
 
 MCP App for generating Cesium views.
 
@@ -6,8 +6,8 @@ Read more about MCP Apps in https://blog.modelcontextprotocol.io/posts/2026-01-2
 
 ## ⚙️ Prerequisites
 
-- [OpenAI deployment](https://azure.microsoft.com/en-us/products/ai-foundry/models/openai) with `gpt-5.2-codex` model
-- MCP Apps compatible client like [Basic Host](https://github.com/modelcontextprotocol/ext-apps/tree/main/examples/basic-host)
+- [OpenAI gpt-5.2-codex](https://developers.openai.com/api/docs/models/gpt-5.2-codex) model. Other compatible LLMs and models can also be used.
+- MCP Apps compatible client like [Basic Host](https://github.com/modelcontextprotocol/ext-apps/tree/main/examples/basic-host).
 
 ## ⚙️ Configure
 

@@ -10,7 +10,7 @@ pnpm monorepo containing Cesium MCP Apps for AI assistants.
 
 ## 🛠️ MCP Servers
 
-### 🎥 [cesium-camera-server](./servers/camera-server/README.md)
+### 🎥 [cesium-codegen](./codegen/README.md)
 
 MCP App for generating Cesium views.
 
@@ -21,9 +21,8 @@ MCP App for generating Cesium views.
 ## 🏗️ Structure
 
 ```
-cesium-js/
-├── servers/
-│   ├── codegen/             # @cesium-mcp/codegen
+mcp-apps/
+├── codegen/                 # @cesium-mcp/codegen
 ├── package.json             # pnpm workspace root
 └── pnpm-workspace.yaml
 ```
@@ -88,7 +87,7 @@ sequenceDiagram
 4. **AI assistant** shows resource contents as a webpage in **iframe**.
 5. **iframe** script calls MCP tool.
 6. MCP tool returns result to **iframe**
-7. **iframne** renders, external requests can optionally be made.
+7. **iframe** renders, external requests can optionally be made.
 
 ## 🤝 Contributing
 
