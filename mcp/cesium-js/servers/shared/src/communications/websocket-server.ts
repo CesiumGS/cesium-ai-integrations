@@ -76,14 +76,21 @@ export class CesiumWebSocketServer extends BaseCommunicationServer {
 
       // Handle client disconnect
       ws.on("close", () => {
-        this.wsClient = undefined;
-        this.cleanupHeartbeat();
+        // Guard: only clear wsClient if this is still the registered client.
+        // A stale close event from a superseded connection must not evict the
+        // newly registered client.
+        if (this.wsClient === ws) {
+          this.wsClient = undefined;
+          this.cleanupHeartbeat();
+        }
       });
 
       // Handle errors
       ws.on("error", () => {
-        this.wsClient = undefined;
-        this.cleanupHeartbeat();
+        if (this.wsClient === ws) {
+          this.wsClient = undefined;
+          this.cleanupHeartbeat();
+        }
       });
 
       // Heartbeat to keep connection alive

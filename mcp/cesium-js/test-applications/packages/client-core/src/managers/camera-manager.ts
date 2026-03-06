@@ -44,9 +44,9 @@ import {
 } from "../shared/constants.js";
 
 class CesiumCameraManager implements ManagerInterface {
-  viewer: CesiumViewer;
-  orbitSpeed: number;
-  orbitHandler: (() => void) | null;
+  public viewer: CesiumViewer;
+  public orbitSpeed: number;
+  private orbitHandler: (() => void) | null;
 
   constructor(viewer: CesiumViewer) {
     this.viewer = viewer;
@@ -57,7 +57,7 @@ class CesiumCameraManager implements ManagerInterface {
   /**
    * Setup and initialize the manager
    */
-  async setUp(): Promise<void> {
+  public async setUp(): Promise<void> {
     return new Promise<void>((resolve) => {
       flyToPosition(
         this.viewer,
@@ -76,7 +76,7 @@ class CesiumCameraManager implements ManagerInterface {
   /**
    * Fly camera to a specific position with advanced options
    */
-  async flyTo(
+  private async flyTo(
     longitude: number,
     latitude: number,
     height: number,
@@ -143,7 +143,7 @@ class CesiumCameraManager implements ManagerInterface {
   /**
    * Instantly set camera view without animation
    */
-  setView(
+  private setView(
     longitude: number,
     latitude: number,
     height: number,
@@ -184,7 +184,7 @@ class CesiumCameraManager implements ManagerInterface {
   /**
    * Get current camera position and comprehensive view information
    */
-  getCurrentPosition(): CameraPositionResult {
+  private getCurrentPosition(): CameraPositionResult {
     try {
       const cameraData = getCameraPosition(this.viewer);
       const viewRectangle = getCameraViewRectangle(this.viewer);
@@ -212,7 +212,7 @@ class CesiumCameraManager implements ManagerInterface {
   /**
    * Lock camera to look at a specific target point
    */
-  lookAtTransform(
+  private lookAtTransform(
     targetLon: number,
     targetLat: number,
     targetHeight: number,
@@ -245,7 +245,7 @@ class CesiumCameraManager implements ManagerInterface {
   /**
    * Start camera orbit around current target
    */
-  startOrbit(speed?: number): CameraOrbitResult {
+  private startOrbit(speed?: number): CameraOrbitResult {
     try {
       this.stopOrbit(); // Stop any existing orbit
 
@@ -274,7 +274,7 @@ class CesiumCameraManager implements ManagerInterface {
   /**
    * Stop camera orbit
    */
-  stopOrbit(): CameraOrbitResult {
+  private stopOrbit(): CameraOrbitResult {
     try {
       if (this.orbitHandler) {
         this.orbitHandler();
@@ -299,7 +299,7 @@ class CesiumCameraManager implements ManagerInterface {
   /**
    * Configure camera controller options and constraints
    */
-  setControllerOptions(
+  private setControllerOptions(
     options: CameraControllerOptions = {},
   ): CameraControllerResult {
     try {
@@ -358,17 +358,27 @@ class CesiumCameraManager implements ManagerInterface {
   /**
    * Shutdown and cleanup
    */
-  shutdown(): void {
+  public shutdown(): void {
     this.stopOrbit();
   }
 
   /**
    * Get command handlers for this manager
    */
-  getCommandHandlers(): Map<string, CommandHandler> {
+  public getCommandHandlers(): Map<string, CommandHandler> {
     const handlers = new Map<string, CommandHandler>();
 
     handlers.set("camera_fly_to", async (cmd: MCPCommand) => {
+      if (!cmd.destination) {
+        return {
+          success: false,
+          error: "Missing required property: destination",
+          position: { longitude: 0, latitude: 0, height: 0 },
+          orientation: { heading: 0, pitch: 0, roll: 0 },
+          actualDuration: 0,
+          cancelled: false,
+        };
+      }
       const destination = cmd.destination as unknown as CameraPosition;
       return await this.flyTo(
         destination.longitude,
@@ -389,6 +399,14 @@ class CesiumCameraManager implements ManagerInterface {
     });
 
     handlers.set("camera_set_view", (cmd: MCPCommand) => {
+      if (!cmd.destination) {
+        return {
+          success: false,
+          error: "Missing required property: destination",
+          position: { longitude: 0, latitude: 0, height: 0 },
+          orientation: { heading: 0, pitch: 0, roll: 0 },
+        };
+      }
       const destination = cmd.destination as unknown as CameraPosition;
       return this.setView(
         destination.longitude,
@@ -403,6 +421,14 @@ class CesiumCameraManager implements ManagerInterface {
     });
 
     handlers.set("camera_look_at_transform", (cmd: MCPCommand) => {
+      if (!cmd.target) {
+        return {
+          success: false,
+          error: "Missing required property: target",
+          target: { longitude: 0, latitude: 0, height: 0 },
+          offset: {},
+        };
+      }
       const target = cmd.target as unknown as CameraPosition;
       return this.lookAtTransform(
         target.longitude,

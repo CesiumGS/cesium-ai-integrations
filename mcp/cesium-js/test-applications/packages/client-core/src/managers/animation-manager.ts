@@ -13,6 +13,18 @@ import type {
   ColorRGBA,
   PositionSample,
   AnimationState,
+  ClockConfigureResult,
+  ClockSetTimeResult,
+  ClockSetMultiplierResult,
+  AnimationCreateResult,
+  AnimationPlayResult,
+  AnimationPauseResult,
+  AnimationRemoveResult,
+  AnimationPathConfigureResult,
+  AnimationTrackResult,
+  AnimationUntrackResult,
+  AnimationListResult,
+  GlobeLightingResult,
 } from "../types/mcp.js";
 import type { CesiumViewer, CesiumEntity } from "../types/cesium-types.js";
 
@@ -38,7 +50,7 @@ import {
 import { resetCameraTransform } from "../shared/camera-utils.js";
 
 class CesiumAnimationManager implements ManagerInterface {
-  viewer: CesiumViewer;
+  public viewer: CesiumViewer;
   private animations: Map<string, AnimationState>;
 
   constructor(viewer: CesiumViewer) {
@@ -81,11 +93,11 @@ class CesiumAnimationManager implements ManagerInterface {
   /**
    * Setup and initialize the manager
    */
-  setUp(): void {
+  public setUp(): void {
     setClockShouldAnimate(this.viewer, true);
   }
 
-  configure(clockConfig: ClockConfig): MCPCommandResult {
+  private configure(clockConfig: ClockConfig): ClockConfigureResult {
     return this.wrapOperation(() => {
       const clock = this.viewer.clock;
 
@@ -129,7 +141,7 @@ class CesiumAnimationManager implements ManagerInterface {
   /**
    * Set the current time of the animation clock
    */
-  setTime(currentTime: string | JulianDate): MCPCommandResult {
+  private setTime(currentTime: string | JulianDate): ClockSetTimeResult {
     return this.wrapOperation(() => {
       setClockCurrentTime(this.viewer, currentTime);
       const time = parseJulianDate(currentTime);
@@ -144,7 +156,7 @@ class CesiumAnimationManager implements ManagerInterface {
   /**
    * Set the clock multiplier for speed control
    */
-  setMultiplier(multiplier: number): MCPCommandResult {
+  private setMultiplier(multiplier: number): ClockSetMultiplierResult {
     return this.wrapOperation(() => {
       setClockMultiplier(this.viewer, multiplier);
 
@@ -158,14 +170,14 @@ class CesiumAnimationManager implements ManagerInterface {
   /**
    * Shutdown and cleanup
    */
-  shutdown(): void {
+  public shutdown(): void {
     // Cleanup if needed
   }
 
   /**
    * Get animation statistics
    */
-  getStats(): { clockRunning: boolean } {
+  private getStats(): { clockRunning: boolean } {
     return {
       clockRunning: this.viewer.clock.shouldAnimate,
     };
@@ -174,7 +186,7 @@ class CesiumAnimationManager implements ManagerInterface {
   /**
    * Create animation from route
    */
-  createAnimationFromRoute(cmd: MCPCommand): MCPCommandResult {
+  private createAnimationFromRoute(cmd: MCPCommand): AnimationCreateResult {
     return this.wrapOperation(() => {
       const animationId = this.getParam<string>(cmd, "animationId");
       // Use animationId as the entity ID (single ID for both)
@@ -281,7 +293,7 @@ class CesiumAnimationManager implements ManagerInterface {
   /**
    * Play animation
    */
-  playAnimation(): MCPCommandResult {
+  private playAnimation(): AnimationPlayResult {
     return this.wrapOperation(() => {
       setClockShouldAnimate(this.viewer, true);
       return {
@@ -294,7 +306,7 @@ class CesiumAnimationManager implements ManagerInterface {
   /**
    * Pause animation
    */
-  pauseAnimation(): MCPCommandResult {
+  private pauseAnimation(): AnimationPauseResult {
     return this.wrapOperation(() => {
       setClockShouldAnimate(this.viewer, false);
       return {
@@ -307,7 +319,7 @@ class CesiumAnimationManager implements ManagerInterface {
   /**
    * Remove animation
    */
-  removeAnimation(cmd: MCPCommand): MCPCommandResult {
+  private removeAnimation(cmd: MCPCommand): AnimationRemoveResult {
     return this.wrapOperation(() => {
       const animationId = this.getParam<string>(cmd, "animationId");
       // animationId is also the entity ID
@@ -351,7 +363,9 @@ class CesiumAnimationManager implements ManagerInterface {
   /**
    * Configure path visualization
    */
-  configureAnimationPath(cmd: MCPCommand): MCPCommandResult {
+  private configureAnimationPath(
+    cmd: MCPCommand,
+  ): AnimationPathConfigureResult {
     return this.wrapOperation(() => {
       const animationId = this.getParam<string>(cmd, "animationId");
       const leadTime = this.getParam<number | undefined>(cmd, "leadTime");
@@ -398,7 +412,7 @@ class CesiumAnimationManager implements ManagerInterface {
   /**
    * Track entity with camera
    */
-  trackAnimationEntity(cmd: MCPCommand): MCPCommandResult {
+  private trackAnimationEntity(cmd: MCPCommand): AnimationTrackResult {
     return this.wrapOperation(() => {
       const animationId = this.getParam<string>(cmd, "animationId");
       const range = this.getParam<number | undefined>(cmd, "range");
@@ -443,7 +457,7 @@ class CesiumAnimationManager implements ManagerInterface {
   /**
    * Untrack camera
    */
-  untrackCamera(): MCPCommandResult {
+  private untrackCamera(): AnimationUntrackResult {
     return this.wrapOperation(() => {
       this.viewer.trackedEntity = undefined;
       resetCameraTransform(this.viewer);
@@ -458,7 +472,7 @@ class CesiumAnimationManager implements ManagerInterface {
   /**
    * List all active animations
    */
-  listActiveAnimations(): MCPCommandResult {
+  private listActiveAnimations(): AnimationListResult {
     return this.wrapOperation(() => {
       const activeAnimations = Array.from(this.animations.entries()).map(
         ([animationId, anim]) => {
@@ -485,11 +499,11 @@ class CesiumAnimationManager implements ManagerInterface {
   /**
    * Set globe lighting effects
    */
-  setGlobeLighting(
+  private setGlobeLighting(
     enableLighting: boolean,
     enableDynamicAtmosphere: boolean = true,
     enableSunLighting: boolean = true,
-  ): MCPCommandResult {
+  ): GlobeLightingResult {
     return this.wrapOperation(() => {
       const scene = this.viewer.scene;
 
@@ -534,7 +548,7 @@ class CesiumAnimationManager implements ManagerInterface {
   /**
    * Get command handlers for this manager
    */
-  getCommandHandlers(): Map<string, CommandHandler> {
+  public getCommandHandlers(): Map<string, CommandHandler> {
     const handlers = new Map<string, CommandHandler>();
 
     // Merged clock control handler

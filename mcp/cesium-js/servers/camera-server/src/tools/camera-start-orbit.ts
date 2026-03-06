@@ -27,6 +27,10 @@ export function registerCameraStartOrbit(
     },
     async ({ speed = DEFAULT_ORBIT_SPEED, direction = "counterclockwise" }) => {
       try {
+        if (speed === 0) {
+          throw new Error("Speed must be non-zero");
+        }
+
         const command = {
           type: "camera_start_orbit",
           speed: direction === "clockwise" ? -Math.abs(speed) : Math.abs(speed),

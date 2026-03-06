@@ -106,6 +106,109 @@ export interface CameraFlyToOptions {
   cancel?: () => void;
 }
 
+// Animation result types
+export interface ClockConfigureResult extends MCPCommandResult {
+  startTime?: string;
+  stopTime?: string;
+  currentTime?: string;
+}
+
+export interface ClockSetTimeResult extends MCPCommandResult {
+  currentTime?: string;
+}
+
+export interface ClockSetMultiplierResult extends MCPCommandResult {
+  multiplier?: number;
+}
+
+export interface AnimationCreateResult extends MCPCommandResult {
+  animationId?: string;
+  sampleCount?: number;
+  decimatedSampleCount?: number;
+}
+
+export interface AnimationPlayResult extends MCPCommandResult {
+  isPlaying?: boolean;
+}
+
+export interface AnimationPauseResult extends MCPCommandResult {
+  isPlaying?: boolean;
+}
+
+export interface AnimationRemoveResult extends MCPCommandResult {
+  animationId?: string;
+}
+
+export interface AnimationPathConfigureResult extends MCPCommandResult {
+  animationId?: string;
+  pathSettings?: {
+    leadTime?: number;
+    trailTime?: number;
+    width?: number;
+    color?: string;
+  };
+}
+
+export interface AnimationTrackResult extends MCPCommandResult {
+  animationId?: string;
+  tracking?: boolean;
+  offset?: {
+    range?: number;
+    pitch?: number;
+    heading?: number;
+  };
+}
+
+export interface AnimationUntrackResult extends MCPCommandResult {
+  tracking?: boolean;
+}
+
+export interface AnimationListResult extends MCPCommandResult {
+  animations?: Array<{
+    animationId: string;
+    startTime: string | JulianDate;
+    stopTime: string | JulianDate;
+  }>;
+  clockState?: {
+    multiplier: number;
+    shouldAnimate: boolean;
+  };
+}
+
+export interface GlobeLightingResult extends MCPCommandResult {
+  settings?: {
+    enableLighting: boolean;
+    enableDynamicAtmosphere: boolean;
+    enableSunLighting: boolean;
+  };
+}
+
+// Entity result types
+export interface EntityAddResult extends MCPCommandResult {
+  entityId?: string;
+  type?: string;
+  position?: Position;
+}
+
+export interface EntityRemoveResult extends MCPCommandResult {
+  entityId?: string;
+}
+
+export interface EntityRemoveMultipleResult extends MCPCommandResult {
+  removedCount?: number;
+  removedIds?: string[];
+}
+
+export interface EntityListResult extends MCPCommandResult {
+  entities?: Array<{
+    id: string;
+    name: string;
+    type: string;
+    position?: Position;
+  }>;
+  totalCount?: number;
+}
+
 // Common types
 export interface ColorRGBA {
   red: number;

@@ -423,7 +423,7 @@ export type AnimationUpdateSpeedInput = z.infer<
  * Route animation config (legacy - for compatibility)
  */
 export const RouteAnimationConfigSchema = z.object({
-  route: z.any().describe("Route data from geolocation_route"),
+  route: z.object({}).loose().describe("Route data from geolocation_route"),
   modelPreset: z.string().optional().describe("Model preset to use"),
   speedMultiplier: z.number().optional().describe("Speed multiplier"),
   showPath: z.boolean().optional().describe("Show path visualization"),

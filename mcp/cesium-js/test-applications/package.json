@@ -8,7 +8,12 @@
     "build:core": "pnpm --filter @cesium-mcp/client-core build",
     "build:web": "pnpm --filter @cesium-mcp/web-app build",
     "start:web": "pnpm --filter @cesium-mcp/web-app serve",
-    "clean": "pnpm -r run clean"
+    "clean": "pnpm -r run clean",
+    "test": "pnpm --filter @cesium-mcp/client-core test",
+    "test:watch": "pnpm --filter @cesium-mcp/client-core test:watch",
+    "test:coverage": "pnpm --filter @cesium-mcp/client-core test:coverage",
+    "test:unit": "pnpm --filter @cesium-mcp/client-core test:unit",
+    "test:integration": "pnpm --filter @cesium-mcp/client-core test:integration"
   },
   "keywords": [
     "cesium",

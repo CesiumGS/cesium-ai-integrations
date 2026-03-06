@@ -48,7 +48,22 @@ export default [
     rules: {
       "no-unused-vars": [
         "error",
-        { vars: "all", args: "none", caughtErrors: "none" },
+        {
+          vars: "all",
+          args: "none",
+          caughtErrors: "none",
+          varsIgnorePattern: "^_",
+        },
+      ],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          vars: "all",
+          args: "none",
+          caughtErrors: "none",
+          varsIgnorePattern: "^_",
+          argsIgnorePattern: "^_",
+        },
       ],
       "no-use-before-define": [
         "error",
@@ -75,7 +90,22 @@ export default [
     rules: {
       "no-unused-vars": [
         "error",
-        { vars: "all", args: "none", caughtErrors: "none" },
+        {
+          vars: "all",
+          args: "none",
+          caughtErrors: "none",
+          varsIgnorePattern: "^_",
+        },
+      ],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          vars: "all",
+          args: "none",
+          caughtErrors: "none",
+          varsIgnorePattern: "^_",
+          argsIgnorePattern: "^_",
+        },
       ],
       "no-use-before-define": [
         "error",

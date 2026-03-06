@@ -14,7 +14,10 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
-    "clean": "rimraf build"
+    "clean": "rimraf build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@cesium-mcp/shared": "workspace:*",
@@ -24,7 +27,10 @@
   },
   "devDependencies": {
     "@types/node": "^25.2.2",
+    "@vitest/coverage-v8": "^4.0.18",
+    "@vitest/ui": "^4.0.18",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   }
 }

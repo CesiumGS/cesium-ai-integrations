@@ -86,7 +86,7 @@ cesium-js/
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) >= 18
+- [Node.js](https://nodejs.org/) >= 22 (Node 22 LTS is required for the built-in global `WebSocket` API)
 - [pnpm](https://pnpm.io/) >= 8
 
 ### Install & Build
@@ -117,10 +117,9 @@ pnpm run clean              # Remove all build artifacts
 
 ```bash
 pnpm run dev:camera        # Camera server on port 3002
+pnpm run dev:entity        # Entity server on port 3003
 pnpm run dev:animation     # Animation server on port 3004
 ```
-
-> **Note:** Entity server uses `pnpm --filter @cesium-mcp/entity-server dev` directly (no root-level shortcut).
 
 ### Web Application
 

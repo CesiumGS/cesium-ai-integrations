@@ -202,6 +202,5 @@ interface MCPServerConfig {
   version: string;
   communicationServerPort?: number;
   mcpTransport?: "stdio" | "streamable-http";
-  mcpTransportEndpoint?: string;
 }
 ```

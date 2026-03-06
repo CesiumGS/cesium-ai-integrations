@@ -432,7 +432,7 @@ Remove animation
 Clear all active animations
 ```
 
-## �🤝 Contributing
+## 🤝 Contributing
 
 Interested in contributing? Please read [CONTRIBUTING.md](CONTRIBUTING.md). We also ask that you follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 

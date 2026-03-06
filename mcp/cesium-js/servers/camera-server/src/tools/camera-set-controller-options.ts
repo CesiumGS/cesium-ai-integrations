@@ -11,6 +11,7 @@ import {
   ResponseEmoji,
   ICommunicationServer,
 } from "@cesium-mcp/shared";
+import type { CameraControllerOptionsResult } from "../utils/index.js";
 
 export function registerCameraSetControllerOptions(
   server: McpServer,
@@ -49,24 +50,37 @@ export function registerCameraSetControllerOptions(
           },
         };
 
-        const { result, responseTime } = await executeWithTiming(
-          communicationServer,
-          command,
-        );
+        const { result, responseTime } =
+          await executeWithTiming<CameraControllerOptionsResult>(
+            communicationServer,
+            command,
+          );
 
         if (result.success) {
+          if (result.settings === null) {
+            throw new Error(
+              "Cesium viewer did not return controller settings in the response",
+            );
+          }
+          const s = result.settings;
+
           const output = {
             success: true,
             message: "Camera controller options updated",
             settings: {
-              enableCollisionDetection: enableCollisionDetection ?? null,
-              minimumZoomDistance: minimumZoomDistance ?? null,
-              maximumZoomDistance: maximumZoomDistance ?? null,
-              enableTilt: enableTilt ?? null,
-              enableRotate: enableRotate ?? null,
-              enableTranslate: enableTranslate ?? null,
-              enableZoom: enableZoom ?? null,
-              enableLook: enableLook ?? null,
+              // Prefer viewer-returned value, then caller input, then null.
+              // Using ?? so explicit false/0 from the viewer is preserved.
+              enableCollisionDetection:
+                s?.enableCollisionDetection ?? enableCollisionDetection ?? null,
+              minimumZoomDistance:
+                s?.minimumZoomDistance ?? minimumZoomDistance ?? null,
+              maximumZoomDistance:
+                s?.maximumZoomDistance ?? maximumZoomDistance ?? null,
+              enableTilt: s?.enableTilt ?? enableTilt ?? null,
+              enableRotate: s?.enableRotate ?? enableRotate ?? null,
+              enableTranslate: s?.enableTranslate ?? enableTranslate ?? null,
+              enableZoom: s?.enableZoom ?? enableZoom ?? null,
+              enableLook: s?.enableLook ?? enableLook ?? null,
             },
             stats: {
               responseTime,

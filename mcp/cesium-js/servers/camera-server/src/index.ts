@@ -30,14 +30,15 @@ async function main() {
         communicationServerPort: PORT,
         communicationServerMaxRetries: MAX_RETRIES,
         communicationServerStrictPort: STRICT_PORT,
-        // mcpTransport: process.env.MCP_TRANSPORT || "stdio", optionally specify transport type
-        // mcpTransportEndpoint: process.env.MCP_TRANSPORT_ENDPOINT, optionally specify transport endpoint
+        mcpTransport: (process.env.MCP_TRANSPORT || "stdio") as
+          | "stdio"
+          | "streamable-http",
       },
       communicationServer,
     );
 
     console.error(
-      `🚀 Camera Server starting with ${PROTOCOL.toUpperCase()} on port ${PORT} (strictPort: ${STRICT_PORT})`,
+      `Camera Server starting with ${PROTOCOL.toUpperCase()} on port ${PORT} (strictPort: ${STRICT_PORT})`,
     );
 
     // Register camera tools
@@ -46,7 +47,7 @@ async function main() {
     // Start the server
     await server.start();
   } catch (error) {
-    console.error("❌ Failed to start camera server:", error);
+    console.error("Failed to start camera server:", error);
     process.exit(1);
   }
 }

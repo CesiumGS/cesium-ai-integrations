@@ -31,13 +31,12 @@ async function main() {
         communicationServerMaxRetries: MAX_RETRIES,
         communicationServerStrictPort: STRICT_PORT,
         // mcpTransport: process.env.MCP_TRANSPORT || "stdio", optionally specify transport type
-        // mcpTransportEndpoint: process.env.MCP_TRANSPORT_ENDPOINT, optionally specify transport endpoint
       },
       communicationServer,
     );
 
     console.error(
-      `🚀 Animation Server starting with ${PROTOCOL.toUpperCase()} on port ${PORT} (strictPort: ${STRICT_PORT})`,
+      `Animation Server starting with ${PROTOCOL.toUpperCase()} on port ${PORT} (strictPort: ${STRICT_PORT})`,
     );
 
     // Register animation tools
@@ -46,7 +45,7 @@ async function main() {
     // Start the server
     await server.start();
   } catch (error) {
-    console.error("❌ Failed to start animation server:", error);
+    console.error("Failed to start animation server:", error);
     process.exit(1);
   }
 }

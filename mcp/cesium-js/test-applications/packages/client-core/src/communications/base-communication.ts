@@ -90,7 +90,7 @@ export abstract class BaseCommunicationManager implements CommunicationManager {
     const attempts = this.reconnectAttempts.get(port) || 0;
 
     if (attempts >= this.maxReconnectAttempts) {
-      console.error(`❌ Max reconnection attempts reached for ${serverName}`);
+      console.error(`Max reconnection attempts reached for ${serverName}`);
       return;
     }
 

@@ -4,10 +4,6 @@ import { BaseCommunicationServer } from "./baseCommunicationServer.js";
 export class CesiumSSEServer extends BaseCommunicationServer {
   private sseClient: Response | null = null;
 
-  protected override getServerToStart() {
-    return this.app;
-  }
-
   protected override getProtocolName(): string {
     return "SSE HTTP";
   }
@@ -52,11 +48,16 @@ export class CesiumSSEServer extends BaseCommunicationServer {
       this.sseClient = res;
       this.log("info", "SSE client connected");
 
-      // Handle client disconnect
+      // Handle client disconnect.
+      // Guard: only clear sseClient if this response is still the registered
+      // one.  A stale close fired after the slot was reused must not evict the
+      // newly connected client.
       req.on("close", () => {
-        this.sseClient = null;
-        this.cleanupHeartbeat();
-        this.log("info", "SSE client disconnected");
+        if (this.sseClient === res) {
+          this.sseClient = null;
+          this.cleanupHeartbeat();
+          this.log("info", "SSE client disconnected");
+        }
       });
 
       // Keep connection alive with heartbeat

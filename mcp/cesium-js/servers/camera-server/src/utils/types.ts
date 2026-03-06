@@ -94,3 +94,24 @@ export interface CameraTargetResult extends CommandResult {
 export interface CameraControllerResult extends CommandResult {
   options?: Record<string, unknown>;
 }
+
+/**
+ * Typed settings returned by camera_set_controller_options
+ */
+export interface CameraControllerOptionsSettings {
+  enableCollisionDetection?: boolean | null;
+  minimumZoomDistance?: number | null;
+  maximumZoomDistance?: number | null;
+  enableTilt?: boolean | null;
+  enableRotate?: boolean | null;
+  enableTranslate?: boolean | null;
+  enableZoom?: boolean | null;
+  enableLook?: boolean | null;
+}
+
+/**
+ * Result type for camera controller options operations
+ */
+export interface CameraControllerOptionsResult extends CommandResult {
+  settings?: CameraControllerOptionsSettings | null;
+}

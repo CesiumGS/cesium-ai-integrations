@@ -10,7 +10,7 @@ export interface MCPServerConfig {
   communicationServerMaxRetries?: number;
   communicationServerStrictPort?: boolean;
   mcpTransport?: MCPTransportType;
-  mcpTransportEndpoint?: string;
+  silent?: boolean; // Optional - suppress console logs (useful for testing)
 }
 
 export type ToolRegistrationFunction = (

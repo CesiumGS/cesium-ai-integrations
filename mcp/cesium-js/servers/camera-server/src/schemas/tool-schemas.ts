@@ -35,6 +35,7 @@ export const CameraControllerOptionsSchema = z.object({
 export const OrbitOptionsSchema = z.object({
   speed: z
     .number()
+    .refine((n) => n !== 0, { message: "Speed must be non-zero" })
     .optional()
     .describe("Orbit speed in radians per second (default: 0.005)"),
   direction: z

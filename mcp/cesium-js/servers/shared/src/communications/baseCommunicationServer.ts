@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
-import type { Server as HttpServer } from "http";
+import { createServer, type Server as HttpServer } from "http";
+import type { ListenOptions } from "net";
 import { randomUUID } from "crypto";
 import { ICommunicationServer } from "./communication-server.js";
 import {
@@ -28,7 +29,7 @@ interface PendingCommand {
 }
 
 interface ServerToStart {
-  listen: (port: number, callback: () => void) => HttpServer;
+  listen(options: ListenOptions, callback: () => void): HttpServer;
 }
 
 /**
@@ -46,15 +47,18 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
 
   public constructor() {
     this.app = express();
-    this.setupMiddleware();
+    this.app.use(express.json());
     this.setupRoutes();
   }
 
   /**
-   * Get the server instance to start (can be HTTP server or other)
-   * Subclasses override this to return their specific server instance
+   * Get the HTTP server instance to start.
+   * The default implementation wraps the Express app in an HTTP server.
+   * Subclasses may override to return a pre-constructed server (e.g. for WebSocket).
    */
-  protected abstract getServerToStart(): ServerToStart;
+  protected getServerToStart(): ServerToStart {
+    return createServer(this.app);
+  }
 
   /**
    * Get the protocol name for logging
@@ -70,31 +74,24 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
    * Log a message at the specified level
    */
   protected log(level: LogLevel, message: string, ...args: unknown[]): void {
-    const levels: LogLevel[] = ["debug", "info", "warn", "error"];
-    const currentLevelIndex = levels.indexOf(this.logLevel);
-    const messageLevelIndex = levels.indexOf(level);
+    const levels: Record<LogLevel, number> = {
+      debug: 0,
+      info: 1,
+      warn: 2,
+      error: 3,
+    };
 
-    if (messageLevelIndex >= currentLevelIndex) {
-      const prefix = `[${level.toUpperCase()}]`;
-      console.error(prefix, message, ...args);
+    if (levels[level] >= levels[this.logLevel]) {
+      console.error(`[${level.toUpperCase()}]`, message, ...args);
     }
   }
 
   /**
-   * Setup Express middleware (CORS, JSON parsing)
-   */
-  protected setupMiddleware(): void {
-    // CORS will be configured in start() with config
-    this.app.use(express.json());
-  }
-
-  /**
-   * Setup common HTTP routes (health check endpoint)
+   * Setup HTTP routes (health check endpoint)
    * Subclasses can override to add protocol-specific routes
    */
   protected setupRoutes(): void {
-    // Enhanced health check endpoint
-    this.app.get("/mcp/health", (req: Request, res: Response) => {
+    this.app.get("/mcp/health", (_req: Request, res: Response) => {
       const stats = this.getStats();
       res.json({
         status: "healthy",
@@ -153,40 +150,50 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
     const strictPort = config.strictPort ?? false;
     const serverToStart = this.getServerToStart();
 
-    this.server = serverToStart.listen(port, () => {
-      this.actualPort = port;
-      this.startTime = Date.now();
-      this.log(
-        "info",
-        `${this.getProtocolName()} server running on port ${port}`,
-      );
-      this.onServerStarted();
-      resolve(port);
-    });
+    const attemptServer = serverToStart.listen(
+      { port, exclusive: true },
+      () => {
+        // Read the actual bound port — critical when port=0 lets the OS choose
+        const address = attemptServer.address();
+        const actualBoundPort =
+          typeof address === "object" && address !== null ? address.port : port;
+        this.actualPort = actualBoundPort;
+        this.startTime = Date.now();
+        this.log(
+          "info",
+          `${this.getProtocolName()} server running on port ${actualBoundPort}`,
+        );
+        this.onServerStarted();
+        resolve(actualBoundPort);
+      },
+    );
 
-    this.server.on("error", (err: NodeJS.ErrnoException) => {
-      if (err.code === "EADDRINUSE") {
-        if (strictPort) {
-          reject(
-            new Error(
-              `Port ${config.port} is in use and strictPort mode is enabled. Please free up port ${config.port} or disable strictPort.`,
-            ),
-          );
-        } else if (retries > 0) {
-          this.log(
-            "warn",
-            `Port ${port} is in use, trying port ${port + 1}...`,
-          );
-          this.tryBindPort(config, resolve, reject, port + 1, retries - 1);
-        } else {
-          reject(
-            new Error(
-              `No available ports found after ${config.maxRetries} retries starting from port ${config.port}`,
-            ),
-          );
-        }
-      } else {
+    // Track the current attempt so stop() can clean up if called during startup
+    this.server = attemptServer;
+
+    attemptServer.on("error", (err: NodeJS.ErrnoException) => {
+      attemptServer.close();
+
+      if (err.code !== "EADDRINUSE") {
         reject(err);
+        return;
+      }
+
+      if (strictPort) {
+        reject(
+          new Error(
+            `Port ${config.port} is in use and strictPort mode is enabled. Please free up port ${config.port} or disable strictPort.`,
+          ),
+        );
+      } else if (retries > 0) {
+        this.log("warn", `Port ${port} is in use, trying port ${port + 1}...`);
+        this.tryBindPort(config, resolve, reject, port + 1, retries - 1);
+      } else {
+        reject(
+          new Error(
+            `No available ports found after ${config.maxRetries} retries starting from port ${config.port}`,
+          ),
+        );
       }
     });
   }
@@ -228,15 +235,9 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
       throw new Error("No client connected");
     }
 
-    const commandData = JSON.stringify({
-      type: "command",
-      command: command,
-    });
-
     try {
-      this.sendRawData(commandData);
+      this.sendRawData(JSON.stringify({ type: "command", command }));
     } catch (error) {
-      // Connection is dead
       this.handleConnectionDeath();
       throw error;
     }
@@ -319,7 +320,7 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
    * @param reason The error message to reject pending promises with
    */
   protected rejectAllPendingCommands(reason: string): void {
-    for (const [, pending] of this.pendingCommands.entries()) {
+    for (const [, pending] of this.pendingCommands) {
       clearTimeout(pending.timeout);
       pending.reject(new Error(reason));
     }
@@ -335,6 +336,7 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
     onHeartbeat: () => void,
     intervalMs: number = HEARTBEAT_INTERVAL_MS,
   ): void {
+    this.cleanupHeartbeat();
     this.heartbeatInterval = setInterval(onHeartbeat, intervalMs);
   }
 
@@ -355,28 +357,27 @@ export abstract class BaseCommunicationServer implements ICommunicationServer {
   protected async performShutdown(shutdownTimeout?: number): Promise<void> {
     const timeout = shutdownTimeout ?? GRACEFUL_SHUTDOWN_TIMEOUT_MS;
 
-    // Reject all pending commands
     this.rejectAllPendingCommands("Server shutting down");
-
-    // Clear heartbeat
     this.cleanupHeartbeat();
 
-    // Wait for server to close with timeout
-    if (this.server) {
-      return Promise.race([
-        new Promise<void>((resolve) => {
-          this.server!.close(() => {
-            this.log("info", `${this.getProtocolName()} server stopped`);
-            resolve();
-          });
-        }),
-        new Promise<void>((resolve) => {
-          setTimeout(() => {
-            this.log("warn", "Shutdown timeout reached, forcing close");
-            resolve();
-          }, timeout);
-        }),
-      ]);
+    if (!this.server) {
+      return;
     }
+
+    const serverRef = this.server;
+    this.server = null;
+
+    return new Promise<void>((resolve) => {
+      const timer = setTimeout(() => {
+        this.log("warn", "Shutdown timeout reached, forcing close");
+        resolve();
+      }, timeout);
+
+      serverRef.close(() => {
+        clearTimeout(timer);
+        this.log("info", `${this.getProtocolName()} server stopped`);
+        resolve();
+      });
+    });
   }
 }

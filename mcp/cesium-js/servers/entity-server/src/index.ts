@@ -33,7 +33,7 @@ const server = new CesiumMCPServer(
 );
 
 console.error(
-  `🚀 Entity Server starting with ${PROTOCOL.toUpperCase()} on port ${PORT} (strictPort: ${STRICT_PORT})`,
+  `Entity Server starting with ${PROTOCOL.toUpperCase()} on port ${PORT} (strictPort: ${STRICT_PORT})`,
 );
 
 // Register tools and resources
@@ -41,6 +41,6 @@ server.registerTools(registerEntityTools);
 
 // Start server
 server.start().catch((error) => {
-  console.error("❌ Failed to start entity server:", error);
+  console.error("Failed to start entity server:", error);
   process.exit(1);
 });
