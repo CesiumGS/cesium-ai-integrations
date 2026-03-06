@@ -1,4 +1,4 @@
-# CesiumJS MCP Servers
+# Cesium MCP App Servers
 
 pnpm monorepo containing Cesium MCP Apps for AI assistants.
 
