@@ -472,6 +472,5 @@ new Cesium.Viewer('cesiumContainer', {
 ## References
 
 - [Cesium Documentation](/cesiumgs/cesium) - CesiumJS API (Context7 MCP)
-- [MCP Apps SDK Examples](<path-to-ext-apps>/examples)
 - [Cesium Sandcastle](https://sandcastle.cesium.com/)
 - [3D Tiles Specification](/websites/ogc_cs_22-025r4) (Context7 MCP)
