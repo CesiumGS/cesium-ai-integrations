@@ -48,6 +48,7 @@
       "@eslint/eslintrc>ajv": "^6.12.6",
       "minimatch": ">=10.2.3",
       "hono": ">=4.11.10",
+      "express-rate-limit": ">=8.2.2",
       "dompurify": ">=3.3.2"
     },
     "auditConfig": {
