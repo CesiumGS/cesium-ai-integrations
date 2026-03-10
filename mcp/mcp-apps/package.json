@@ -25,6 +25,11 @@
     "node": ">=18.0.0",
     "pnpm": ">=8.0.0"
   },
+  "pnpm": {
+    "overrides": {
+      "express-rate-limit": ">=8.2.2"
+    }
+  },
   "devDependencies": {
     "@cesium/eslint-config": "^13.0.0",
     "eslint": "^9.39.2",

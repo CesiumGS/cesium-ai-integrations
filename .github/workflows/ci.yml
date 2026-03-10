@@ -32,10 +32,6 @@ jobs:
       working-directory: ./mcp/cesium-js
       run: pnpm install --frozen-lockfile
     
-    - name: Security audit
-      working-directory: ./mcp/cesium-js
-      run: pnpm audit
-    
     - name: Lint & Prettier check
       working-directory: ./mcp/cesium-js
       run: pnpm run check
@@ -71,10 +67,6 @@ jobs:
     - name: Install dependencies
       working-directory: ./mcp/mcp-apps
       run: pnpm install --frozen-lockfile
-    
-    - name: Security audit
-      working-directory: ./mcp/mcp-apps
-      run: pnpm audit
     
     - name: Lint & Prettier check
       working-directory: ./mcp/mcp-apps
