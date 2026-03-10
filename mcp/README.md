@@ -14,17 +14,19 @@ CesiumJs servers live in [`cesium-js/`](./cesium-js/README.md). See the [cesium-
 | 🌍 [cesium-entity-server](./cesium-js/servers/entity-server/README.md) | `cesium-js/servers/entity-server/` | Entity management: points, billboards, labels, models, polygons, polylines, and more |
 | 🎬 [cesium-animation-server](./cesium-js/servers/animation-server/README.md) | `cesium-js/servers/animation-server/` | Path-based animations, clock control, camera tracking, globe lighting |
 
-#### 🎬 [cesium-animation-server](./servers/animation-server/README.md)
+### 🌐 Geolocation MCP Server
 
-Animation and path-based entity control for CesiumJS applications. Create animated entities along custom paths with precise timing, camera tracking, and clock management.
+| Server | Folder | Description |
+|---|---|---|
+| 🌍 [cesium-geolocation-server](./geolocation-server/README.md) | `geolocation-server/` | Geolocation-aware search and routing using free, open-source providers (Nominatim, Overpass, OSRM) |
 
-**Tools:** `animation_create`, `animation_control`, `animation_remove`, `animation_list_active`, `animation_update_path`, `animation_camera_tracking`, `clock_control`, `globe_set_lighting`
+### 💻 Cesium MCP Apps
 
-#### 🗺️ [cesium-geolocation-server](./servers/geolocation-server/README.md)
+Cesium MCP Apps live in [`mcp-apps/`](./mcp-apps/README.md). See the [mcp-apps README](./mcp-apps/README.md) for installation, build instructions, and MCP client configuration.
 
-Geolocation-aware search and routing capabilities with support for multiple providers (Google, Nominatim, Overpass, OSRM). Geocoding, POI search, route computation, and browser geolocation.
-
-**Tools:** `geolocation_geocode`, `geolocation_search`, `geolocation_route`, `geolocation_get_user_location`
+| Server | Folder | Description |
+|---|---|---|
+| 🪄 [cesium-codegen](./mcp-apps/codegen/README.md) | `mcp-apps/codegen/` | Cesium views code generation |
 
 ### 🌐 External MCP Servers
 
@@ -40,6 +42,8 @@ See the individual READMEs for full details:
 - **[cesium-camera-server README](./cesium-js/servers/camera-server/README.md)** — camera tools reference and configuration
 - **[cesium-entity-server README](./cesium-js/servers/entity-server/README.md)** — entity tools reference and configuration
 - **[cesium-animation-server README](./cesium-js/servers/animation-server/README.md)** — animation tools reference and configuration
+- **[cesium-geolocation-server README](./geolocation-server/README.md)** — geolocation, POI search, and routing tools
+- **[mcp-apps README](./mcp-apps/README.md)** — MCP Apps with interactive UIs
 - **[cesium-context7 README](./external/cesium-context7/README.md)** — Context7 setup and agent skill usage
 
 
@@ -60,6 +64,9 @@ mcp/
 │   │   └── web-app/              # Browser application (localhost:8080)
 │   ├── package.json             # pnpm workspace root
 │   └── pnpm-workspace.yaml
+├── geolocation-server/      # Geolocation, POI search, and routing MCP server
+├── mcp-apps/                # MCP Apps with interactive UIs
+│   ├── codegen/                   # Cesium views code generation
 ├── external/
 │   └── cesium-context7/         # Context7 external MCP server
 └── README.md
