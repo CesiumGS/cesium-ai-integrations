@@ -32,6 +32,7 @@
     "model-context-protocol",
     "cesium",
     "camera",
+    "geolocation",
     "3d",
     "geospatial"
   ],

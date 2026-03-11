@@ -184,6 +184,13 @@ export interface GlobeLightingResult extends MCPCommandResult {
 }
 
 // Entity result types
+export interface EntityInfo {
+  id: string;
+  name: string;
+  type: string;
+  position?: Position;
+}
+
 export interface EntityAddResult extends MCPCommandResult {
   entityId?: string;
   type?: string;
@@ -200,12 +207,7 @@ export interface EntityRemoveMultipleResult extends MCPCommandResult {
 }
 
 export interface EntityListResult extends MCPCommandResult {
-  entities?: Array<{
-    id: string;
-    name: string;
-    type: string;
-    position?: Position;
-  }>;
+  entities?: EntityInfo[];
   totalCount?: number;
 }
 

@@ -11,7 +11,7 @@ export default [
       "**/node_modules/",
       "**/*.d.ts",
       "**/pnpm-lock.yaml",
-      "test-applications/cesium-js/web-app/index.html",
+      "test-applications/web-app/index.html",
     ],
   },
   {
@@ -74,10 +74,10 @@ export default [
   // TypeScript configuration for cesium-js client-core (browser environment)
   ...[...tseslint.configs.recommended].map((config) => ({
     ...config,
-    files: ["test-applications/cesium-js/packages/client-core/**/*.ts"],
+    files: ["test-applications/packages/client-core/**/*.ts"],
   })),
   {
-    files: ["test-applications/cesium-js/packages/client-core/**/*.{ts,js}"],
+    files: ["test-applications/packages/client-core/**/*.{ts,js}"],
     ...configCesium.configs.browser,
     languageOptions: {
       ...configCesium.configs.browser.languageOptions,
@@ -116,11 +116,11 @@ export default [
   // TypeScript configuration for cesium-js web-app (browser environment)
   ...[...tseslint.configs.recommended].map((config) => ({
     ...config,
-    files: ["test-applications/cesium-js/web-app/**/*.ts"],
+    files: ["test-applications/web-app/**/*.ts"],
   })),
   {
-    files: ["test-applications/cesium-js/web-app/**/*.{ts,js}"],
-    ignores: ["test-applications/cesium-js/web-app/**/*.config.cjs"],
+    files: ["test-applications/web-app/**/*.{ts,js}"],
+    ignores: ["test-applications/web-app/**/*.config.cjs"],
     ...configCesium.configs.browser,
     languageOptions: {
       ...configCesium.configs.browser.languageOptions,
@@ -143,7 +143,7 @@ export default [
   },
   // Config files in cesium-js (Node.js environment)
   {
-    files: ["test-applications/cesium-js/web-app/**/*.config.cjs"],
+    files: ["test-applications/web-app/**/*.config.cjs"],
     ...configCesium.configs.node,
     languageOptions: {
       ...configCesium.configs.node.languageOptions,

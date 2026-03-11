@@ -1,0 +1,44 @@
+{
+  "name": "@cesium-mcp/geolocation-server",
+  "version": "1.0.0",
+  "description": "MCP server for geolocation-aware search and routing with Google Maps APIs",
+  "type": "module",
+  "main": "build/index.js",
+  "bin": {
+    "cesium-geolocation-mcp": "./build/index.js"
+  },
+  "exports": {
+    ".": "./build/index.js",
+    "./schemas": "./build/schemas.js",
+    "./tools/geolocation-tools": "./build/tools/geolocation-tools.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "clean": "rimraf build",
+    "test:osm": "tsx test-osm-providers.ts",
+    "test:overpass": "tsx test-overpass-provider.ts",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "pnpm run format:check && pnpm run lint"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "dotenv": "^16.4.7",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@cesium/eslint-config": "^13.0.0",
+    "@types/node": "^20.0.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "globals": "^17.3.0",
+    "prettier": "^3.8.1",
+    "rimraf": "^5.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.55.0"
+  }
+}
