@@ -2,6 +2,8 @@
 
 MCP server providing geolocation-aware search and routing capabilities using free, open-source providers (Nominatim, Overpass, OSRM) for 3D visualization in CesiumJS.
 
+<video src="https://github.com/user-attachments/assets/903eab9c-01af-42a4-8f09-b6e19e05ff5c" controls></video>
+
 ## ✨ Features
 
 - **Geocoding**: Convert addresses and place names to coordinates ("Empire State Building" → lat/long)
@@ -10,8 +12,6 @@ MCP server providing geolocation-aware search and routing capabilities using fre
 - **Multiple Providers**: Dedicated provider per task — Nominatim for geocoding, Overpass for POI search, OSRM for routing
 - **Caching & Rate Limiting**: Built-in response caching and per-provider rate limiting
 - **Schema Validation**: Zod-validated inputs and outputs
-
-> **📖 For a detailed comparison against other geolocation MCP servers, see [COMPARISON.md](./COMPARISON.md)**
 
 ## 🔌 Provider Support
 
@@ -178,6 +178,7 @@ Uses **OSRM**. Calculates turn-by-turn directions between origin and destination
 - Multiple route alternatives
 - Turn-by-turn navigation instructions
 - Waypoint support
+- Pre-decoded polyline positions for direct entity visualization
 
 > **Note:** Transit mode is not supported by OSRM and falls back to driving.
 
@@ -191,14 +192,35 @@ Uses **OSRM**. Calculates turn-by-turn directions between origin and destination
 
 **Output:**
 
-- Route polyline with coordinates
+- `polyline`: Encoded polyline string (compact storage/transfer)
+- `positions`: Array of decoded coordinates `[{longitude, latitude, height}, ...]` — **ready to use with cesium-js mcp tools**
 - Total distance and duration
 - Turn-by-turn instructions
 - Multiple route alternatives (when requested)
 
+**Example Queries:**
+
+```
+"Plan a walking route from Central Park to Empire State Building"
+"Get driving directions from Los Angeles to San Diego"
+"Show me the fastest cycling route from Golden Gate Bridge to Fisherman's Wharf"
+```
+
 ---
 
-## 🔌 Using with AI Clients
+## Integration with Cesium MCP Servers
+
+The geolocation server is designed to work seamlessly with other MCP servers in the Cesium ecosystem. Route responses include pre-decoded `positions` arrays that integrate directly with visualization and animation tools:
+
+- **Entity Server** (`entity_add_polyline`) — Visualize routes as line paths on the 3D map
+- **Animation Server** (`animation_create`) — Animate movement along the route with customizable speed and camera tracking
+- **Camera Server** (`camera_fly_to`, `camera_look_at_transform`) — Fly to route start/end points or orbit around the path
+
+These servers are designed to work **together** — chain geolocation queries with visualization and animation tools to create rich, interactive experiences. No polyline decoding is needed; positions are ready to use immediately.
+
+---
+
+## 🔌Using with AI Clients
 
 The geolocation server works with any MCP-compatible client: **GitHub Copilot** (VS Code), **Cline**, **Claude Desktop**, or other MCP clients.
 
@@ -284,12 +306,15 @@ Try these natural language queries with your AI client:
 "Show me coffee shops near Times Square and plan a route visiting the 3 closest ones"
 ```
 
+---
+
 ## 🏗️ Architecture
 
 - **Transport**: stdio (launched directly by MCP clients)
 - **Geocode tool**: Nominatim (OpenStreetMap) — free, no API key, excellent for addresses
 - **Search tool**: Overpass API (OpenStreetMap) — free, no API key, excellent for POI queries
-- **Route tool**: OSRM (Open Source Routing Machine) — free, no API key, turn-by-turn directions
+- **Route tool**: OSRM (Open Source Routing Machine) — free, no API key, turn-by-turn directions + polyline decoding
+- **Polyline Processing**: Google's polyline algorithm
 - **Caching**: In-memory LRU cache per provider (5 min TTL for places, 1 hr TTL for routes)
 - **Rate Limiting**: Per-provider rate limiter (1.1 sec Nominatim, 2 sec Overpass)
 - **Schema Validation**: Zod schemas for all inputs and outputs
@@ -304,49 +329,18 @@ All configuration is optional — the server works with no environment variables
 | `OVERPASS_SERVER_URL` | Custom Overpass API server URL                    | `https://overpass-api.de/api/interpreter` |
 | `OSRM_SERVER_URL`     | Custom OSRM routing server URL                    | `https://router.project-osrm.org`         |
 
-## 📊 Provider Comparison
+## 🌐 Alternative Geolocation MCP Servers
 
-### Places Providers
+This server is one approach among many possible geolocation MCP implementations. Different servers use different providers, capabilities, and hosting models.
 
-| Feature       | Nominatim    | Overpass API     |
-| ------------- | ------------ | ---------------- |
-| Geocoding     | ✅ Excellent | ❌ Not supported |
-| POI Search    | ⚠️ Limited   | ✅ Excellent     |
-| Nearby Search | ⚠️ Limited   | ✅ Full          |
-| Ratings       | ❌ No        | ❌ No            |
-| Opening Hours | ❌ No        | ❌ No            |
-| Photos        | ❌ No        | ❌ No            |
-| API Key       | ✅ Free      | ✅ Free          |
-| Rate Limit    | 1 req/sec    | ~2 sec/req       |
+| Server                                                                                 | Notes                                      |
+| -------------------------------------------------------------------------------------- | ------------------------------------------ |
+| **[MCP-Geo](https://github.com/webcoderz/MCP-Geo/tree/main)**                          | Multi-provider geocoding implementation    |
+| **[geocoding-ai/mcp](https://github.com/geocoding-ai/mcp/tree/main)**                  | Geocoding-oriented implementation          |
+| **[Google Maps Grounding Lite](https://developers.google.com/maps/ai/grounding-lite)** | Google Maps hosted grounding/search option |
+| **[TomTom MCP](https://developer.tomtom.com/tomtom-mcp/documentation/overview)**       | TomTom Maps API-based MCP option           |
 
-### Routes Providers
-
-| Feature      | OSRM                       |
-| ------------ | -------------------------- |
-| Routing      | ✅ Full                    |
-| Traffic Data | ❌ No                      |
-| Transit Mode | ❌ (falls back to driving) |
-| Waypoints    | ✅ Yes                     |
-| Alternatives | ✅ Yes                     |
-| API Key      | ✅ Free                    |
-| Rate Limit   | Unlimited\*                |
-
-\* When self-hosted. The public demo server has usage limits.
-
-## 🚢 Self-Hosting for Production
-
-For production use, consider self-hosting OSRM and/or Overpass for better performance and no rate limits:
-
-```bash
-# Run OSRM server with Docker
-docker run -t -i -p 5000:5000 -v "${PWD}:/data" osrm/osrm-backend osrm-routed --algorithm mld /data/your-region.osrm
-
-# Point the geolocation server at your instance
-export OSRM_SERVER_URL=http://localhost:5000
-node build/index.js
-```
-
-Visit [OSRM documentation](http://project-osrm.org/) and [Overpass API documentation](https://wiki.openstreetmap.org/wiki/Overpass_API) for self-hosting instructions.
+> This is intentionally non-exhaustive; it highlights that there are many valid provider combinations and architecture choices.
 
 ## 🤝 Contributing
 

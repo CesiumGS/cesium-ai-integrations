@@ -77,6 +77,12 @@ export const RouteSchema = z.object({
   polyline: z
     .string()
     .describe("Encoded polyline geometry for route visualization"),
+  positions: z
+    .array(PositionSchema)
+    .describe(
+      "Decoded polyline as array of positions (longitude, latitude, height).",
+    )
+    .optional(),
   bounds: z
     .object({
       northeast: PositionSchema,

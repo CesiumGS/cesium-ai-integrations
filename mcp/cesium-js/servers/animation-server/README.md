@@ -2,6 +2,8 @@
 
 MCP server for Cesium animation, path-based entity control, and clock management.
 
+<video src="https://github.com/user-attachments/assets/903eab9c-01af-42a4-8f09-b6e19e05ff5c" controls></video>
+
 ## ✨ Features
 
 - **Custom Path Animation**: Animate 3D models along manually specified position samples with precise timing
@@ -212,47 +214,6 @@ Enable or disable realistic globe lighting effects for day/night cycles.
 
 ---
 
-## 🌍 Example Workflow
-
-```javascript
-// 1. Create a Cesium Man animation from explicit position samples
-const animation = await animation_create({
-  positionSamples: [
-    {
-      time: "2026-01-01T00:00:00Z",
-      longitude: 25.2797,
-      latitude: 54.6872,
-      height: 0,
-    },
-    {
-      time: "2026-01-01T00:01:00Z",
-      longitude: 25.2793,
-      latitude: 54.6968,
-      height: 0,
-    },
-  ],
-  modelPreset: "cesium_man",
-  speedMultiplier: 15,
-  autoPlay: true,
-  trackCamera: true,
-});
-
-// 2. Pause and then resume at 5x speed
-await animation_control({
-  animationId: animation.animationId,
-  action: "pause",
-});
-await clock_control({ action: "setMultiplier", multiplier: 5 });
-await animation_control({ animationId: animation.animationId, action: "play" });
-```
-
-## 🎨 Default Models
-
-- **Walking** (`cesium_man`): Cesium Man character
-- **Driving** (`car`): Car model
-- **Cycling** (`bike`): Bicycle model
-- **Flying** (`airplane`): Airplane model
-
 ## 🏗️ Architecture
 
 ### Directory Structure
@@ -302,10 +263,58 @@ Environment variables:
 - `MAX_RETRIES`: Connection retry attempts (default: 10)
 - `STRICT_PORT`: Require exact port or fail (default: false)
 
-## 📚 Related Resources
+## 🔌 Using with AI Clients
 
-- [Camera Server](../camera-server/README.md) - Reference implementation
-- [Shared Package](../shared/README.md) - Base classes and utilities
+The animation server works with any MCP-compatible client: **Cline**, **Github Copilot** (VS Code), **Claude Desktop**, or other MCP clients.
+
+### Example: Configure with Cline
+
+**Step 1: Install Cline**
+
+Install the [Cline extension](https://marketplace.visualstudio.com/items?itemName=saoudrizwan.claude-dev) from VS Code marketplace.
+
+**Step 2: Configure MCP Server**
+
+Add to your Cline MCP settings (`~/.config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json` or via Cline settings UI):
+
+> **Note:** For Github Copilot or Claude Desktop, use similar configuration in their respective MCP settings files.
+
+```json
+{
+  "mcpServers": {
+    "cesium-animation-server": {
+      "command": "node",
+      "args": [
+        "{YOUR_WORKSPACE}/cesium-ai-integrations/mcp/cesium-js/servers/animation-server/build/index.js"
+      ],
+      "env": {
+        "PORT": "3004",
+        "COMMUNICATION_PROTOCOL": "websocket" // "sse"
+      }
+    }
+  }
+}
+```
+
+**Step 3: Start the Visual Client (Optional but Recommended)**
+
+To see animations in real-time 3D:
+
+```bash
+# Configure environment
+cd test-applications/web-app
+cp .env.example .env
+# Edit .env and add your Cesium Ion token from https://ion.cesium.com/tokens
+
+# Start the web client
+pnpm start
+```
+
+Open http://localhost:8080 to view the 3D globe. The status panel will show the animation server connection.
+
+**Step 4: Use Cline**
+
+Open Cline in VS Code and use natural language commands (see example queries below). The animation server tools will be available automatically.
 
 ## 💬 Example Test Queries
 

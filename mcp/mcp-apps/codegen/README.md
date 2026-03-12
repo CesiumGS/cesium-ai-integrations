@@ -2,6 +2,8 @@
 
 MCP App for generating Cesium views.
 
+<video src="https://github.com/user-attachments/assets/327bdcaf-84ce-4b10-bba8-8fbc37b040f5" controls></video>
+
 Read more about MCP Apps in https://blog.modelcontextprotocol.io/posts/2026-01-26-mcp-apps/.
 
 ## ⚙️ Prerequisites

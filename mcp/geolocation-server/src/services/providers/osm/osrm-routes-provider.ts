@@ -280,6 +280,7 @@ export class OSRMRoutesProvider {
         distance: route.distance || 0,
         duration: route.duration || 0,
         polyline: route.geometry || "",
+        positions: route.geometry ? decodePolyline(route.geometry) : [],
         bounds,
         legs: legs.map((leg: OSRMLeg) => ({
           distance: leg.distance || 0,
@@ -313,14 +314,6 @@ export class OSRMRoutesProvider {
 
       return transformed;
     });
-  }
-
-  /**
-   * Decode polyline string to coordinates
-   * Uses shared polyline decoder utility
-   */
-  decodePolyline(encoded: string): Position[] {
-    return decodePolyline(encoded);
   }
 
   /**
