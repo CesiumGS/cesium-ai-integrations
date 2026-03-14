@@ -33,6 +33,7 @@ Cesium MCP Apps live in [`mcp-apps/`](./mcp-apps/README.md). See the [mcp-apps R
 | Server | Folder | Description |
 |---|---|---|
 | 📚 [cesium-context7](./external/cesium-context7/README.md) | `external/cesium-context7/` | Real-time access to Cesium documentation and code examples via Context7. Includes agent skills for VS Code and Claude Code. |
+| 💬 [discourse-mcp](./external/discourse-mcp/README.md) | `external/discourse-mcp/` | Discourse MCP setup for `community.cesium.com` with read-only and write-enabled configuration examples. |
 
 ## 🚀 Getting Started
 
@@ -45,6 +46,7 @@ See the individual READMEs for full details:
 - **[cesium-geolocation-server README](./geolocation-server/README.md)** — geolocation, POI search, and routing tools
 - **[mcp-apps README](./mcp-apps/README.md)** — MCP Apps with interactive UIs
 - **[cesium-context7 README](./external/cesium-context7/README.md)** — Context7 setup and agent skill usage
+- **[discourse-mcp README](./external/discourse-mcp/README.md)** — Discourse MCP setup for community.cesium.com
 
 
 ## 🏗️ Architecture
@@ -68,7 +70,8 @@ mcp/
 ├── mcp-apps/                # MCP Apps with interactive UIs
 │   ├── codegen/                   # Cesium views code generation
 ├── external/
-│   └── cesium-context7/         # Context7 external MCP server
+│   ├── cesium-context7/         # Context7 external MCP server
+│   └── discourse-mcp/           # Discourse external MCP server (community.cesium.com)
 └── README.md
 ```
 

@@ -8,11 +8,70 @@
       ],
       "type": "stdio"
     },
-    "aec-architectural-design": {
-      "url": "http://localhost:3002/mcp"
+    "discourse": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@discourse/mcp@latest",
+        "--site",
+        "https://community.cesium.com"
+      ],
+      "type": "stdio"
     },
-    "imodel-mesh-export": {
-      "url": "http://localhost:3003/mcp"
-    }
+    // "codegen": {
+    //   "url": "http://localhost:3001/mcp"
+    // },
+    // "cesium-geolocation-server": {
+    //   "type": "stdio",
+    //   "command": "node",
+    //   "args": [
+    //     "D:\\CesiumGS\\cesium-ai-integrations\\mcp\\geolocation-server\\build\\index.js"
+    //   ],
+    //   "env": {
+    //     "OSM_USER_AGENT": "cesium-geolocation-mcp/1.0"
+    //   }
+    // },
+    // "cesium-entity-server": {
+    //   "type": "stdio",
+    //   "command": "node",
+    //   "args": [
+    //     "D:\\CesiumGS\\cesium-ai-integrations\\mcp\\cesium-js\\servers\\entity-server\\build\\index.js"
+    //   ],
+    //   "env": {
+    //     "COMMUNICATION_PROTOCOL": "websocket",
+    //     "ENTITY_SERVER_PORT": "3003",
+    //     "STRICT_PORT": "false"
+    //   }
+    // },
+    // "cesium-animation-server": {
+    //   "type": "stdio",
+    //   "command": "node",
+    //   "args": [
+    //     "D:\\CesiumGS\\cesium-ai-integrations\\mcp\\cesium-js\\servers\\animation-server\\build\\index.js"
+    //   ],
+    //   "env": {
+    //     "COMMUNICATION_PROTOCOL": "websocket",
+    //     "ANIMATION_SERVER_PORT": "3004",
+    //     "STRICT_PORT": "false"
+    //   }
+    // },
+    // "cesium-camera-server": {
+    //   "type": "stdio",
+    //   "command": "node",
+    //   "args": [
+    //     "D:\\CesiumGS\\cesium-ai-integrations\\mcp\\cesium-js\\servers\\camera-server\\build\\index.js"
+    //   ],
+    //   "env": {
+    //     "COMMUNICATION_PROTOCOL": "websocket",
+    //     "CAMERA_SERVER_PORT": "3002",
+    //     "STRICT_PORT": "false"
+    //   }
+    // },
+    // "aec-architectural-design": {
+    //   "url": "http://localhost:3002/mcp"
+    // },
+    // "imodel-mesh-export": {
+    //   "url": "http://localhost:3003/mcp"
+    // }
   }
 }
