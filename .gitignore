@@ -19,7 +19,6 @@ Thumbs.db
 !.github/ISSUE_TEMPLATE/
 
 *githooks/*
-*mcp/mcp-apps*
 
 .claude/*
 .copilot/*

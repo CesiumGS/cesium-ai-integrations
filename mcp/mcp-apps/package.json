@@ -5,9 +5,12 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "pnpm run build:codegen",
+    "build": "pnpm run build:codegen && pnpm run build:codegen-skills",
     "build:codegen": "pnpm --filter @cesium-mcp-apps/codegen build",
+    "build:codegen-skills": "pnpm --filter @cesium-mcp-apps/codegen-skills build",
     "start:codegen": "pnpm --filter @cesium-mcp-apps/codegen start",
+    "start:codegen-skills": "pnpm --filter @cesium-mcp-apps/codegen-skills start",
+    "upload-skills": "pnpm --filter @cesium-mcp-apps/codegen-skills upload-skills",
     "clean": "pnpm -r run clean",
     "lint": "eslint .",
     "format": "prettier --write .",

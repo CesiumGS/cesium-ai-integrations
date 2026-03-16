@@ -1,0 +1,48 @@
+{
+  "name": "@cesium-mcp-apps/codegen-skills",
+  "version": "1.0.0",
+  "description": "MCP App for Cesium codegen enhanced with OpenAI Skills",
+  "type": "module",
+  "main": "build/index.js",
+  "bin": {
+    "cesium-codegen-skills-mcp": "./build/index.js"
+  },
+  "scripts": {
+    "build": "vite build && tsc",
+    "start": "node build/index.js",
+    "clean": "rimraf build",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "pnpm run format:check && pnpm run lint",
+    "upload-skills": "tsx scripts/upload-skills.ts"
+  },
+  "keywords": [
+    "mcp",
+    "cesium",
+    "codegen",
+    "skills"
+  ],
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./build/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/ext-apps": "^1.1.1",
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "cors": "^2.8.6",
+    "dotenv": "^16.4.7",
+    "express": "^5.2.1",
+    "openai": "^6.25.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.3.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "vite-plugin-singlefile": "^2.3.0"
+  }
+}
