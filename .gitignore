@@ -13,9 +13,15 @@ Thumbs.db
 # !.vscode/mcp.json
 !.vscode/extensions.json
 
-.github/hooks/*
-.github/instructions/*
-.github/skills/*
+.github/*
+
+!.github/workflows/
+!.github/ISSUE_TEMPLATE/
 
 *githooks/*
 *mcp/mcp-apps*
+
+.claude/*
+.copilot/*
+
+.worktrees/
