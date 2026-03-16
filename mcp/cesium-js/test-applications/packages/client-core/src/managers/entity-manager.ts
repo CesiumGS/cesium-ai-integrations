@@ -4,7 +4,6 @@
  */
 
 import type {
-  MCPCommandResult,
   CommandHandler,
   ManagerInterface,
   PointOptions,

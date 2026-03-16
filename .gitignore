@@ -10,5 +10,18 @@ Thumbs.db
 
 # VS Code - ignore all except shared configs
 .vscode/*
-!.vscode/mcp.json
+# !.vscode/mcp.json
 !.vscode/extensions.json
+
+.github/*
+
+!.github/workflows/
+!.github/ISSUE_TEMPLATE/
+
+*githooks/*
+*mcp/mcp-apps*
+
+.claude/*
+.copilot/*
+
+.worktrees/

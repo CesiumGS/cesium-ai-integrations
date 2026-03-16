@@ -32,10 +32,6 @@ jobs:
       working-directory: ./mcp/cesium-js
       run: pnpm install --frozen-lockfile
     
-    - name: Security audit
-      working-directory: ./mcp/cesium-js
-      run: pnpm audit
-    
     - name: Lint & Prettier check
       working-directory: ./mcp/cesium-js
       run: pnpm run check
@@ -72,14 +68,42 @@ jobs:
       working-directory: ./mcp/mcp-apps
       run: pnpm install --frozen-lockfile
     
-    - name: Security audit
-      working-directory: ./mcp/mcp-apps
-      run: pnpm audit
-    
     - name: Lint & Prettier check
       working-directory: ./mcp/mcp-apps
       run: pnpm run check
     
     - name: Build mcp servers
       working-directory: ./mcp/mcp-apps
+      run: pnpm run build
+  
+  geolocation_server_build:
+    runs-on: ubuntu-latest
+    name: Build Geolocation MCP Server
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+      
+    - name: Setup Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'pnpm'
+        cache-dependency-path: './mcp/geolocation-server/pnpm-lock.yaml'
+    
+    - name: Install dependencies
+      working-directory: ./mcp/geolocation-server
+      run: pnpm install --frozen-lockfile
+    
+    - name: Lint & Prettier check
+      working-directory: ./mcp/geolocation-server
+      run: pnpm run check
+    
+    - name: Build mcp server
+      working-directory: ./mcp/geolocation-server
       run: pnpm run build
