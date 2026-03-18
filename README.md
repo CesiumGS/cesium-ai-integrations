@@ -11,10 +11,10 @@ Built on open standards, these integrations are designed to be modular, composab
 ## 🚀 Get started
 
 1. Browse the repository folders to find the integration or example relevant to your use case.
-2. Follow the setup instructions in each integration’s README.
+2. Follow the setup instructions in each integration's README.
 3. Use the examples as a starting point for your own applications and workflows.
 
-## ✅ What’s inside
+## ✅ What's inside
 
 - Reference patterns for connecting Cesium apps to AI assistants and tools
 - Approaches for grounding AI responses with geospatial context
@@ -36,7 +36,7 @@ These community projects are great references for Cesium + AI integrations. **We
 
 ### 🔌 MCP Servers:
 
-TBA
+- [gaopengbin-cesium-mcp](https://github.com/gaopengbin/cesium-mcp) – A community MCP bridge for CesiumJS that provides tools for camera control, entity management, 3D Tiles, terrain, imagery layers, and more. Supports both local (stdio) and remote (Streamable HTTP) modes.
 
 ### 🔌 [MCP Apps](https://blog.modelcontextprotocol.io/posts/2026-01-26-mcp-apps/)
 
