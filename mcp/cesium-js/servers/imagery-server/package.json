@@ -1,0 +1,44 @@
+{
+  "name": "@cesium-mcp/imagery-server",
+  "version": "1.0.0",
+  "description": "MCP server for Cesium imagery layer management operations",
+  "type": "module",
+  "main": "./build/index.js",
+  "bin": {
+    "cesium-imagery-mcp": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf build",
+    "dev": "tsx src/index.ts",
+    "start": "node build/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "mcp",
+    "cesium",
+    "imagery",
+    "3d",
+    "geospatial"
+  ],
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./build/index.js"
+  },
+  "dependencies": {
+    "@cesium-mcp/shared": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "dotenv": "^16.4.7",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.2",
+    "@vitest/coverage-v8": "^4.0.18",
+    "@vitest/ui": "^4.0.18",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}

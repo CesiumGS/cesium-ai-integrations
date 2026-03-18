@@ -35,6 +35,10 @@ const config: CesiumAppConfig = {
       name: "Animation Server",
       port: parseInt(process.env.MCP_ANIMATION_PORT || "3004"),
     },
+    {
+      name: "Imagery Server",
+      port: parseInt(process.env.MCP_IMAGERY_PORT || "3005"),
+    },
   ],
 };
 
