@@ -1,0 +1,65 @@
+{
+  "skill_name": "cesium-context7",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm building a CesiumJS app and want to place a 3D model (glTF) at a specific latitude/longitude on the globe. I want it to sit flat on the terrain. How do I do this with the Entity API? Show me the code.",
+      "expected_output": "Code using CesiumJS Entity API with a model property, Cartesian3.fromDegrees for positioning, and HeadingPitchRoll or a model matrix to orient it on the terrain. Should be based on fetched docs from /cesiumgs/cesium.",
+      "files": [],
+      "expectations": [
+        "The skill calls query-docs with libraryId /cesiumgs/cesium before generating code",
+        "The response includes a code sample using viewer.entities.add() or a similar Entity API call",
+        "The code uses Cartesian3.fromDegrees or equivalent for lat/lon positioning",
+        "The skill does not hallucinate method signatures — all APIs match actual CesiumJS docs"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What's the difference between ADD and REPLACE refinement in 3D Tiles? I'm loading a large city model and the tiles pop in really suddenly at close range. Should I switch refinement strategies and how does the tileset.json change?",
+      "expected_output": "Explanation of ADD vs REPLACE refinement based on the 3D Tiles spec, with practical guidance on which to use for city models and what the tileset.json refine property looks like.",
+      "files": [],
+      "expectations": [
+        "The skill calls query-docs with libraryId /websites/ogc_cs_22-025r4 to fetch 3D Tiles spec docs",
+        "The response correctly explains ADD (parent+child tiles shown together) vs REPLACE (parent hidden when child loads)",
+        "The response mentions the 'refine' property in tileset.json",
+        "The response gives practical advice for the city model LOD popping issue"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I'm using Cesium for Unreal Engine 5. I have a Blueprint actor that I want to always stay at a fixed lat/lon on the globe, even as the player moves around. I tried setting the actor's world position but it drifts. What's the correct way to do this?",
+      "expected_output": "Guidance on using ACesiumGlobeAnchor (Globe Anchor) component to lock a Blueprint actor to a geographic coordinate, based on fetched docs from /cesiumgs/cesium-unreal.",
+      "files": [],
+      "expectations": [
+        "The skill calls query-docs with libraryId /cesiumgs/cesium-unreal before answering",
+        "The response correctly identifies the Globe Anchor (UCesiumGlobeAnchorComponent or ACesiumGlobeAnchor) as the solution",
+        "The response explains why raw world position drifts (floating origin / world origin rebasing)",
+        "The response includes steps or a Blueprint workflow for attaching the Globe Anchor"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "How do I animate the CesiumJS camera to smoothly fly to Sydney, Australia and then pitch down to look at the Opera House? I want the flight to take about 3 seconds.",
+      "expected_output": "Code using Camera.flyTo() with destination (Cartesian3.fromDegrees for Sydney), orientation (HeadingPitchRoll or heading/pitch/roll), and a duration option. Based on fetched /cesiumgs/cesium docs.",
+      "files": [],
+      "expectations": [
+        "The skill calls query-docs with libraryId /cesiumgs/cesium and a query related to Camera flyTo",
+        "The code uses viewer.camera.flyTo() or viewer.scene.camera.flyTo()",
+        "The code includes a duration option set to approximately 3",
+        "The code uses correct destination and orientation parameters (not made up)"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I'm loading a 3D Tileset in CesiumJS with Cesium.Cesium3DTileset and I want to apply a style that colors buildings red if their height property is above 50 meters. The tileset has a per-feature 'Height' property. How do I write the Cesium3DTileStyle?",
+      "expected_output": "Code showing a Cesium3DTileStyle with a color expression that reads the Height feature property and applies conditional coloring. Based on fetched /cesiumgs/cesium docs.",
+      "files": [],
+      "expectations": [
+        "The skill calls query-docs with libraryId /cesiumgs/cesium and a query related to Cesium3DTileStyle or feature styling",
+        "The response includes a Cesium3DTileStyle with a color property using a conditional expression",
+        "The expression uses the correct syntax for reading a feature property (e.g., ${Height})",
+        "The style is assigned to tileset.style"
+      ]
+    }
+  ]
+}

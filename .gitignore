@@ -17,6 +17,7 @@ Thumbs.db
 
 !.github/workflows/
 !.github/ISSUE_TEMPLATE/
+!.github/skills/cesium-context7
 
 *githooks/*
 *mcp/mcp-apps*
