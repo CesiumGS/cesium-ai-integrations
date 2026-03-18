@@ -18,8 +18,6 @@ Thumbs.db
 !.github/workflows/
 !.github/ISSUE_TEMPLATE/
 
-!.github/skills/sandcastle-to-mcp-app
-
 *githooks/*
 *mcp/mcp-apps*
 
