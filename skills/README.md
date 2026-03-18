@@ -27,6 +27,7 @@ The Cesium platform provides powerful tools for 3D geospatial visualization and 
 This directory contains Cesium ecosystem agent skills:
 
 - **[cesium-context7](./cesium-context7/)**: Comprehensive knowledge of the Cesium platform, including CesiumJS APIs, Cesium ion workflows, 3D Tiles optimization, and best practices for building 3D geospatial applications. Use this skill to prevent hallucinations and ensure accurate Cesium-specific guidance.
+- **[cesium-mcp-app](./cesium-mcp-app/)**: Step-by-step guidance for building Cesium MCP Apps that expose CesiumJS visualizations to LLMs as interactive tool suites. Accepts a Sandcastle URL, a GitHub raw link, or a plain-language description as input.
 
 ## 🚀 Using These Skills
 

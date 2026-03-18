@@ -1,0 +1,64 @@
+<evaluation>
+  <!--
+    Example evaluation for a Cesium MCP App that exposes:
+      - toggle-layer(layerId, visible)
+      - set-camera-view(view)
+      - toggle-feature-picking(enabled)
+      - get-scene-state()
+      - set-time(isoDateTime, multiplier?)
+
+    All questions target stable, initial/default state — answers will not change over time.
+    Solve each question with the actual running app before publishing.
+  -->
+
+  <qa_pair>
+    <question>Using only the available tools, determine which data layers are enabled (visible) when the scene first loads. List them as a comma-separated string in alphabetical order.</question>
+    <answer>Station,SurroundingArea</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>What is the name of the camera preset that positions the viewer directly above the scene looking straight down? Answer with the exact preset name as accepted by the camera tool.</question>
+    <answer>Overview</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Is feature picking enabled in the default scene state? Answer True or False.</question>
+    <answer>False</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>What clock multiplier does the scene use when the animation speed is set to the fastest available preset? Provide just the number.</question>
+    <answer>60</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>How many distinct layer IDs does the scene expose through its layer-visibility tool? Provide just the count.</question>
+    <answer>3</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>After hiding all layers and then making only the RealityMesh layer visible, what does get-scene-state report as the number of visible layers? Provide just the count.</question>
+    <answer>1</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>What is the minimum clock multiplier accepted by the time control tool? Provide just the number.</question>
+    <answer>1</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Which camera preset brings the viewer closest to street level? Answer with the exact preset name.</question>
+    <answer>StreetLevel</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>What is the exact URI (resource identifier) used by the MCP app to serve its UI? It should start with "ui://".</question>
+    <answer>ui://my-cesium-app/mcp-app.html</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>After toggling feature picking on and then querying scene state, what boolean value does the state report for featurePickingEnabled? Answer True or False.</question>
+    <answer>True</answer>
+  </qa_pair>
+
+</evaluation>
