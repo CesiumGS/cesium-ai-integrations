@@ -70,10 +70,10 @@ Animate 3D models along paths and control the scene clock.
 
 Manage imagery layers on the CesiumJS globe.
 
-| Tool             | Description                                              |
-| ---------------- | -------------------------------------------------------- |
-| `imagery_add`    | Add imagery layer from various provider types            |
-| `imagery_remove` | Remove imagery layer by index, name, or remove all       |
+| Tool             | Description                                               |
+| ---------------- | --------------------------------------------------------- |
+| `imagery_add`    | Add imagery layer from various provider types             |
+| `imagery_remove` | Remove imagery layer by index, name, or remove all        |
 | `imagery_list`   | List all imagery layers with visibility and provider info |
 
 ## 🏗️ Structure
