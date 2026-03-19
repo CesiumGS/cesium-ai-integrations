@@ -337,9 +337,7 @@ class CesiumImageryManager implements ManagerInterface {
     try {
       const layers: ImageryLayerInfo[] = [];
       for (let i = 0; i < this.viewer.imageryLayers.length; i++) {
-        const layer = this.viewer.imageryLayers.get(
-          i,
-        ) as ImageryLayerWithMeta;
+        const layer = this.viewer.imageryLayers.get(i) as ImageryLayerWithMeta;
         const name = layer._mcpName || `Layer ${i}`;
 
         const info: ImageryLayerInfo = {
