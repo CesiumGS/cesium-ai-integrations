@@ -13,6 +13,7 @@ CesiumJs servers live in [`cesium-js/`](./cesium-js/README.md). See the [cesium-
 | 🎥 [cesium-camera-server](./cesium-js/servers/camera-server/README.md) | `cesium-js/servers/camera-server/` | Camera control: fly-to, orbit, look-at, position queries |
 | 🌍 [cesium-entity-server](./cesium-js/servers/entity-server/README.md) | `cesium-js/servers/entity-server/` | Entity management: points, billboards, labels, models, polygons, polylines, and more |
 | 🎬 [cesium-animation-server](./cesium-js/servers/animation-server/README.md) | `cesium-js/servers/animation-server/` | Path-based animations, clock control, camera tracking, globe lighting |
+| 🗺️ [cesium-imagery-server](./cesium-js/servers/imagery-server/README.md) | `cesium-js/servers/imagery-server/` | Imagery layer management: add, remove, and list imagery providers |
 
 ### 🌐 Geolocation MCP Server
 
@@ -43,6 +44,7 @@ See the individual READMEs for full details:
 - **[cesium-camera-server README](./cesium-js/servers/camera-server/README.md)** — camera tools reference and configuration
 - **[cesium-entity-server README](./cesium-js/servers/entity-server/README.md)** — entity tools reference and configuration
 - **[cesium-animation-server README](./cesium-js/servers/animation-server/README.md)** — animation tools reference and configuration
+- **[cesium-imagery-server README](./cesium-js/servers/imagery-server/README.md)** — imagery tools reference and configuration
 - **[cesium-geolocation-server README](./geolocation-server/README.md)** — geolocation, POI search, and routing tools
 - **[mcp-apps README](./mcp-apps/README.md)** — MCP Apps with interactive UIs
 - **[cesium-context7 README](./external/cesium-context7/README.md)** — Context7 setup and agent skill usage
@@ -60,7 +62,8 @@ mcp/
 │   │   ├── shared/              # Shared utilities (MCP base, communications)
 │   │   ├── camera-server/       # Camera control MCP server
 │   │   ├── entity-server/       # Entity management MCP server
-│   │   └── animation-server/    # Animation and path control MCP server
+│   │   ├── animation-server/    # Animation and path control MCP server
+│   │   └── imagery-server/      # Imagery layer management MCP server
 │   ├── test-applications/
 │   │   ├── packages/client-core/  # Shared client library
 │   │   └── web-app/              # Browser application (localhost:8080)
