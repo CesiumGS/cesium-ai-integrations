@@ -15,6 +15,10 @@ Evaluations test whether an LLM can effectively use your Cesium MCP App's tools 
 
 ### Output format
 
+Text and visual QA pairs live in **separate XML files** — or in a single combined file if you prefer. The harness detects which types are present and asks which to run:
+
+**`evaluation-text.xml`** — text tasks only:
+
 ```xml
 <evaluation>
   <qa_pair>
@@ -24,11 +28,119 @@ Evaluations test whether an LLM can effectively use your Cesium MCP App's tools 
 </evaluation>
 ```
 
+**`evaluation-visual.xml`** — visual tasks only:
+
+```xml
+<evaluation>
+  <!-- Single screenshot: no tool call (tests initial state) -->
+  <qa_pair type="visual">
+    <visual_question>Is the toolbar visible on the page?</visual_question>
+    <answer>True</answer>
+  </qa_pair>
+
+  <!-- Single screenshot: call setup tool, then screenshot the result -->
+  <qa_pair type="visual">
+    <tool>isolate-category</tool>
+    <tool_input>{"category": "Walls"}</tool_input>
+    <visual_question>Does the viewer show only a subset of elements after isolating a category?</visual_question>
+    <answer>True</answer>
+  </qa_pair>
+
+  <!-- Before/after comparison: capture state before AND after the tool call -->
+  <qa_pair type="visual" workflow="before_after">
+    <tool>set-category-color</tool>
+    <tool_input>{"category": "Walls", "color": "#FF0000"}</tool_input>
+    <visual_question>Does the color of any visible elements change after the tool is called?</visual_question>
+    <answer>True</answer>
+  </qa_pair>
+
+  <!-- Multi-step sequence: dispatch tools in order, verify cumulative result -->
+  <qa_pair type="visual" workflow="sequence">
+    <step>
+      <tool>set-category-color</tool>
+      <tool_input>{"category": "Walls", "color": "#FF0000"}</tool_input>
+      <description>Walls should turn red</description>
+    </step>
+    <step>
+      <tool>isolate-category</tool>
+      <tool_input>{"category": "Walls"}</tool_input>
+      <description>Only walls should remain visible</description>
+    </step>
+    <visual_question>Are only red walls visible in the final scene?</visual_question>
+    <answer>True</answer>
+  </qa_pair>
+</evaluation>
+```
+
+Both files are combined at runtime.
+
 ---
 
 ## Question Design for Cesium MCP Apps
 
-### What to test
+### Visual question workflows
+
+Visual QA pairs support three modes set via the `workflow` attribute.
+
+#### Single screenshot (default)
+
+Optionally calls a setup tool via MCP, then takes **one screenshot** and asks the vision model.
+
+```xml
+<!-- No tool: tests initial page state -->
+<qa_pair type="visual">
+  <visual_question>Is a dark-themed 3D viewer visible on the page?</visual_question>
+  <answer>True</answer>
+</qa_pair>
+
+<!-- With setup tool: screenshot taken after the call -->
+<qa_pair type="visual">
+  <tool>isolate-category</tool>
+  <tool_input>{"category": "Walls"}</tool_input>
+  <visual_question>Does the viewer show only a subset of architectural elements?</visual_question>
+  <answer>True</answer>
+</qa_pair>
+```
+
+#### Before/after comparison (`workflow="before_after"`)
+
+Captures a **before** screenshot, dispatches the tool via `window.postMessage`, captures an **after** screenshot, then sends **both** to the vision model labelled "Image 1 (BEFORE)" and "Image 2 (AFTER)". Use to verify that a single tool visually changes the scene. `<tool>` is required; the tool is NOT called via MCP — it is simulated client-side.
+
+```xml
+<qa_pair type="visual" workflow="before_after">
+  <tool>set-category-color</tool>
+  <tool_input>{"category": "Walls", "color": "#FF0000"}</tool_input>
+  <visual_question>Does the color of any visible elements change after the tool is called?</visual_question>
+  <answer>True</answer>
+</qa_pair>
+```
+
+#### Multi-step sequence (`workflow="sequence"`)
+
+Dispatches each `<step>` via `window.postMessage` in order, capturing a screenshot after each. All screenshots are sent to the vision model together with step labels. Use for **cumulative effects** of multiple tools.
+
+```xml
+<qa_pair type="visual" workflow="sequence">
+  <step>
+    <tool>set-category-color</tool>
+    <tool_input>{"category": "Walls", "color": "#FF0000"}</tool_input>
+    <description>Walls should turn red</description>
+  </step>
+  <step>
+    <tool>isolate-category</tool>
+    <tool_input>{"category": "Walls"}</tool_input>
+    <description>Only walls should remain visible</description>
+  </step>
+  <visual_question>Are only red walls visible in the final scene?</visual_question>
+  <answer>True</answer>
+</qa_pair>
+```
+
+When `workflow="before_after"` suffices (single tool, no ordering concern), prefer it — it's simpler.
+
+---
+
+
 
 Cesium MCP App tools typically fall into these categories — design questions that exercise each:
 
@@ -80,166 +192,105 @@ If you cannot answer a question using only the available tools, revise or replac
 
 ## Example Evaluation
 
-See [../scripts/evaluation.xml](../scripts/evaluation.xml) for a worked example.
+See [../scripts/evaluation-text.xml](../scripts/evaluation-text.xml) for worked text examples and [../scripts/evaluation-visual.xml](../scripts/evaluation-visual.xml) for worked visual examples.
 
 ---
 
 ## Running Evaluations
 
-The evaluation harness lives in [../scripts/evaluation/](../scripts/evaluation/). It automatically connects to your running Cesium MCP App via HTTP and scores each question by exact string match.
+The harness lives in [../scripts/evaluation/](../scripts/evaluation/). Keep text and visual tasks in separate XML files.
 
-### Prerequisites
+### One-time setup
 
 ```bash
-# Install dependencies (Python 3.11+ required)
 cd .github/skills/cesium-mcp-app/scripts
-
-# Create and activate a virtual environment (recommended)
 python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\Activate.ps1
+.venv\Scripts\Activate.ps1   # or: source .venv/bin/activate
 ```
 
-**Step 1 — Choose your provider and create a `.env` file**
-
-Before installing, decide which provider you want to use and add only that key to a `.env` file in the `scripts/` directory:
+Create a `.env` file in `scripts/`:
 
 ```env
-# For OpenAI (default):
+# OpenAI (default):
 OPENAI_API_KEY=sk-...
 
-# For Anthropic Claude:
+# Azure OpenAI (optional):
+OPENAI_URL=https://your-endpoint.cognitiveservices.azure.com/openai/v1/
+OPENAI_MODEL=gpt-4o
+
+# Anthropic Claude:
 ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-> Only one key is required. Do not add both unless you intend to run evaluations with both providers.
-
-**Step 2 — Install provider-specific dependencies**
-
-Install only the requirements for the provider you chose:
+Install dependencies and Chromium for visual tasks:
 
 ```bash
 # OpenAI (default):
-pip install -r requirements-openai.txt
+pip install -r evaluation/openai/requirements.txt
+playwright install chromium
 
 # Anthropic Claude:
-pip install -r requirements-anthropic.txt
+pip install -r evaluation/anthropic/requirements.txt
+playwright install chromium
 ```
 
-### Where to put evaluation.xml and report.md
-
-Create these files in an **`eval/`** subfolder at the root of your MCP app:
+### Where to put evaluation files
 
 ```
 my-cesium-app/
 ├── eval/
-│   ├── evaluation.xml   ← your evaluation questions
-│   └── report.md        ← written by the harness (gitignore this)
-├── src/
-└── ...
+│   ├── evaluation-text.xml
+│   ├── evaluation-visual.xml
+│   └── report.md              ← written by the harness (gitignore this)
 ```
 
-### Run against the default local app
+### Run against the local app
 
-Build and start your app first:
+Build and start the app first:
 
 ```bash
-pnpm run build
-pnpm run start   # runs on http://localhost:3003/mcp by default
+pnpm run build && pnpm run start   # runs on http://localhost:3003/mcp
 ```
-
-Then run the harness for your chosen provider (replace `<APP_ROOT>` with the absolute path to your app):
-
-**OpenAI (default)**
-```bash
-python -m evaluation <APP_ROOT>/eval/evaluation.xml --output <APP_ROOT>/eval/report.md
-```
-
-**Anthropic Claude**
-```bash
-python -m evaluation <APP_ROOT>/eval/evaluation.xml --model-provider anthropic --output <APP_ROOT>/eval/report.md
-```
-
-> Example (Windows): `python -m evaluation D:\CesiumGS\testing\mcp\mcp-apps\my-app\eval\evaluation.xml --output D:\CesiumGS\testing\mcp\mcp-apps\my-app\eval\report.md`
-
-### Common options
 
 **OpenAI**
 ```bash
-# Point at a different port or host
-python -m evaluation evaluation.xml --url http://localhost:4000/mcp
-
-# Use SSE transport instead of HTTP
-python -m evaluation evaluation.xml --transport sse --url http://localhost:3003/mcp
-
-# Save the report to a file (use absolute paths)
-python -m evaluation <APP_ROOT>/eval/evaluation.xml --output <APP_ROOT>/eval/report.md
-
-# Use a specific model
-python -m evaluation evaluation.xml --model gpt-4o-mini
-
-# Pass custom headers (e.g. auth)
-python -m evaluation evaluation.xml --header "Authorization: Bearer token"
+python -m evaluation <APP_ROOT>/eval/evaluation-text.xml \
+  --visual-file <APP_ROOT>/eval/evaluation-visual.xml \
+  --visual --resource-uri <RESOURCE_URI> \
+  --output <APP_ROOT>/eval/report.md
 ```
 
-**Anthropic Claude**
+**Anthropic**
 ```bash
-# Point at a different port or host
-python -m evaluation evaluation.xml --model-provider anthropic --url http://localhost:4000/mcp
-
-# Use SSE transport instead of HTTP
-python -m evaluation evaluation.xml --model-provider anthropic --transport sse --url http://localhost:3003/mcp
-
-# Save the report to a file (use absolute paths)
-python -m evaluation <APP_ROOT>/eval/evaluation.xml --model-provider anthropic --output <APP_ROOT>/eval/report.md
-
-# Use a specific model
-python -m evaluation evaluation.xml --model-provider anthropic --model claude-3-5-sonnet-20241022
-
-# Pass custom headers (e.g. auth)
-python -m evaluation evaluation.xml --model-provider anthropic --header "Authorization: Bearer token"
+python -m evaluation <APP_ROOT>/eval/evaluation-text.xml \
+  --visual-file <APP_ROOT>/eval/evaluation-visual.xml \
+  --model-provider anthropic \
+  --visual --resource-uri <RESOURCE_URI> \
+  --output <APP_ROOT>/eval/report.md
 ```
 
-### What the harness does
-
-1. Connects to the running app via Streamable HTTP (or SSE)
-2. Lists all available MCP tools
-3. For each `qa_pair` in the XML file, runs an LLM agent (OpenAI by default, or Anthropic with `--model-provider anthropic`) that uses the tools to answer the question
-4. Extracts the `<response>` tag from the agent's output
-5. Compares it to the expected `<answer>` via exact string match
-
-### Harness structure
-
-| File | Purpose |
-|---|---|
-| `evaluation/__main__.py` | CLI entry point — argument parsing, provider routing |
-| `evaluation/runner.py` | Shared orchestration logic and report generation |
-| `evaluation/openai_eval.py` | OpenAI agent loop; exports `REQUIRED_ENV_KEY` |
-| `evaluation/anthropic_eval.py` | Anthropic agent loop; exports `REQUIRED_ENV_KEY` |
-| `evaluation/prompt.py` | Shared system prompt used by both providers |
-| `requirements.txt` | Common dependencies (`mcp`, `python-dotenv`) |
-| `requirements-openai.txt` | OpenAI-only dependencies (includes `requirements.txt`) |
-| `requirements-anthropic.txt` | Anthropic-only dependencies (includes `requirements.txt`) |
-6. Prints pass/fail per question, then writes a full Markdown report
-
-**Sample output:**
-
+Text only (no visual setup required):
+```bash
+python -m evaluation <APP_ROOT>/eval/evaluation-text.xml --type text
 ```
-🚀 Starting Cesium MCP App Evaluation
-📋 Loaded 5 tools from MCP server
-📋 Loaded 10 evaluation tasks
 
-Processing task 1/10
-  ✅ Expected: Station,SurroundingArea | Got: Station,SurroundingArea
-Processing task 2/10
-  ❌ Expected: Overview | Got: overview
+### Options
 
-# Cesium MCP App Evaluation Report
-## Summary
-- Accuracy: 9/10 (90.0%)
-- Average Task Duration: 4.23s
-- Average Tool Calls per Task: 2.40
-- Total Tool Calls: 24
-```
+| Flag | Default | Description |
+|---|---|---|
+| `--output` | — | Markdown report path |
+| `--url` | `http://localhost:3003/mcp` | MCP server URL |
+| `--type` | interactive | `text`, `visual`, or `both` |
+| `--model-provider` | `openai` | `openai` or `anthropic` |
+| `--model` | `gpt-4o` / `claude-opus-4-5` | LLM model |
+| `--header` | — | Extra HTTP header |
+| `--visual` | off | Enable visual evaluation |
+| `--visual-file` | — | Path to visual XML file |
+| `--resource-uri` | — | MCP resource URI (required for `--visual`) |
+| `--visual-provider` | same as `--model-provider` | Vision model provider |
+| `--visual-model` | `gpt-4o` / `claude-opus-4-5` | Vision model |
+| `--screenshot-width` | `1280` | Viewport width |
+| `--screenshot-height` | `800` | Viewport height |
 
 ### Interpreting results
 
@@ -249,4 +300,4 @@ Processing task 2/10
 | 7–8 / 10 | Review failing questions — tune descriptions or add enum hints |
 | < 7 / 10 | Systematic problem — revisit tool naming, input schema descriptions, or `get-scene-state` coverage |
 
-> The `<feedback>` section in the report contains per-task LLM commentary on each tool. Use this to prioritize improvements to tool names, descriptions, and parameter schemas.
+> The `<feedback>` section in the report contains per-task LLM commentary. Use it to prioritize improvements to tool names, descriptions, and parameter schemas.

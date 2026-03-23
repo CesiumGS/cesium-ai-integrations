@@ -7,7 +7,7 @@ from typing import Any
 
 from anthropic import AsyncAnthropic
 
-from evaluation.prompt import EVALUATION_PROMPT
+from evaluation.prompts import EVALUATION_PROMPT
 
 REQUIRED_ENV_KEY = "ANTHROPIC_API_KEY"
 

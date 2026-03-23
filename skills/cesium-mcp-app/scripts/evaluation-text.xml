@@ -1,16 +1,4 @@
 <evaluation>
-  <!--
-    Example evaluation for a Cesium MCP App that exposes:
-      - toggle-layer(layerId, visible)
-      - set-camera-view(view)
-      - toggle-feature-picking(enabled)
-      - get-scene-state()
-      - set-time(isoDateTime, multiplier?)
-
-    All questions target stable, initial/default state — answers will not change over time.
-    Solve each question with the actual running app before publishing.
-  -->
-
   <qa_pair>
     <question>Using only the available tools, determine which data layers are enabled (visible) when the scene first loads. List them as a comma-separated string in alphabetical order.</question>
     <answer>Station,SurroundingArea</answer>
@@ -49,11 +37,6 @@
   <qa_pair>
     <question>Which camera preset brings the viewer closest to street level? Answer with the exact preset name.</question>
     <answer>StreetLevel</answer>
-  </qa_pair>
-
-  <qa_pair>
-    <question>What is the exact URI (resource identifier) used by the MCP app to serve its UI? It should start with "ui://".</question>
-    <answer>ui://my-cesium-app/mcp-app.html</answer>
   </qa_pair>
 
   <qa_pair>

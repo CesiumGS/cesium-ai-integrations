@@ -16,6 +16,10 @@ Analyze all API and data source patterns **before** building — CSP cannot be d
 
 > **Always add** `'unsafe-eval'`, `'wasm-unsafe-eval'`, and `blob:` to `resourceDomains` — required for CesiumJS Draco decoder, WebAssembly, and web workers. These are non-negotiable for any app that loads CesiumJS.
 
+> **Frame domain safety:** Build `frameDomains` from a sanitized optional `HOST_URL` (e.g., `const hostUrl = process.env.HOST_URL?.trim(); frameDomains: hostUrl ? [hostUrl] : []`). Avoid `frameDomains: [process.env.HOST_URL]`, which can produce `[undefined]` and fail host schema validation.
+
+> **Google tiles safety:** If using Google Photorealistic 3D Tiles, include `https://tile.googleapis.com` in both `connectDomains` and `resourceDomains`.
+
 **Disable default imagery when using custom tilesets only:**
 ```typescript
 const viewer = new Cesium.Viewer("cesiumContainer", { imageryProvider: false });
@@ -37,7 +41,7 @@ export default defineConfig({
   root: "src",              // vite root = src/ so relative imports work
   build: {
     outDir: "../build",
-    rollupOptions: { input: "/mcp-app.html" },
+    rollupOptions: { input: "/app/mcp-app.html" },  // HTML lives in src/app/
   },
 });
 ```

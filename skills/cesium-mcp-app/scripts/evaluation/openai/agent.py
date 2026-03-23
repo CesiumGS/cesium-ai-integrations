@@ -5,7 +5,7 @@ from typing import Any
 
 from openai import AsyncOpenAI
 
-from evaluation.prompt import EVALUATION_PROMPT
+from evaluation.prompts import EVALUATION_PROMPT
 
 REQUIRED_ENV_KEY = "OPENAI_API_KEY"
 
@@ -73,9 +73,17 @@ async def agent_loop(
         if not function_calls:
             break
 
-        # Append assistant function_call items to history so the next turn has context
+        # Append all output items to history so the next turn has context.
+        # Reasoning models (o-series) require reasoning items to accompany
+        # function_call items — omitting them causes a 400 error.
+        # summary is always required on reasoning items (even as an empty list).
         for item in response.output:
-            if item.type == "function_call":
+            if item.type == "reasoning":
+                summary = []
+                if hasattr(item, "summary") and item.summary:
+                    summary = [{"type": s.type, "text": s.text} for s in item.summary]
+                input_items.append({"type": "reasoning", "id": item.id, "summary": summary})
+            elif item.type == "function_call":
                 input_items.append({
                     "type": "function_call",
                     "id": item.id,
