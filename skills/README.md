@@ -22,11 +22,38 @@ The Cesium platform provides powerful tools for 3D geospatial visualization and 
 - Implement common patterns across CesiumJS development, ion asset management, and 3D Tiles workflows
 - Troubleshoot platform-specific issues and integrate Cesium technologies effectively
 
-## 📚 Available Skills
+## Available Skills
 
-This directory contains Cesium ecosystem agent skills:
+This directory contains Cesium ecosystem agent skills organized into two categories:
 
-- **[cesium-context7](./cesium-context7/)**: Comprehensive knowledge of the Cesium platform, including CesiumJS APIs, Cesium ion workflows, 3D Tiles optimization, and best practices for building 3D geospatial applications. Use this skill to prevent hallucinations and ensure accurate Cesium-specific guidance.
+### CesiumJS Domain Skills (Baked-In Reference)
+
+Self-contained, domain-level skills that passively activate when developers ask CesiumJS questions. Each skill provides a Quick Start, API reference, runnable code examples, performance tips, and cross-references. Based on CesiumJS v1.139.x.
+
+| # | Skill | Description |
+|---|-------|-------------|
+| 1 | **[cesiumjs-spatial-math](./cesiumjs-spatial-math/)** | Cartesian3, Matrix4, Transforms, Ellipsoid, BoundingSphere, projections |
+| 2 | **[cesiumjs-core-utilities](./cesiumjs-core-utilities/)** | Resource, Color, Event, RequestScheduler, error handling, helper functions |
+| 3 | **[cesiumjs-time-properties](./cesiumjs-time-properties/)** | Clock, JulianDate, Property system, SampledProperty, splines, interpolation |
+
+The domain mapping and class ownership rules are documented in **[cesiumjs/DOMAINS.md](./cesiumjs/DOMAINS.md)**.
+
+### Live Documentation Skill
+
+- **[cesium-context7](./cesium-context7/)**: Fetches up-to-date Cesium documentation via Context7 MCP tools. Covers CesiumJS, Cesium for Unreal, Cesium for Unity, and the 3D Tiles specification.
+
+### How the Two Skill Types Work Together
+
+The baked-in `cesiumjs-*` skills and the live `cesium-context7` skill are **independent and complementary**:
+
+| | Baked-in Skills (`cesiumjs-*`) | Context7 (`cesium-context7`) |
+|---|---|---|
+| **Latency** | Instant | Requires MCP round-trip |
+| **Availability** | Always works, no MCP required | Requires Context7 MCP server |
+| **Content** | Curated patterns, examples, best practices | Full official docs, version-specific |
+| **Best for** | Common patterns, Quick Starts, "how do I..." | Version-pinned API signatures, cutting-edge features |
+
+Both can activate simultaneously. Use baked-in skills for patterns and recipes; use Context7 to validate against a specific CesiumJS version or query Unreal/Unity/3D Tiles spec docs.
 
 ## 🚀 Using These Skills
 
