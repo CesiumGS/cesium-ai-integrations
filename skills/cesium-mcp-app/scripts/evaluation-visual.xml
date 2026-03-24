@@ -1,0 +1,57 @@
+<evaluation>
+  <!-- Check initial UI state (no tool call required) -->
+  <qa_pair type="visual">
+    <visual_question>Is there a dark-themed 3D viewer container visible on the page?</visual_question>
+    <answer>True</answer>
+  </qa_pair>
+
+  <qa_pair type="visual">
+    <visual_question>Is a loading indicator or spinner visible in the center of the page?</visual_question>
+    <answer>False</answer>
+  </qa_pair>
+
+  <qa_pair type="visual">
+    <visual_question>Is a toolbar or control panel visible on the page?</visual_question>
+    <answer>True</answer>
+  </qa_pair>
+
+  <!-- Single screenshot after a setup tool call -->
+  <qa_pair type="visual">
+    <tool>isolate-category</tool>
+    <tool_input>{"category": "Walls"}</tool_input>
+    <visual_question>Does the 3D viewer show only a subset of architectural elements after isolating a category?</visual_question>
+    <answer>True</answer>
+  </qa_pair>
+
+  <!-- Before/after comparison: capture state before and after the tool-input message -->
+  <qa_pair type="visual" workflow="before_after">
+    <tool>isolate-category</tool>
+    <tool_input>{"category": "Walls"}</tool_input>
+    <visual_question>Does the 3D viewer scene change visually after the category isolation tool is applied?</visual_question>
+    <answer>True</answer>
+  </qa_pair>
+
+  <qa_pair type="visual" workflow="before_after">
+    <tool>reset-style</tool>
+    <tool_input>{}</tool_input>
+    <visual_question>Does the scene appearance change after the style is reset?</visual_question>
+    <answer>True</answer>
+  </qa_pair>
+
+  <!-- Multi-step sequence: dispatch tools in order, verify cumulative result -->
+  <qa_pair type="visual" workflow="sequence">
+    <step>
+      <tool>set-category-color</tool>
+      <tool_input>{"category": "Walls", "color": "#FF0000"}</tool_input>
+      <description>Walls should turn red</description>
+    </step>
+    <step>
+      <tool>isolate-category</tool>
+      <tool_input>{"category": "Walls"}</tool_input>
+      <description>Only walls should remain visible</description>
+    </step>
+    <visual_question>Are only red walls visible in the final scene?</visual_question>
+    <answer>True</answer>
+  </qa_pair>
+
+</evaluation>
