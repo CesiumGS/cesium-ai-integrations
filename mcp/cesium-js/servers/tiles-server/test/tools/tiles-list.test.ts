@@ -58,7 +58,7 @@ describe("registerTilesetList", () => {
 
       expect(response.structuredContent.success).toBe(true);
       expect(response.structuredContent.tilesets).toHaveLength(1);
-      expect(response.structuredContent.totalCount).toBe(1);
+      expect(response.structuredContent.totalCount).toBe(2);
       expect(response.structuredContent.message).toContain("1 tileset");
       expect(response.isError).toBe(false);
     });

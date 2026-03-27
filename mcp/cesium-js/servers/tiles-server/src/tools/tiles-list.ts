@@ -6,13 +6,17 @@ import {
   type TilesetSummary,
 } from "../schemas/index.js";
 import {
-  executeTilesetListCommand,
-  buildTilesetSuccessResponse,
-  buildTilesetErrorResponse,
   formatTilesetError,
   getTilesetCountMessage,
+  type TilesetListResult,
 } from "../utils/index.js";
-import type { ICommunicationServer } from "@cesium-mcp/shared";
+import {
+  executeWithTiming,
+  buildSuccessResponse,
+  buildErrorResponse,
+  ResponseEmoji,
+  type ICommunicationServer,
+} from "@cesium-mcp/shared";
 
 /**
  * Register the tileset_list tool
@@ -39,10 +43,11 @@ export function registerTilesetList(
           includeDetails,
         };
 
-        const { result, responseTime } = await executeTilesetListCommand(
-          communicationServer,
-          command,
-        );
+        const { result, responseTime } =
+          await executeWithTiming<TilesetListResult>(
+            communicationServer,
+            command,
+          );
 
         if (result.success) {
           const tilesets: TilesetSummary[] = Array.isArray(result.tilesets)
@@ -53,23 +58,23 @@ export function registerTilesetList(
             success: true,
             message: getTilesetCountMessage(tilesets.length, "Found"),
             tilesets,
-            totalCount: tilesets.length,
+            totalCount: result.totalCount ?? tilesets.length,
             stats: {
               totalTilesets: tilesets.length,
               responseTime,
             },
           };
 
-          return buildTilesetSuccessResponse(
-            output.message,
-            output,
+          return buildSuccessResponse(
+            ResponseEmoji.Success,
             responseTime,
+            output,
           );
         }
 
         throw new Error(result.error || "Unknown error from Cesium");
       } catch (error) {
-        const { formatted } = formatTilesetError(error, {
+        const formatted = formatTilesetError(error, {
           operation: "list",
         });
 
@@ -84,7 +89,7 @@ export function registerTilesetList(
           },
         };
 
-        return buildTilesetErrorResponse(errorOutput);
+        return buildErrorResponse(0, errorOutput);
       }
     },
   );

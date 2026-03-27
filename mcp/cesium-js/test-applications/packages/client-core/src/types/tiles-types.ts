@@ -26,3 +26,14 @@ export interface TilesetListResult extends MCPCommandResult {
   tilesets?: TilesetInfo[];
   totalCount?: number;
 }
+
+export interface TilesetStyleResult extends MCPCommandResult {
+  tilesetId?: string;
+  name?: string;
+  appliedStyle?: {
+    color?: string;
+    colorConditions?: string[][];
+    show?: boolean | string;
+    showConditions?: string[][];
+  };
+}

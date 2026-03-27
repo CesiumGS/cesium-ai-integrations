@@ -3,7 +3,6 @@ import {
   validateSourceTypeParams,
   formatTilesetError,
   getTilesetCountMessage,
-  getRemovalCountMessage,
 } from "../../src/utils/helpers";
 
 describe("Tiles Server Helpers", () => {
@@ -62,8 +61,8 @@ describe("Tiles Server Helpers", () => {
         identifier: "TestTileset",
       });
 
-      expect(result.formatted).toContain("Failed to add 3D tileset");
-      expect(result.formatted).toContain("Test error");
+      expect(result).toContain("Failed to add 3D tileset");
+      expect(result).toContain("Test error");
     });
 
     it("should format remove operation errors", () => {
@@ -73,9 +72,9 @@ describe("Tiles Server Helpers", () => {
         identifier: "ts-123",
       });
 
-      expect(result.formatted).toContain("Failed to remove 3D tileset");
-      expect(result.formatted).toContain("ts-123");
-      expect(result.formatted).toContain("Asset not found");
+      expect(result).toContain("Failed to remove 3D tileset");
+      expect(result).toContain("ts-123");
+      expect(result).toContain("Asset not found");
     });
 
     it("should format list operation errors", () => {
@@ -84,8 +83,8 @@ describe("Tiles Server Helpers", () => {
         operation: "list",
       });
 
-      expect(result.formatted).toContain("Failed to list 3D tilesets");
-      expect(result.formatted).toContain("Connection timeout");
+      expect(result).toContain("Failed to list 3D tilesets");
+      expect(result).toContain("Connection timeout");
     });
 
     it("should handle non-Error objects", () => {
@@ -93,9 +92,9 @@ describe("Tiles Server Helpers", () => {
         operation: "add",
       });
 
-      expect(result.formatted).toContain("Failed to add 3D tileset");
+      expect(result).toContain("Failed to add 3D tileset");
       // formatErrorMessage converts unknown types to "Unknown error"
-      expect(result.formatted).toBeDefined();
+      expect(result).toBeDefined();
     });
 
     it("should handle null errors", () => {
@@ -103,7 +102,7 @@ describe("Tiles Server Helpers", () => {
         operation: "add",
       });
 
-      expect(result.formatted).toContain("Failed to add 3D tileset");
+      expect(result).toContain("Failed to add 3D tileset");
     });
 
     it("should include identifier in remove error message", () => {
@@ -113,7 +112,7 @@ describe("Tiles Server Helpers", () => {
         identifier: "MyTileset",
       });
 
-      expect(result.formatted).toContain("'MyTileset'");
+      expect(result).toContain("'MyTileset'");
     });
 
     it("should handle remove error without identifier", () => {
@@ -122,7 +121,7 @@ describe("Tiles Server Helpers", () => {
         operation: "remove",
       });
 
-      expect(result.formatted).toContain("Failed to remove 3D tileset");
+      expect(result).toContain("Failed to remove 3D tileset");
     });
   });
 
@@ -152,29 +151,6 @@ describe("Tiles Server Helpers", () => {
     });
   });
 
-  describe("getRemovalCountMessage", () => {
-    it("should use singular form for 1 removal", () => {
-      expect(getRemovalCountMessage(1)).toBe("Removed 1 tileset");
-    });
-
-    it("should use plural form for multiple removals", () => {
-      expect(getRemovalCountMessage(2)).toBe("Removed 2 tilesets");
-      expect(getRemovalCountMessage(10)).toBe("Removed 10 tilesets");
-    });
-
-    it("should handle 0 removals", () => {
-      expect(getRemovalCountMessage(0)).toBe("Removed 0 tilesets");
-    });
-
-    it("should handle undefined as 0", () => {
-      expect(getRemovalCountMessage(undefined)).toBe("Removed 0 tilesets");
-    });
-
-    it("should work with large numbers", () => {
-      expect(getRemovalCountMessage(1000)).toBe("Removed 1000 tilesets");
-    });
-  });
-
   describe("integration scenarios", () => {
     it("should validate parameters and format errors together", () => {
       const invalidParams = { url: undefined };
@@ -189,7 +165,7 @@ describe("Tiles Server Helpers", () => {
           operation: "add",
           identifier: "test",
         });
-        errorMessage = result.formatted;
+        errorMessage = result;
       }
 
       expect(errorThrown).toBe(true);
@@ -207,7 +183,7 @@ describe("Tiles Server Helpers", () => {
       const errorResult = formatTilesetError(error, {
         operation: "list",
       });
-      expect(errorResult.formatted).toContain("Failed to list 3D tilesets");
+      expect(errorResult).toContain("Failed to list 3D tilesets");
     });
   });
 });

@@ -25,18 +25,19 @@ describe("registerTilesTools", () => {
     ).toThrow("Tiles tools require a communication server");
   });
 
-  it("should register all three tiles tools", () => {
+  it("should register all four tiles tools", () => {
     registerTilesTools(
       mockServer as unknown as McpServer,
       mockCommunicationServer as unknown as ICommunicationServer,
     );
 
-    expect(mockServer.registerTool).toHaveBeenCalledTimes(3);
+    expect(mockServer.registerTool).toHaveBeenCalledTimes(4);
 
     const toolNames = mockServer.registerTool.mock.calls.map((call) => call[0]);
     expect(toolNames).toContain("tileset_add");
     expect(toolNames).toContain("tileset_remove");
     expect(toolNames).toContain("tileset_list");
+    expect(toolNames).toContain("tileset_style");
   });
 
   it("should register tileset_add with correct config", () => {

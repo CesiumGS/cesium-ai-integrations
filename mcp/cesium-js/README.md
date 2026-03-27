@@ -83,9 +83,10 @@ Manage 3D Tiles tilesets on the CesiumJS globe.
 
 | Tool             | Description                                                     |
 | ---------------- | --------------------------------------------------------------- |
-| `tileset_add`    | Add 3D tileset from Cesium Ion asset or direct URL          |
+| `tileset_add`    | Add 3D tileset from Cesium Ion asset or direct URL              |
 | `tileset_remove` | Remove tileset by ID, name, or remove all                       |
 | `tileset_list`   | List all 3D tilesets with visibility and source info            |
+| `tileset_style`  | Apply color/show conditions to a tileset using 3D Tiles Styling |
 
 ## 🏗️ Structure
 

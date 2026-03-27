@@ -5,10 +5,11 @@ MCP server for managing 3D Tiles tilesets in CesiumJS scene applications.
 ## ✨ Features
 
 - **Multiple Source Types**: Load tilesets from Cesium Ion assets and direct URLs
-- **Tileset Management**: Add, remove, and list 3D tilesets dynamically
+- **Tileset Management**: Add, remove, list, and style 3D tilesets dynamically
 - **ID-based Tracking**: Each tileset receives a unique ID for reliable removal
 - **Visibility Control**: Set tileset visibility on load
 - **Batch Operations**: Remove all loaded tilesets at once
+- **3D Tiles Styling**: Apply color and show conditions using the 3D Tiles Styling specification
 
 ## 📦 Installation
 
@@ -87,6 +88,29 @@ Supports two source types for flexible tileset loading.
 
 ---
 
+### 4. `tileset_style`
+
+**Apply or update 3D Tiles styling on a loaded tileset**
+
+Targets a tileset by `tilesetId` or `name`. Style expressions follow the [3D Tiles Styling specification](https://github.com/CesiumGS/3d-tiles/tree/main/specification/Styling).
+
+**Input:**
+
+- `tilesetId` (optional): ID returned by `tileset_add` — preferred targeting method
+- `name` (optional): Display name of the tileset to style
+- `color` (optional): A single color expression string (e.g. `"color('red')"`)
+- `colorConditions` (optional): Array of `[condition, color]` pairs for conditional coloring
+- `show` (optional): Boolean or expression string controlling feature visibility
+- `showConditions` (optional): Array of `[condition, show]` pairs for conditional visibility
+
+> Either `tilesetId` or `name` must be provided. At least one style property must be specified.
+
+**Output:**
+
+- `tilesetId`, `name`, and `appliedStyle` (the style properties that were applied)
+
+---
+
 ## 🔌 Using with AI Clients
 
 ### Example: Configure with Cline
@@ -118,6 +142,9 @@ Supports two source types for flexible tileset loading.
 "List all 3D tilesets in the scene"
 "Remove the tileset named 'Cesium OSM Buildings'"
 "Remove all loaded tilesets"
+"Color the OSM Buildings tileset red"
+"Style buildings taller than 100m blue, everything else white"
+"Hide all features shorter than 10 meters in the Buildings tileset"
 ```
 
 ## ⚙️ Configuration

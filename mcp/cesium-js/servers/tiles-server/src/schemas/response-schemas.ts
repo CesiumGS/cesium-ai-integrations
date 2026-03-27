@@ -42,10 +42,8 @@ export const TilesetRemoveResponseSchema = z.object({
   message: z.string().describe("Human-readable status message"),
   removedTilesetId: z.string().optional().describe("ID of the removed tileset"),
   removedName: z.string().optional().describe("Name of the removed tileset"),
-  removedCount: z.number().optional().describe("Number of tilesets removed"),
-  stats: z.object({
-    responseTime: z.number().describe("Response time in milliseconds"),
-  }),
+  removedCount: z.number().describe("Number of tilesets removed"),
+  stats: TilesStatsSchema,
 });
 
 /**
@@ -59,8 +57,29 @@ export const TilesetListResponseSchema = z.object({
   stats: TilesStatsSchema,
 });
 
+/**
+ * Response schema for tileset_style operations
+ */
+export const TilesetStyleResponseSchema = z.object({
+  success: z.boolean().describe("Whether the operation succeeded"),
+  message: z.string().describe("Human-readable status message"),
+  tilesetId: z.string().optional().describe("ID of the styled tileset"),
+  name: z.string().optional().describe("Display name of the styled tileset"),
+  appliedStyle: z
+    .object({
+      color: z.string().optional(),
+      colorConditions: z.array(z.tuple([z.string(), z.string()])).optional(),
+      show: z.union([z.boolean(), z.string()]).optional(),
+      showConditions: z.array(z.tuple([z.string(), z.string()])).optional(),
+    })
+    .optional()
+    .describe("Summary of the style that was applied"),
+  stats: TilesStatsSchema,
+});
+
 // Type exports for TypeScript
 export type TilesStats = z.infer<typeof TilesStatsSchema>;
 export type TilesetAddResponse = z.infer<typeof TilesetAddResponseSchema>;
 export type TilesetRemoveResponse = z.infer<typeof TilesetRemoveResponseSchema>;
 export type TilesetListResponse = z.infer<typeof TilesetListResponseSchema>;
+export type TilesetStyleResponse = z.infer<typeof TilesetStyleResponseSchema>;

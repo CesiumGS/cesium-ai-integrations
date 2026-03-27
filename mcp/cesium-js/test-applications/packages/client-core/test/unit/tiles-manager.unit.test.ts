@@ -12,6 +12,7 @@ import type { MCPCommand } from "../../src/types/mcp";
 vi.mock("cesium", () => {
   class MockCesium3DTileset {
     show: boolean = true;
+    style: unknown = undefined;
     isDestroyed: boolean = false;
 
     static async fromUrl(url: string): Promise<MockCesium3DTileset> {
@@ -36,8 +37,13 @@ vi.mock("cesium", () => {
     }
   }
 
+  class MockCesium3DTileStyle {
+    constructor(public styleJson: Record<string, unknown> = {}) {}
+  }
+
   return {
     Cesium3DTileset: MockCesium3DTileset,
+    Cesium3DTileStyle: MockCesium3DTileStyle,
   };
 });
 
@@ -82,15 +88,20 @@ describe("Tiles Manager Unit Tests", () => {
 
   describe("Command handler registration", () => {
     it("should register all required tileset command handlers", () => {
-      const required = ["tileset_add", "tileset_remove", "tileset_list"];
+      const required = [
+        "tileset_add",
+        "tileset_remove",
+        "tileset_list",
+        "tileset_style",
+      ];
       for (const name of required) {
         expect(commandHandlers.has(name)).toBe(true);
         expect(typeof commandHandlers.get(name)).toBe("function");
       }
     });
 
-    it("should have exactly 3 handlers", () => {
-      expect(commandHandlers.size).toBe(3);
+    it("should have exactly 4 handlers", () => {
+      expect(commandHandlers.size).toBe(4);
     });
   });
 
@@ -456,6 +467,172 @@ describe("Tiles Manager Unit Tests", () => {
       expect((result.tilesets as unknown[]).length).toBe(1);
       const tilesets = result.tilesets as Array<Record<string, unknown>>;
       expect(tilesets[0].name).toBe("T2");
+    });
+  });
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // tileset_style Tests
+  // ───────────────────────────────────────────────────────────────────────────
+
+  describe("tileset_style command", () => {
+    const styleHandler = () =>
+      commandHandlers.get("tileset_style") as (cmd: MCPCommand) => unknown;
+
+    async function addTileset(assetId = 1, name = "Test Tileset") {
+      const addHandler = commandHandlers.get("tileset_add") as (
+        cmd: MCPCommand,
+      ) => Promise<Record<string, unknown>>;
+      return addHandler({
+        type: "tileset_add",
+        sourceType: "ion",
+        assetId,
+        name,
+      });
+    }
+
+    it("should apply a solid color by tilesetId", async () => {
+      const added = await addTileset(1, "Buildings");
+
+      const result = styleHandler()({
+        type: "tileset_style",
+        tilesetId: added.tilesetId,
+        color: "color('red')",
+      }) as Record<string, unknown>;
+
+      expect(result.success).toBe(true);
+      expect(result.tilesetId).toBe(added.tilesetId);
+      expect(result.name).toBe("Buildings");
+      const appliedStyle = result.appliedStyle as Record<string, unknown>;
+      expect(appliedStyle.color).toBe("color('red')");
+    });
+
+    it("should apply a solid color by name", async () => {
+      await addTileset(1, "MyTileset");
+
+      const result = styleHandler()({
+        type: "tileset_style",
+        name: "MyTileset",
+        color: "color('blue')",
+      }) as Record<string, unknown>;
+
+      expect(result.success).toBe(true);
+      expect(result.name).toBe("MyTileset");
+      const appliedStyle = result.appliedStyle as Record<string, unknown>;
+      expect(appliedStyle.color).toBe("color('blue')");
+    });
+
+    it("should apply color conditions", async () => {
+      const added = await addTileset(1, "Buildings");
+      const conditions: [string, string][] = [
+        ["${height} >= 100", "color('blue')"],
+        ["true", "color('white')"],
+      ];
+
+      const result = styleHandler()({
+        type: "tileset_style",
+        tilesetId: added.tilesetId,
+        colorConditions: conditions,
+      }) as Record<string, unknown>;
+
+      expect(result.success).toBe(true);
+      const appliedStyle = result.appliedStyle as Record<string, unknown>;
+      expect(appliedStyle.colorConditions).toEqual(conditions);
+    });
+
+    it("should apply boolean show property", async () => {
+      const added = await addTileset(1, "Buildings");
+
+      const result = styleHandler()({
+        type: "tileset_style",
+        tilesetId: added.tilesetId,
+        show: false,
+      }) as Record<string, unknown>;
+
+      expect(result.success).toBe(true);
+      const appliedStyle = result.appliedStyle as Record<string, unknown>;
+      expect(appliedStyle.show).toBe(false);
+    });
+
+    it("should apply string show expression", async () => {
+      const added = await addTileset(1, "Buildings");
+
+      const result = styleHandler()({
+        type: "tileset_style",
+        tilesetId: added.tilesetId,
+        show: "${height} > 10",
+      }) as Record<string, unknown>;
+
+      expect(result.success).toBe(true);
+      const appliedStyle = result.appliedStyle as Record<string, unknown>;
+      expect(appliedStyle.show).toBe("${height} > 10");
+    });
+
+    it("should apply combined color and show style", async () => {
+      const added = await addTileset(1, "Buildings");
+
+      const result = styleHandler()({
+        type: "tileset_style",
+        tilesetId: added.tilesetId,
+        color: "color('green')",
+        show: true,
+      }) as Record<string, unknown>;
+
+      expect(result.success).toBe(true);
+      const appliedStyle = result.appliedStyle as Record<string, unknown>;
+      expect(appliedStyle.color).toBe("color('green')");
+      expect(appliedStyle.show).toBe(true);
+    });
+
+    it("should apply showConditions", async () => {
+      const added = await addTileset(1, "Buildings");
+      const showConditions: [string, string][] = [
+        ["${floors} > 5", "true"],
+        ["true", "false"],
+      ];
+
+      const result = styleHandler()({
+        type: "tileset_style",
+        tilesetId: added.tilesetId,
+        showConditions,
+      }) as Record<string, unknown>;
+
+      expect(result.success).toBe(true);
+      const appliedStyle = result.appliedStyle as Record<string, unknown>;
+      expect(appliedStyle.showConditions).toEqual(showConditions);
+    });
+
+    it("should fail when neither tilesetId nor name is provided", () => {
+      const result = styleHandler()({
+        type: "tileset_style",
+        color: "color('red')",
+      }) as Record<string, unknown>;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain(
+        "Either tilesetId or name must be provided",
+      );
+    });
+
+    it("should fail when tilesetId is not found", async () => {
+      const result = styleHandler()({
+        type: "tileset_style",
+        tilesetId: "ts-nonexistent",
+        color: "color('red')",
+      }) as Record<string, unknown>;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("ts-nonexistent");
+    });
+
+    it("should fail when name is not found", async () => {
+      const result = styleHandler()({
+        type: "tileset_style",
+        name: "NonExistentTileset",
+        color: "color('red')",
+      }) as Record<string, unknown>;
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("NonExistentTileset");
     });
   });
 

@@ -5,13 +5,17 @@ import {
   type TilesetRemoveInput,
 } from "../schemas/index.js";
 import {
-  executeTilesetRemoveCommand,
-  buildTilesetSuccessResponse,
-  buildTilesetErrorResponse,
   formatTilesetError,
-  getRemovalCountMessage,
+  getTilesetCountMessage,
+  type TilesetRemoveResult,
 } from "../utils/index.js";
-import type { ICommunicationServer } from "@cesium-mcp/shared";
+import {
+  executeWithTiming,
+  buildSuccessResponse,
+  buildErrorResponse,
+  ResponseEmoji,
+  type ICommunicationServer,
+} from "@cesium-mcp/shared";
 
 /**
  * Register the tileset_remove tool
@@ -46,10 +50,11 @@ export function registerTilesetRemove(
           removeAll,
         };
 
-        const { result, responseTime } = await executeTilesetRemoveCommand(
-          communicationServer,
-          command,
-        );
+        const { result, responseTime } =
+          await executeWithTiming<TilesetRemoveResult>(
+            communicationServer,
+            command,
+          );
 
         if (result.success) {
           const removedCount = removeAll
@@ -61,7 +66,7 @@ export function registerTilesetRemove(
           const output = {
             success: true,
             message: removeAll
-              ? getRemovalCountMessage(removedCount)
+              ? getTilesetCountMessage(removedCount, "Removed")
               : `3D tileset '${identifier}' removed successfully`,
             removedTilesetId: result.removedTilesetId ?? tilesetId,
             removedName: result.removedName ?? name,
@@ -71,17 +76,17 @@ export function registerTilesetRemove(
             },
           };
 
-          return buildTilesetSuccessResponse(
-            output.message,
-            output,
+          return buildSuccessResponse(
+            ResponseEmoji.Success,
             responseTime,
+            output,
           );
         }
 
         throw new Error(result.error || "Unknown error from Cesium");
       } catch (error) {
         const identifier = tilesetId || name || "unknown";
-        const { formatted } = formatTilesetError(error, {
+        const formatted = formatTilesetError(error, {
           operation: "remove",
           identifier,
         });
@@ -97,7 +102,7 @@ export function registerTilesetRemove(
           },
         };
 
-        return buildTilesetErrorResponse(errorOutput);
+        return buildErrorResponse(0, errorOutput);
       }
     },
   );

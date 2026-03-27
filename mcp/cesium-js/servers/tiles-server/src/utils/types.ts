@@ -31,7 +31,20 @@ export interface TilesetListResult extends BaseResult {
   [key: string]: unknown;
 }
 
+export interface TilesetStyleResult extends BaseResult {
+  tilesetId?: string;
+  name?: string;
+  appliedStyle?: {
+    color?: string;
+    colorConditions?: [string, string][];
+    show?: boolean | string;
+    showConditions?: [string, string][];
+  };
+  [key: string]: unknown;
+}
+
 export type TilesResult =
   | TilesetAddResult
   | TilesetRemoveResult
-  | TilesetListResult;
+  | TilesetListResult
+  | TilesetStyleResult;

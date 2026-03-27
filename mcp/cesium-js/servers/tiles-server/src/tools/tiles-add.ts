@@ -6,12 +6,16 @@ import {
 } from "../schemas/index.js";
 import {
   validateSourceTypeParams,
-  executeTilesetAddCommand,
-  buildTilesetSuccessResponse,
-  buildTilesetErrorResponse,
   formatTilesetError,
+  type TilesetAddResult,
 } from "../utils/index.js";
-import type { ICommunicationServer } from "@cesium-mcp/shared";
+import {
+  executeWithTiming,
+  buildSuccessResponse,
+  buildErrorResponse,
+  ResponseEmoji,
+  type ICommunicationServer,
+} from "@cesium-mcp/shared";
 
 /**
  * Register the tileset_add tool
@@ -31,13 +35,7 @@ export function registerTilesetAdd(
       inputSchema: TilesetAddInputSchema.shape,
       outputSchema: TilesetAddResponseSchema.shape,
     },
-    async ({
-      type,
-      assetId,
-      url,
-      name,
-      show,
-    }: TilesetAddInput) => {
+    async ({ type, assetId, url, name, show }: TilesetAddInput) => {
       try {
         // Validate that required parameters are present for each source type
         validateSourceTypeParams(type, { assetId, url });
@@ -51,10 +49,11 @@ export function registerTilesetAdd(
           show,
         };
 
-        const { result, responseTime } = await executeTilesetAddCommand(
-          communicationServer,
-          command,
-        );
+        const { result, responseTime } =
+          await executeWithTiming<TilesetAddResult>(
+            communicationServer,
+            command,
+          );
 
         if (result.success) {
           const tilesetName = name || result.name || type;
@@ -71,17 +70,17 @@ export function registerTilesetAdd(
             },
           };
 
-          return buildTilesetSuccessResponse(
-            output.message,
-            output,
+          return buildSuccessResponse(
+            ResponseEmoji.Success,
             responseTime,
+            output,
           );
         }
 
         throw new Error(result.error || "Unknown error from Cesium");
       } catch (error) {
         const tilesetName = name || type;
-        const { formatted } = formatTilesetError(error, {
+        const formatted = formatTilesetError(error, {
           operation: "add",
           identifier: tilesetName,
         });
@@ -97,7 +96,7 @@ export function registerTilesetAdd(
           },
         };
 
-        return buildTilesetErrorResponse(errorOutput);
+        return buildErrorResponse(0, errorOutput);
       }
     },
   );

@@ -20,9 +20,11 @@ export {
   TilesetAddInputSchema,
   TilesetRemoveInputSchema,
   TilesetListInputSchema,
+  TilesetStyleInputSchema,
   type TilesetAddInput,
   type TilesetRemoveInput,
   type TilesetListInput,
+  type TilesetStyleInput,
 } from "./tool-schemas.js";
 
 // Response schemas
@@ -31,8 +33,10 @@ export {
   TilesetAddResponseSchema,
   TilesetRemoveResponseSchema,
   TilesetListResponseSchema,
+  TilesetStyleResponseSchema,
   type TilesStats,
   type TilesetAddResponse,
   type TilesetRemoveResponse,
   type TilesetListResponse,
+  type TilesetStyleResponse,
 } from "./response-schemas.js";

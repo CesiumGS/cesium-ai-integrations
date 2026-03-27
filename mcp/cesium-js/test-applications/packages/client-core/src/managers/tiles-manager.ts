@@ -17,9 +17,10 @@ import type {
   TilesetRemoveResult,
   TilesetInfo,
   TilesetListResult,
+  TilesetStyleResult,
 } from "../types/tiles-types.js";
 import type { CesiumViewer } from "../types/cesium-types.js";
-import { Cesium3DTileset } from "cesium";
+import type { Cesium3DTileset } from "cesium";
 
 interface TrackedTileset {
   tilesetId: string;
@@ -74,7 +75,7 @@ class CesiumTilesManager implements ManagerInterface {
 
     if (sourceType === "url") {
       const url = cmd.url as string;
-      return Cesium3DTileset.fromUrl(url);
+      return Cesium.Cesium3DTileset.fromUrl(url);
     }
 
     const ionAssetId = this.resolveIonAssetId(cmd);
@@ -83,7 +84,7 @@ class CesiumTilesManager implements ManagerInterface {
         `Cannot load tileset: missing required ID for source type '${sourceType}'`,
       );
     }
-    return Cesium3DTileset.fromIonAssetId(ionAssetId);
+    return Cesium.Cesium3DTileset.fromIonAssetId(ionAssetId);
   }
 
   /**
@@ -204,6 +205,93 @@ class CesiumTilesManager implements ManagerInterface {
   }
 
   /**
+   * Apply or update 3D Tiles styling on a loaded tileset
+   */
+  private styleTileset(cmd: MCPCommand): TilesetStyleResult {
+    try {
+      const tilesetId = cmd.tilesetId as string | undefined;
+      const name = cmd.name as string | undefined;
+
+      let tracked: TrackedTileset | undefined;
+      if (tilesetId) {
+        tracked = this.tilesets.get(tilesetId);
+        if (!tracked) {
+          return {
+            success: false,
+            error: `No tileset found with id '${tilesetId}'`,
+          };
+        }
+      } else if (name) {
+        for (const t of this.tilesets.values()) {
+          if (t.name === name) {
+            tracked = t;
+            break;
+          }
+        }
+        if (!tracked) {
+          return {
+            success: false,
+            error: `No tileset found with name '${name}'`,
+          };
+        }
+      } else {
+        return {
+          success: false,
+          error: "Either tilesetId or name must be provided",
+        };
+      }
+
+      const color = cmd.color as string | undefined;
+      const colorConditions = cmd.colorConditions as string[][] | undefined;
+      const show = cmd.show as boolean | string | undefined;
+      const showConditions = cmd.showConditions as string[][] | undefined;
+
+      const styleJson: Record<string, unknown> = {};
+
+      if (colorConditions !== undefined) {
+        styleJson.color = { conditions: colorConditions };
+      } else if (color !== undefined) {
+        styleJson.color = color;
+      }
+
+      if (showConditions !== undefined) {
+        styleJson.show = { conditions: showConditions };
+      } else if (show !== undefined) {
+        styleJson.show = show;
+      }
+
+      tracked.tileset.style = new Cesium.Cesium3DTileStyle(styleJson);
+
+      const appliedStyle: TilesetStyleResult["appliedStyle"] = {};
+      if (color !== undefined) {
+        appliedStyle.color = color;
+      }
+      if (colorConditions !== undefined) {
+        appliedStyle.colorConditions = colorConditions;
+      }
+      if (show !== undefined) {
+        appliedStyle.show = show;
+      }
+      if (showConditions !== undefined) {
+        appliedStyle.showConditions = showConditions;
+      }
+
+      return {
+        success: true,
+        message: `Tileset '${tracked.name}' styled successfully`,
+        tilesetId: tracked.tilesetId,
+        name: tracked.name,
+        appliedStyle,
+      };
+    } catch (error: unknown) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }
+
+  /**
    * List all loaded tilesets
    */
   private listTilesets(): TilesetListResult {
@@ -244,6 +332,7 @@ class CesiumTilesManager implements ManagerInterface {
       this.removeTileset(cmd),
     );
     handlers.set("tileset_list", () => this.listTilesets());
+    handlers.set("tileset_style", (cmd: MCPCommand) => this.styleTileset(cmd));
 
     return handlers;
   }
