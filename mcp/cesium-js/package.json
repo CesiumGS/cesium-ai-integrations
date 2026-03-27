@@ -5,17 +5,19 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "pnpm run build:shared && pnpm run build:camera && pnpm run build:entity && pnpm run build:animation && pnpm run build:imagery && pnpm run build:cesium-js",
+    "build": "pnpm run build:shared && pnpm run build:camera && pnpm run build:entity && pnpm run build:animation && pnpm run build:imagery && pnpm run build:tiles && pnpm run build:cesium-js",
     "build:shared": "pnpm --filter @cesium-mcp/shared build",
     "build:camera": "pnpm --filter @cesium-mcp/camera-server build",
     "build:entity": "pnpm --filter @cesium-mcp/entity-server build",
     "build:animation": "pnpm --filter @cesium-mcp/animation-server build",
     "build:imagery": "pnpm --filter @cesium-mcp/imagery-server build",
+    "build:tiles": "pnpm --filter @cesium-mcp/tiles-server build",
     "build:cesium-js": "pnpm --filter @cesium-mcp/cesium-js build",
     "dev:camera": "pnpm --filter @cesium-mcp/camera-server dev",
     "dev:entity": "pnpm --filter @cesium-mcp/entity-server dev",
     "dev:animation": "pnpm --filter @cesium-mcp/animation-server dev",
     "dev:imagery": "pnpm --filter @cesium-mcp/imagery-server dev",
+    "dev:tiles": "pnpm --filter @cesium-mcp/tiles-server dev",
     "start:web": "pnpm --filter @cesium-mcp/cesium-js start:web",
     "clean": "pnpm -r run clean",
     "lint": "eslint .",
@@ -28,7 +30,8 @@
     "test:camera": "pnpm --filter @cesium-mcp/camera-server test",
     "test:entity": "pnpm --filter @cesium-mcp/entity-server test",
     "test:animation": "pnpm --filter @cesium-mcp/animation-server test",
-    "test:imagery": "pnpm --filter @cesium-mcp/imagery-server test"
+    "test:imagery": "pnpm --filter @cesium-mcp/imagery-server test",
+    "test:tiles": "pnpm --filter @cesium-mcp/tiles-server test"
   },
   "keywords": [
     "mcp",
@@ -74,5 +77,6 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.55.0",
     "vitest": "^4.0.18"
-  }
+  },
+  "packageManager": "pnpm@9.15.5+sha512.845196026aab1cc3f098a0474b64dfbab2afe7a1b4e91dd86895d8e4aa32a7a6d03049e2d0ad770bbe4de023a7122fb68c1a1d6e0d033c7076085f9d5d4800d4"
 }
