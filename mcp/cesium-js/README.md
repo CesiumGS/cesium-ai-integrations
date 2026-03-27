@@ -11,6 +11,7 @@ pnpm monorepo containing MCP servers and test applications for controlling [Cesi
 | [`@cesium-mcp/entity-server`](./servers/entity-server/README.md)                | Entity management: points, billboards, labels, models, polygons, polylines, and more | 3003 |
 | [`@cesium-mcp/animation-server`](./servers/animation-server/README.md)          | Path-based animations, clock control, camera tracking, globe lighting                | 3004 |
 | [`@cesium-mcp/imagery-server`](./servers/imagery-server/README.md)              | Imagery layer management: add, remove, and list imagery providers                    | 3005 |
+| [`@cesium-mcp/tiles-server`](./servers/tiles-server/README.md)                  | 3D Tiles management: add, remove, and configure 3D Tilesets                          | 3009 |
 | [`@cesium-mcp/client-core`](./test-applications/packages/client-core/README.md) | Shared browser client library (managers, communications)                             | —    |
 | [`@cesium-mcp/cesium-js`](./test-applications/README.md)                        | Browser web application (CesiumJS viewer)                                            | 8080 |
 
@@ -76,6 +77,16 @@ Manage imagery layers on the CesiumJS globe.
 | `imagery_remove` | Remove imagery layer by index, name, or remove all        |
 | `imagery_list`   | List all imagery layers with visibility and provider info |
 
+### 🏢 [cesium-tiles-server](./servers/tiles-server/README.md)
+
+Manage 3D Tiles tilesets on the CesiumJS globe.
+
+| Tool             | Description                                                     |
+| ---------------- | --------------------------------------------------------------- |
+| `tileset_add`    | Add 3D tileset from Cesium Ion asset or direct URL          |
+| `tileset_remove` | Remove tileset by ID, name, or remove all                       |
+| `tileset_list`   | List all 3D tilesets with visibility and source info            |
+
 ## 🏗️ Structure
 
 ```
@@ -85,7 +96,8 @@ cesium-js/
 │   ├── camera-server/       # @cesium-mcp/camera-server
 │   ├── entity-server/       # @cesium-mcp/entity-server
 │   ├── animation-server/    # @cesium-mcp/animation-server
-│   └── imagery-server/      # @cesium-mcp/imagery-server
+│   ├── imagery-server/      # @cesium-mcp/imagery-server
+│   └── tiles-server/        # @cesium-mcp/tiles-server
 ├── test-applications/
 │   ├── packages/
 │   │   └── client-core/     # @cesium-mcp/client-core
@@ -120,6 +132,7 @@ pnpm run build:camera       # @cesium-mcp/camera-server only
 pnpm run build:entity       # @cesium-mcp/entity-server only
 pnpm run build:animation    # @cesium-mcp/animation-server only
 pnpm run build:imagery      # @cesium-mcp/imagery-server only
+pnpm run build:tiles        # @cesium-mcp/tiles-server only
 pnpm run build:cesium-js    # @cesium-mcp/cesium-js (web app) only
 pnpm run clean              # Remove all build artifacts
 ```
@@ -133,6 +146,7 @@ pnpm run dev:camera        # Camera server on port 3002
 pnpm run dev:entity        # Entity server on port 3003
 pnpm run dev:animation     # Animation server on port 3004
 pnpm run dev:imagery       # Imagery server on port 3005
+pnpm run dev:tiles         # Tiles server on port 3009
 ```
 
 ### Web Application
@@ -193,6 +207,17 @@ Add the servers to your MCP client (e.g., Claude Desktop, Cline):
         "IMAGERY_SERVER_PORT": "3005",
         "STRICT_PORT": "false"
       }
+    },
+    "cesium-tiles": {
+      "command": "node",
+      "args": [
+        "{YOUR_WORKSPACE}/mcp/cesium-js/servers/tiles-server/build/index.js"
+      ],
+      "env": {
+        "COMMUNICATION_PROTOCOL": "websocket",
+        "TILES_SERVER_PORT": "3006",
+        "STRICT_PORT": "false"
+      }
     }
   }
 }
@@ -211,7 +236,7 @@ Add the servers to your MCP client (e.g., Claude Desktop, Cline):
 AI Assistant (Claude, Cline, etc.)
         │  stdio (MCP)
         ▼
-  MCP Server (camera / entity / animation / imagery)
+  MCP Server (camera / entity / animation / imagery / tiles)
         │  WebSocket or SSE
         ▼
  CesiumJS Web App (localhost:8080)

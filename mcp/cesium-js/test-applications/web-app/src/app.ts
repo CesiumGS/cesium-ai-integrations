@@ -39,6 +39,10 @@ const config: CesiumAppConfig = {
       name: "Imagery Server",
       port: parseInt(process.env.MCP_IMAGERY_PORT || "3005"),
     },
+    {
+      name: "Tiles Server",
+      port: parseInt(process.env.MCP_TILES_PORT || "3006"),
+    },
   ],
 };
 
