@@ -2,6 +2,8 @@
 
 MCP server for managing 3D Tiles tilesets in CesiumJS scene applications.
 
+<video src="https://github.com/user-attachments/assets/ad63c787-8d94-4d4e-816e-c5488155ba08" controls></video>
+
 ## ✨ Features
 
 - **Multiple Source Types**: Load tilesets from Cesium Ion assets and direct URLs

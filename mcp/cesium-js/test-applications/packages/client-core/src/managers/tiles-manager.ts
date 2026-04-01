@@ -20,7 +20,7 @@ import type {
   TilesetStyleResult,
 } from "../types/tiles-types.js";
 import type { CesiumViewer } from "../types/cesium-types.js";
-import type { Cesium3DTileset } from "cesium";
+import { Cesium3DTileset, Cesium3DTileStyle } from "cesium";
 
 interface TrackedTileset {
   tilesetId: string;
@@ -75,7 +75,7 @@ class CesiumTilesManager implements ManagerInterface {
 
     if (sourceType === "url") {
       const url = cmd.url as string;
-      return Cesium.Cesium3DTileset.fromUrl(url);
+      return Cesium3DTileset.fromUrl(url);
     }
 
     const ionAssetId = this.resolveIonAssetId(cmd);
@@ -84,7 +84,7 @@ class CesiumTilesManager implements ManagerInterface {
         `Cannot load tileset: missing required ID for source type '${sourceType}'`,
       );
     }
-    return Cesium.Cesium3DTileset.fromIonAssetId(ionAssetId);
+    return Cesium3DTileset.fromIonAssetId(ionAssetId);
   }
 
   /**
@@ -260,7 +260,7 @@ class CesiumTilesManager implements ManagerInterface {
         styleJson.show = show;
       }
 
-      tracked.tileset.style = new Cesium.Cesium3DTileStyle(styleJson);
+      tracked.tileset.style = new Cesium3DTileStyle(styleJson);
 
       const appliedStyle: TilesetStyleResult["appliedStyle"] = {};
       if (color !== undefined) {
