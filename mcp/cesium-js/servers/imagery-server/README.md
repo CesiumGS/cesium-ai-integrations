@@ -2,6 +2,8 @@
 
 MCP server for managing imagery layers on CesiumJS 3D globe applications.
 
+<video src="https://github.com/user-attachments/assets/2e623034-abfb-4bcf-8ecd-b9aeb7be3910" controls></video>
+
 ## ✨ Features
 
 - **Multiple Provider Types**: Support for URL templates, WMS, WMTS, ArcGIS, Bing Maps, TMS, OpenStreetMap, Cesium Ion, and single tile providers
