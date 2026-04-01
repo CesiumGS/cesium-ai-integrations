@@ -56,18 +56,6 @@ class CesiumTilesManager implements ManagerInterface {
   }
 
   /**
-   * Resolve the Ion asset ID for a given command.
-   * For 'ion', the assetId is provided directly.
-   */
-  private resolveIonAssetId(cmd: MCPCommand): number | undefined {
-    const sourceType = cmd.sourceType as string;
-    if (sourceType === "ion") {
-      return cmd.assetId as number | undefined;
-    }
-    return undefined;
-  }
-
-  /**
    * Load a Cesium3DTileset from a command
    */
   private async loadTileset(cmd: MCPCommand): Promise<Cesium3DTileset> {
@@ -78,7 +66,7 @@ class CesiumTilesManager implements ManagerInterface {
       return Cesium3DTileset.fromUrl(url);
     }
 
-    const ionAssetId = this.resolveIonAssetId(cmd);
+    const ionAssetId = cmd.assetId as number | undefined;
     if (ionAssetId === undefined) {
       throw new Error(
         `Cannot load tileset: missing required ID for source type '${sourceType}'`,

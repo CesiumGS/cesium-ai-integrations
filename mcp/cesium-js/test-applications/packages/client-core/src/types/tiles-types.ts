@@ -15,7 +15,7 @@ export interface TilesetRemoveResult extends MCPCommandResult {
 
 export interface TilesetInfo {
   tilesetId: string;
-  name?: string;
+  name: string;
   sourceType: string;
   show: boolean;
   assetId?: number;
