@@ -43,6 +43,10 @@ const config: CesiumAppConfig = {
       name: "Tiles Server",
       port: parseInt(process.env.MCP_TILES_PORT || "3006"),
     },
+    {
+      name: "Terrain Server",
+      port: parseInt(process.env.MCP_TERRAIN_PORT || "3007"),
+    },
   ],
 };
 

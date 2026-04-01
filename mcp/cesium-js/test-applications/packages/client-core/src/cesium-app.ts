@@ -11,6 +11,7 @@ import CesiumEntityManager from "./managers/entity-manager.js";
 import CesiumAnimationManager from "./managers/animation-manager.js";
 import CesiumImageryManager from "./managers/imagery-manager.js";
 import CesiumTilesManager from "./managers/tiles-manager.js";
+import CesiumTerrainManager from "./managers/terrain-manager.js";
 import { BaseCommunicationManager } from "./communications/base-communication.js";
 import SSECommunicationManager from "./communications/sse-communication.js";
 import WebSocketCommunicationManager from "./communications/websocket-communication.js";
@@ -116,6 +117,7 @@ export class CesiumApp {
       new CesiumAnimationManager(this.viewer),
       new CesiumImageryManager(this.viewer),
       new CesiumTilesManager(this.viewer),
+      new CesiumTerrainManager(this.viewer),
     ];
   }
 
