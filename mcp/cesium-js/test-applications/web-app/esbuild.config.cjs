@@ -26,6 +26,9 @@ const define = {
   "process.env.MCP_IMAGERY_PORT": JSON.stringify(
     process.env.MCP_IMAGERY_PORT || "3005",
   ),
+  "process.env.MCP_TERRAIN_PORT": JSON.stringify(
+    process.env.MCP_TERRAIN_PORT || "3007",
+  ),
 };
 
 esbuild

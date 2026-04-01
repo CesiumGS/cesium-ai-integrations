@@ -5,17 +5,19 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "pnpm run build:shared && pnpm run build:camera && pnpm run build:entity && pnpm run build:animation && pnpm run build:imagery && pnpm run build:cesium-js",
+    "build": "pnpm run build:shared && pnpm run build:camera && pnpm run build:entity && pnpm run build:animation && pnpm run build:imagery && pnpm run build:terrain && pnpm run build:cesium-js",
     "build:shared": "pnpm --filter @cesium-mcp/shared build",
     "build:camera": "pnpm --filter @cesium-mcp/camera-server build",
     "build:entity": "pnpm --filter @cesium-mcp/entity-server build",
     "build:animation": "pnpm --filter @cesium-mcp/animation-server build",
     "build:imagery": "pnpm --filter @cesium-mcp/imagery-server build",
+    "build:terrain": "pnpm --filter @cesium-mcp/terrain-server build",
     "build:cesium-js": "pnpm --filter @cesium-mcp/cesium-js build",
     "dev:camera": "pnpm --filter @cesium-mcp/camera-server dev",
     "dev:entity": "pnpm --filter @cesium-mcp/entity-server dev",
     "dev:animation": "pnpm --filter @cesium-mcp/animation-server dev",
     "dev:imagery": "pnpm --filter @cesium-mcp/imagery-server dev",
+    "dev:terrain": "pnpm --filter @cesium-mcp/terrain-server dev",
     "start:web": "pnpm --filter @cesium-mcp/cesium-js start:web",
     "clean": "pnpm -r run clean",
     "lint": "eslint .",
@@ -28,7 +30,8 @@
     "test:camera": "pnpm --filter @cesium-mcp/camera-server test",
     "test:entity": "pnpm --filter @cesium-mcp/entity-server test",
     "test:animation": "pnpm --filter @cesium-mcp/animation-server test",
-    "test:imagery": "pnpm --filter @cesium-mcp/imagery-server test"
+    "test:imagery": "pnpm --filter @cesium-mcp/imagery-server test",
+    "test:terrain": "pnpm --filter @cesium-mcp/terrain-server test"
   },
   "keywords": [
     "mcp",
