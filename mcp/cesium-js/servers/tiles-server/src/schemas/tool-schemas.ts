@@ -21,7 +21,7 @@ export const TilesetAddInputSchema = z.object({
         "Find asset IDs at https://ion.cesium.com/assets",
     ),
   url: z
-    .string()
+    .url()
     .optional()
     .describe(
       "URL of the tileset.json file. Required when type is 'url'. " +
@@ -41,7 +41,7 @@ export const TilesetAddInputSchema = z.object({
  * Input schema for tileset_remove tool
  * Removes a 3D tileset from the scene
  */
-export const TilesetRemoveInputSchema = z.object({
+const _TilesetRemoveBase = z.object({
   tilesetId: z
     .string()
     .optional()
@@ -54,6 +54,17 @@ export const TilesetRemoveInputSchema = z.object({
     .optional()
     .describe("Remove all loaded tilesets from the scene"),
 });
+
+export const TilesetRemoveInputSchema = _TilesetRemoveBase.refine(
+  (data) =>
+    data.tilesetId !== undefined ||
+    data.name !== undefined ||
+    data.removeAll === true,
+  { message: "At least one of tilesetId, name, or removeAll must be provided" },
+);
+
+// Raw shape for MCP inputSchema registration (.shape is not available on ZodEffects)
+export const TilesetRemoveInputShape = _TilesetRemoveBase.shape;
 
 /**
  * Input schema for tileset_list tool

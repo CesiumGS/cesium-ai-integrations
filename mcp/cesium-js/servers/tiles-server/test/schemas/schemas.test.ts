@@ -97,11 +97,14 @@ describe("Tiles Schemas", () => {
       expect(result.removeAll).toBe(true);
     });
 
-    it("should accept empty object (validation is in tool handler)", () => {
-      const result = TilesetRemoveInputSchema.parse({});
-      expect(result.tilesetId).toBeUndefined();
-      expect(result.name).toBeUndefined();
-      expect(result.removeAll).toBeUndefined();
+    it("should reject empty object (schema-level guard)", () => {
+      const result = TilesetRemoveInputSchema.safeParse({});
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toContain(
+          "At least one of tilesetId, name, or removeAll must be provided",
+        );
+      }
     });
   });
 

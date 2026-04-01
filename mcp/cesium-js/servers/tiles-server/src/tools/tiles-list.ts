@@ -60,7 +60,6 @@ export function registerTilesetList(
             tilesets,
             totalCount: result.totalCount ?? tilesets.length,
             stats: {
-              totalTilesets: tilesets.length,
               responseTime,
             },
           };
@@ -84,7 +83,6 @@ export function registerTilesetList(
           tilesets: [],
           totalCount: 0,
           stats: {
-            totalTilesets: 0,
             responseTime: 0,
           },
         };

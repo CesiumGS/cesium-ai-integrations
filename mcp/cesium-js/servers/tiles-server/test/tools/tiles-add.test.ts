@@ -114,6 +114,17 @@ describe("registerTilesetAdd", () => {
       expect(response.structuredContent.name).toBe("ion");
     });
 
+    it("should use result.name from browser when user provides no name", async () => {
+      mockCommunicationServer.executeCommand.mockResolvedValue({
+        success: true,
+        tilesetId: "ts-browser-named",
+        name: "Browser Assigned Name",
+      });
+
+      const response = await registeredHandler({ type: "ion", assetId: 1 });
+      expect(response.structuredContent.name).toBe("Browser Assigned Name");
+    });
+
     it("should include totalTilesets in stats", async () => {
       mockCommunicationServer.executeCommand.mockResolvedValue({
         success: true,

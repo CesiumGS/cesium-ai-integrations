@@ -19,6 +19,7 @@ export {
 export {
   TilesetAddInputSchema,
   TilesetRemoveInputSchema,
+  TilesetRemoveInputShape,
   TilesetListInputSchema,
   TilesetStyleInputSchema,
   type TilesetAddInput,

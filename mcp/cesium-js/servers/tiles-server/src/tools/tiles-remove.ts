@@ -1,6 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import {
-  TilesetRemoveInputSchema,
+  TilesetRemoveInputShape,
   TilesetRemoveResponseSchema,
   type TilesetRemoveInput,
 } from "../schemas/index.js";
@@ -32,7 +32,7 @@ export function registerTilesetRemove(
         "Remove a 3D tileset from the Cesium scene. Identify the tileset to " +
         "remove by its tilesetId (returned by tileset_add), by name, or set " +
         "removeAll=true to remove all loaded tilesets at once.",
-      inputSchema: TilesetRemoveInputSchema.shape,
+      inputSchema: TilesetRemoveInputShape,
       outputSchema: TilesetRemoveResponseSchema.shape,
     },
     async ({ tilesetId, name, removeAll = false }: TilesetRemoveInput) => {
