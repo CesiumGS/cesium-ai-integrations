@@ -11,7 +11,7 @@ pnpm monorepo containing MCP servers and test applications for controlling [Cesi
 | [`@cesium-mcp/entity-server`](./servers/entity-server/README.md)                | Entity management: points, billboards, labels, models, polygons, polylines, and more | 3003 |
 | [`@cesium-mcp/animation-server`](./servers/animation-server/README.md)          | Path-based animations, clock control, camera tracking, globe lighting                | 3004 |
 | [`@cesium-mcp/imagery-server`](./servers/imagery-server/README.md)              | Imagery layer management: add, remove, and list imagery providers                    | 3005 |
-| [`@cesium-mcp/tiles-server`](./servers/tiles-server/README.md)                  | 3D Tiles management: add, remove, and configure 3D Tilesets                          | 3009 |
+| [`@cesium-mcp/tiles-server`](./servers/tiles-server/README.md)                  | 3D Tiles management: add, remove, and configure 3D Tilesets                          | 3006 |
 | [`@cesium-mcp/terrain-server`](./servers/terrain-server/README.md)              | Terrain provider management: set, get, and remove terrain sources                    | 3007 |
 | [`@cesium-mcp/client-core`](./test-applications/packages/client-core/README.md) | Shared browser client library (managers, communications)                             | —    |
 | [`@cesium-mcp/cesium-js`](./test-applications/README.md)                        | Browser web application (CesiumJS viewer)                                            | 8080 |
@@ -149,7 +149,7 @@ pnpm run dev:camera        # Camera server on port 3002
 pnpm run dev:entity        # Entity server on port 3003
 pnpm run dev:animation     # Animation server on port 3004
 pnpm run dev:imagery       # Imagery server on port 3005
-pnpm run dev:tiles         # Tiles server on port 3009
+pnpm run dev:tiles         # Tiles server on port 3006
 pnpm run dev:terrain       # Terrain server on port 3007
 ```
 
