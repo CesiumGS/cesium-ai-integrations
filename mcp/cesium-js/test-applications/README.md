@@ -66,7 +66,11 @@ cp .env.example .env
 
 ```bash
 # From mcp/cesium-js directory
-pnpm run dev:camera
+pnpm run dev:camera      # Port 3002
+pnpm run dev:entity      # Port 3003
+pnpm run dev:animation   # Port 3004
+pnpm run dev:imagery     # Port 3005
+pnpm run dev:tiles       # Port 3009
 ```
 
 ### 3. Run Web Application
@@ -110,6 +114,10 @@ Create `web-app/.env`:
 CESIUM_ACCESS_TOKEN=your_token_here
 MCP_PROTOCOL=websocket
 MCP_CAMERA_PORT=3002
+MCP_ENTITY_PORT=3003
+MCP_ANIMATION_PORT=3004
+MCP_IMAGERY_PORT=3005
+MCP_TILES_PORT=3006
 ```
 
 These variables are injected at build time by esbuild and accessed via `process.env` in the application code.
