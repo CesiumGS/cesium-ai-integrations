@@ -1,11 +1,11 @@
 {
-  "name": "@cesium-mcp/imagery-server",
+  "name": "@cesium-mcp/gateway",
   "version": "1.0.0",
-  "description": "MCP server for Cesium imagery layer management operations",
+  "description": "Unified MCP gateway server that combines all Cesium domain servers into a single process",
   "type": "module",
   "main": "./build/index.js",
   "bin": {
-    "cesium-imagery-mcp": "./build/index.js"
+    "cesium-gateway-mcp": "./build/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -19,17 +19,22 @@
   "keywords": [
     "mcp",
     "cesium",
-    "imagery",
+    "gateway",
     "3d",
     "geospatial"
   ],
   "license": "Apache-2.0",
   "exports": {
-    ".": "./build/index.js",
-    "./tools": "./build/tools/index.js"
+    ".": "./build/index.js"
   },
   "dependencies": {
     "@cesium-mcp/shared": "workspace:*",
+    "@cesium-mcp/camera-server": "workspace:*",
+    "@cesium-mcp/entity-server": "workspace:*",
+    "@cesium-mcp/animation-server": "workspace:*",
+    "@cesium-mcp/imagery-server": "workspace:*",
+    "@cesium-mcp/tiles-server": "workspace:*",
+    "@cesium-mcp/terrain-server": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.26.0",
     "dotenv": "^16.4.7",
     "zod": "^4.3.6"

@@ -9,7 +9,8 @@
   },
   "exports": {
     ".": "./build/index.js",
-    "./schemas": "./build/schemas.js"
+    "./schemas": "./build/schemas.js",
+    "./tools": "./build/tools/index.js"
   },
   "scripts": {
     "build": "tsc",

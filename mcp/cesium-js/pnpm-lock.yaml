@@ -159,6 +159,58 @@ importers:
         specifier: ^4.0.18
         version: 4.0.18(@types/node@25.3.3)(@vitest/ui@4.0.18)(tsx@4.21.0)
 
+  servers/gateway:
+    dependencies:
+      '@cesium-mcp/animation-server':
+        specifier: workspace:*
+        version: link:../animation-server
+      '@cesium-mcp/camera-server':
+        specifier: workspace:*
+        version: link:../camera-server
+      '@cesium-mcp/entity-server':
+        specifier: workspace:*
+        version: link:../entity-server
+      '@cesium-mcp/imagery-server':
+        specifier: workspace:*
+        version: link:../imagery-server
+      '@cesium-mcp/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@cesium-mcp/terrain-server':
+        specifier: workspace:*
+        version: link:../terrain-server
+      '@cesium-mcp/tiles-server':
+        specifier: workspace:*
+        version: link:../tiles-server
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.26.0
+        version: 1.27.1(zod@4.3.6)
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.6.1
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+    devDependencies:
+      '@types/node':
+        specifier: ^25.2.2
+        version: 25.3.3
+      '@vitest/coverage-v8':
+        specifier: ^4.0.18
+        version: 4.0.18(vitest@4.0.18)
+      '@vitest/ui':
+        specifier: ^4.0.18
+        version: 4.0.18(vitest@4.0.18)
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.18
+        version: 4.0.18(@types/node@25.3.3)(@vitest/ui@4.0.18)(tsx@4.21.0)
+
   servers/imagery-server:
     dependencies:
       '@cesium-mcp/shared':
