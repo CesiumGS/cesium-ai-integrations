@@ -68,41 +68,41 @@ export class DomainRegistry {
   }
 
   /**
-   * Disable all tools in a domain.
+   * Set the enabled state for all tools in a domain.
+   * Returns true if the domain exists, false otherwise.
    */
-  disableDomain(name: string): boolean {
+  private setDomainEnabled(name: string, enabled: boolean): boolean {
     const domain = this.domains.get(name);
     if (!domain) {
       return false;
     }
-    if (!domain.enabled) {
+    if (domain.enabled === enabled) {
       return true;
     }
 
     for (const tool of domain.tools.values()) {
-      tool.disable();
+      if (enabled) {
+        tool.enable();
+      } else {
+        tool.disable();
+      }
     }
-    domain.enabled = false;
+    domain.enabled = enabled;
     return true;
+  }
+
+  /**
+   * Disable all tools in a domain.
+   */
+  disableDomain(name: string): boolean {
+    return this.setDomainEnabled(name, false);
   }
 
   /**
    * Enable all tools in a domain.
    */
   enableDomain(name: string): boolean {
-    const domain = this.domains.get(name);
-    if (!domain) {
-      return false;
-    }
-    if (domain.enabled) {
-      return true;
-    }
-
-    for (const tool of domain.tools.values()) {
-      tool.enable();
-    }
-    domain.enabled = true;
-    return true;
+    return this.setDomainEnabled(name, true);
   }
 
   /**

@@ -93,13 +93,13 @@ Manage terrain providers on the CesiumJS globe.
 
 Unified gateway that aggregates multiple domain servers behind a single MCP endpoint and exposes meta-tools for runtime domain discovery. Helps keep the active tool surface small when many servers would otherwise be connected at once.
 
-| Tool                     | Description                                                   |
-| ------------------------ | ------------------------------------------------------------- |
-| `gateway_list_domains`   | List all domains with enabled/disabled status and tool counts |
-| `gateway_enable_domain`  | Enable all tools in a domain at runtime                       |
-| `gateway_disable_domain` | Disable all tools in a domain at runtime                      |
+| Tool                    | Description                                                   |
+| ----------------------- | ------------------------------------------------------------- |
+| `cesium_list_domains`   | List all domains with enabled/disabled status and tool counts |
+| `cesium_enable_domain`  | Enable all tools in a domain at runtime                       |
+| `cesium_disable_domain` | Disable all tools in a domain at runtime                      |
 
-The set of domains started at boot is controlled by the `GATEWAY_DOMAINS` environment variable (comma-separated, case-insensitive; omitted or empty means enable all).
+The set of domains started at boot is controlled by the `CESIUM_DOMAINS` environment variable (comma-separated, case-insensitive; omitted or empty means enable all).
 
 ## 🏗️ Structure
 
