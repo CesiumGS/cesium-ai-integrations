@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/cesiumgs-cesium-ai-integrations-badge.png)](https://mseep.ai/app/cesiumgs-cesium-ai-integrations)
+
 # Cesium AI Integrations
 
 [Cesium](https://cesium.com/) :earth_asia: [CesiumJS](https://cesium.com/cesiumjs) :earth_americas: [Forum](https://community.cesium.com/) :earth_africa: [Issues](https://github.com/CesiumGS/cesium-ai-integrations/issues)
