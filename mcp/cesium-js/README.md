@@ -13,6 +13,7 @@ pnpm monorepo containing MCP servers and test applications for controlling [Cesi
 | [`@cesium-mcp/imagery-server`](./servers/imagery-server/README.md)              | Imagery layer management: add, remove, and list imagery providers                    | 3005 |
 | [`@cesium-mcp/tiles-server`](./servers/tiles-server/README.md)                  | 3D Tiles management: add, remove, and configure 3D Tilesets                          | 3006 |
 | [`@cesium-mcp/terrain-server`](./servers/terrain-server/README.md)              | Terrain provider management: set, get, and remove terrain sources                    | 3007 |
+| [`@cesium-mcp/gateway`](./servers/gateway/README.md)                            | Unified gateway aggregating multiple domain servers with runtime enable/disable      | 3010 |
 | [`@cesium-mcp/client-core`](./test-applications/packages/client-core/README.md) | Shared browser client library (managers, communications)                             | —    |
 | [`@cesium-mcp/cesium-js`](./test-applications/README.md)                        | Browser web application (CesiumJS viewer)                                            | 8080 |
 
@@ -88,6 +89,18 @@ Manage terrain providers on the CesiumJS globe.
 | `terrain_get`    | Get current terrain provider info and capabilities  |
 | `terrain_remove` | Remove terrain and reset to flat WGS84 ellipsoid    |
 
+### 🧭 [cesium-gateway](./servers/gateway/README.md)
+
+Unified gateway that aggregates multiple domain servers behind a single MCP endpoint and exposes meta-tools for runtime domain discovery. Helps keep the active tool surface small when many servers would otherwise be connected at once.
+
+| Tool                    | Description                                                   |
+| ----------------------- | ------------------------------------------------------------- |
+| `cesium_list_domains`   | List all domains with enabled/disabled status and tool counts |
+| `cesium_enable_domain`  | Enable all tools in a domain at runtime                       |
+| `cesium_disable_domain` | Disable all tools in a domain at runtime                      |
+
+The set of domains started at boot is controlled by the `CESIUM_DOMAINS` environment variable (comma-separated, case-insensitive; omitted or empty means enable all).
+
 ## 🏗️ Structure
 
 ```
@@ -99,7 +112,8 @@ cesium-js/
 │   ├── animation-server/    # @cesium-mcp/animation-server
 │   ├── imagery-server/      # @cesium-mcp/imagery-server
 │   ├── tiles-server/        # @cesium-mcp/tiles-server
-│   └── terrain-server/      # @cesium-mcp/terrain-server
+│   ├── terrain-server/      # @cesium-mcp/terrain-server
+│   └── gateway/             # @cesium-mcp/gateway
 ├── test-applications/
 │   ├── packages/
 │   │   └── client-core/     # @cesium-mcp/client-core
@@ -136,6 +150,7 @@ pnpm run build:animation    # @cesium-mcp/animation-server only
 pnpm run build:imagery      # @cesium-mcp/imagery-server only
 pnpm run build:tiles        # @cesium-mcp/tiles-server only
 pnpm run build:terrain      # @cesium-mcp/terrain-server only
+pnpm run build:gateway      # @cesium-mcp/gateway only
 pnpm run build:cesium-js    # @cesium-mcp/cesium-js (web app) only
 pnpm run clean              # Remove all build artifacts
 ```
@@ -151,6 +166,7 @@ pnpm run dev:animation     # Animation server on port 3004
 pnpm run dev:imagery       # Imagery server on port 3005
 pnpm run dev:tiles         # Tiles server on port 3006
 pnpm run dev:terrain       # Terrain server on port 3007
+pnpm run dev:gateway       # Gateway on port 3010
 ```
 
 ### Web Application
@@ -231,6 +247,16 @@ Add the servers to your MCP client (e.g., Claude Desktop, Cline):
       "env": {
         "COMMUNICATION_PROTOCOL": "websocket",
         "TERRAIN_SERVER_PORT": "3007",
+        "STRICT_PORT": "false"
+      }
+    },
+    "cesium-gateway": {
+      "command": "node",
+      "args": ["{YOUR_WORKSPACE}/mcp/cesium-js/servers/gateway/build/index.js"],
+      "env": {
+        "COMMUNICATION_PROTOCOL": "websocket",
+        "GATEWAY_SERVER_PORT": "3010",
+        "GATEWAY_DOMAINS": "camera,entity,animation,imagery,tiles,terrain",
         "STRICT_PORT": "false"
       }
     }

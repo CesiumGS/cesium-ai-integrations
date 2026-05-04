@@ -4,6 +4,10 @@
   "description": "MCP server for Cesium animation, path-based entity control, and clock management",
   "type": "module",
   "main": "build/index.js",
+  "exports": {
+    ".": "./build/index.js",
+    "./tools": "./build/tools/index.js"
+  },
   "bin": {
     "cesium-animation-mcp": "./build/index.js"
   },

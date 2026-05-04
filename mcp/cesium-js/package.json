@@ -5,7 +5,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "pnpm run build:shared && pnpm run build:camera && pnpm run build:entity && pnpm run build:animation && pnpm run build:imagery && pnpm run build:tiles && pnpm run build:terrain && pnpm run build:cesium-js",
+    "build": "pnpm run build:shared && pnpm run build:camera && pnpm run build:entity && pnpm run build:animation && pnpm run build:imagery && pnpm run build:tiles && pnpm run build:terrain && pnpm run build:gateway && pnpm run build:cesium-js",
     "build:shared": "pnpm --filter @cesium-mcp/shared build",
     "build:camera": "pnpm --filter @cesium-mcp/camera-server build",
     "build:entity": "pnpm --filter @cesium-mcp/entity-server build",
@@ -13,6 +13,7 @@
     "build:imagery": "pnpm --filter @cesium-mcp/imagery-server build",
     "build:tiles": "pnpm --filter @cesium-mcp/tiles-server build",
     "build:terrain": "pnpm --filter @cesium-mcp/terrain-server build",
+    "build:gateway": "pnpm --filter @cesium-mcp/gateway build",
     "build:cesium-js": "pnpm --filter @cesium-mcp/cesium-js build",
     "dev:camera": "pnpm --filter @cesium-mcp/camera-server dev",
     "dev:entity": "pnpm --filter @cesium-mcp/entity-server dev",
@@ -20,6 +21,7 @@
     "dev:imagery": "pnpm --filter @cesium-mcp/imagery-server dev",
     "dev:tiles": "pnpm --filter @cesium-mcp/tiles-server dev",
     "dev:terrain": "pnpm --filter @cesium-mcp/terrain-server dev",
+    "dev:gateway": "pnpm --filter @cesium-mcp/gateway dev",
     "start:web": "pnpm --filter @cesium-mcp/cesium-js start:web",
     "clean": "pnpm -r run clean",
     "lint": "eslint .",
@@ -34,7 +36,8 @@
     "test:animation": "pnpm --filter @cesium-mcp/animation-server test",
     "test:imagery": "pnpm --filter @cesium-mcp/imagery-server test",
     "test:tiles": "pnpm --filter @cesium-mcp/tiles-server test",
-    "test:terrain": "pnpm --filter @cesium-mcp/terrain-server test"
+    "test:terrain": "pnpm --filter @cesium-mcp/terrain-server test",
+    "test:gateway": "pnpm --filter @cesium-mcp/gateway test"
   },
   "keywords": [
     "mcp",
