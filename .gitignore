@@ -25,3 +25,23 @@ Thumbs.db
 .copilot/*
 
 .worktrees/
+
+.venv
+
+# Environment secrets
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
