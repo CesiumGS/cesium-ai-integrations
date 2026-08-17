@@ -11,7 +11,7 @@
 >
 > | What you need | Go here |
 > |---|---|
-> | Starter app with AI assistant integration (MCP tools, camera control, entity management, plus support for connecting external MCP servers) | [**cesiumjs-ai-starter-app**](https://github.com/CesiumGS/cesiumjs-ai-starter-app) — see the [docs](https://cesiumgs.github.io/cesiumjs-ai-starter-app/) |
+> | Starter app with AI assistant integration (viewer tools for camera control, entity management, 3D Tiles, imagery, and terrain; a code generation tool; plus support for connecting external MCP servers) | [**cesiumjs-ai-starter-app**](https://github.com/CesiumGS/cesiumjs-ai-starter-app) — see the [docs](https://cesiumgs.github.io/cesiumjs-ai-starter-app/) |
 > | Code generation and development use cases with agent skills | [**cesiumjs-skills**](https://github.com/CesiumGS/cesiumjs-skills) — see the [tutorials](https://cesium.com/learn/cesiumjs-learn/build-a-cesiumjs-app-with-ai/) |
 >
 > ### What changed
