@@ -4,6 +4,34 @@
 
 ---
 
+> [!WARNING]
+> **This repository is deprecated.** Active development has moved to purpose-built repositories. Please migrate to the resources below.
+>
+> ### Where to go instead
+>
+> | What you need | Go here |
+> |---|---|
+> | Starter app with AI assistant integration (viewer tools for camera control, entity management, 3D Tiles, imagery, and terrain; a code generation tool; plus support for connecting external MCP servers) | [**cesiumjs-ai-starter-app**](https://github.com/CesiumGS/cesiumjs-ai-starter-app) — see the [docs](https://cesiumgs.github.io/cesiumjs-ai-starter-app/) |
+> | Code generation and development use cases with agent skills | [**cesiumjs-skills**](https://github.com/CesiumGS/cesiumjs-skills) — see the [tutorials](https://cesium.com/learn/cesiumjs-learn/build-a-cesiumjs-app-with-ai/) |
+>
+> ### What changed
+>
+> #### Architecture: WebSocket bridge → Built-in Viewer Tools + WebMCP
+>
+> This repository exposed CesiumJS viewer capabilities to AI assistants by running a local WebSocket-based MCP server that bridged messages between the AI and the browser. While useful for experimentation, this approach has meaningful limitations for production use: it requires every user to run a separate local server process, ties the session to a single browser tab, and does not scale — there is no clean path to a hosted or multi-user deployment.
+>
+> The **[cesiumjs-ai-starter-app](https://github.com/CesiumGS/cesiumjs-ai-starter-app)** replaces this pattern with approaches suitable for production, and its [architecture docs](https://cesiumgs.github.io/cesiumjs-ai-starter-app/architectures/architecture/) walk through how to design a production-ready Cesium + AI app:
+>
+> - **AI SDK tools with built-in chat interface** — CesiumJS viewer capabilities (camera, entities, 3D Tiles, terrain, imagery) and a code generation tool are implemented as [AI SDK](https://sdk.vercel.ai/) tools and shipped alongside a fully integrated chat UI, giving you a deployable production app out of the box. 
+> - **External MCP servers support** — connect third-party MCP tool servers into the same agent loop via an optional MCP client bridge, including [MCP Apps](https://modelcontextprotocol.io/extensions/apps/overview) that render interactive `ui://` widgets returned by those servers
+> - **[WebMCP](https://developer.chrome.com/docs/ai/webmcp) (experimental)** — registers the app's viewer tools directly on `document.modelContext` via the browser-native WebMCP Imperative API, so an agent already running in the same browser tab (Chrome's built-in AI, or an extension like the Model Context Tool Inspector) can discover and call tools against the live `Viewer` with no network hop or server process. With an additional bridge (e.g. [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) has `execute_webmcp_tool`, `list_webmcp_tools` tools), these WebMCP tools can also be exposed to external AI providers such as Claude or GitHub Copilot
+>
+> For **code generation and IDE workflows**, the **[cesiumjs-skills](https://github.com/CesiumGS/cesiumjs-skills)** repository provides agent skills that activate CesiumJS-specific capabilities directly inside AI coding assistants.
+>
+> This repository will remain available for reference but will not receive further updates.
+
+---
+
 Cesium AI Integrations is a collection of reference integrations, experiments, and patterns that connect the Cesium ecosystem with AI systems such as LLMs, retrieval pipelines, and agent workflows. The goal is to help developers build geospatially aware applications that can reason about 3D data and geospatial context.
 
 Built on open standards, these integrations are designed to be modular, composable, and easy to adapt for real-world products.
